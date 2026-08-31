@@ -101,9 +101,26 @@ export default function ShopScreen({ defaultCategory = "" }) {
   const [groupedCategories, setGroupedCategories] = useState<Record<string, Category[]>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [gridCols, setGridCols] = useState(2);
+  const [activeLocation, setActiveLocation] = useState<{
+    latitude?: number;
+    longitude?: number;
+  }>({
+    latitude: user?.latitude,
+    longitude: user?.longitude,
+  });
 
   const { fetchingLocation, fetchLocation } = useFetchLocation();
-  const hasLocation = Boolean(user?.latitude && user?.longitude);
+  const hasLocation = Boolean(
+    (activeLocation.latitude ?? user?.latitude) &&
+      (activeLocation.longitude ?? user?.longitude)
+  );
+
+  useEffect(() => {
+    setActiveLocation({
+      latitude: user?.latitude,
+      longitude: user?.longitude,
+    });
+  }, [user?.latitude, user?.longitude]);
 
   // Calculate distance between two coordinates
   const calculateDistance = useCallback(
@@ -498,7 +515,10 @@ export default function ShopScreen({ defaultCategory = "" }) {
             <TouchableOpacity
               style={styles.fetchLocationBtn}
               onPress={() =>
-                fetchLocation((location) => fetchProducts(true, location))
+                fetchLocation((location) => {
+                  setActiveLocation(location);
+                  fetchProducts(true, location);
+                })
               }
               disabled={fetchingLocation}
             >
@@ -564,7 +584,10 @@ export default function ShopScreen({ defaultCategory = "" }) {
           <TouchableOpacity
             style={styles.updateLocationBtn}
             onPress={() =>
-              fetchLocation((location) => fetchProducts(true, location))
+              fetchLocation((location) => {
+                setActiveLocation(location);
+                fetchProducts(true, location);
+              })
             }
             disabled={fetchingLocation}
           >
@@ -857,7 +880,10 @@ export default function ShopScreen({ defaultCategory = "" }) {
                 <TouchableOpacity
                   style={styles.refetchLocationBtn}
                   onPress={() =>
-                    fetchLocation((location) => fetchProducts(true, location))
+                    fetchLocation((location) => {
+                      setActiveLocation(location);
+                      fetchProducts(true, location);
+                    })
                   }
                   disabled={fetchingLocation}
                 >
