@@ -51,21 +51,20 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          animationEnabled: true,
         }}
       >
         {isSignedIn ? (
           <Stack.Screen
             name="(tabs)"
             options={{
-              animationTypeForReplace: true,
+              animationTypeForReplace: isSignedIn ? "default" : "slide_from_right",
             }}
           />
         ) : (
           <Stack.Screen
             name="auth"
             options={{
-              animationTypeForReplace: true,
+              animationTypeForReplace: "slide_from_right",
             }}
           />
         )}
