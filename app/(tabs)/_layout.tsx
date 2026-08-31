@@ -1,37 +1,13 @@
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import colors from "@/config/colors";
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function HapticTab({
-  onPress,
-  onLongPress,
-  isFocused,
-}: {
-  onPress: () => void;
-  onLongPress: () => void;
-  isFocused: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        opacity: isFocused ? 1 : 0.5,
-      }}
-    >
-    </Pressable>
-  );
-}
+import { colors } from "@/config/colors";
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8);
+
   return (
     <Tabs
       screenOptions={{
@@ -41,9 +17,16 @@ export default function TabLayout() {
           backgroundColor: colors.white,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 65,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 56 + bottomInset,
+          paddingBottom: bottomInset,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+        },
+        tabBarIconStyle: {
+          marginBottom: 1,
         },
         headerShown: false,
       }}
@@ -53,11 +36,10 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, focused }) => (
-            <Feather
-              name="home"
-              size={28}
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={24}
               color={color}
-              weight={focused ? "bold" : "regular"}
             />
           ),
           tabBarLabel: "Home",
@@ -68,11 +50,10 @@ export default function TabLayout() {
         options={{
           title: "Food",
           tabBarIcon: ({ color, focused }) => (
-            <Feather
-              name="fork-knife"
-              size={28}
+            <Ionicons
+              name={focused ? "restaurant" : "restaurant-outline"}
+              size={24}
               color={color}
-              weight={focused ? "bold" : "regular"}
             />
           ),
           tabBarLabel: "Food",
@@ -83,11 +64,10 @@ export default function TabLayout() {
         options={{
           title: "Cart",
           tabBarIcon: ({ color, focused }) => (
-            <Feather
-              name="shopping-cart"
-              size={28}
+            <Ionicons
+              name={focused ? "cart" : "cart-outline"}
+              size={24}
               color={color}
-              weight={focused ? "bold" : "regular"}
             />
           ),
           tabBarLabel: "Cart",
@@ -98,11 +78,10 @@ export default function TabLayout() {
         options={{
           title: "Orders",
           tabBarIcon: ({ color, focused }) => (
-            <Feather
-              name="list"
-              size={28}
+            <Ionicons
+              name={focused ? "receipt" : "receipt-outline"}
+              size={24}
               color={color}
-              weight={focused ? "bold" : "regular"}
             />
           ),
           tabBarLabel: "Orders",
@@ -113,11 +92,10 @@ export default function TabLayout() {
         options={{
           title: "More",
           tabBarIcon: ({ color, focused }) => (
-            <Feather
-              name="menu"
-              size={28}
+            <Ionicons
+              name={focused ? "menu" : "menu-outline"}
+              size={24}
               color={color}
-              weight={focused ? "bold" : "regular"}
             />
           ),
           tabBarLabel: "More",
