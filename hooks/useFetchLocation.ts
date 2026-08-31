@@ -3,12 +3,6 @@ import { AuthContext } from "@/context/AuthContext";
 import * as Location from "expo-location";
 import { useCallback, useContext, useState } from "react";
 
-interface LocationCoords {
-  latitude: number;
-  longitude: number;
-  accuracy?: number;
-}
-
 export function useFetchLocation() {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -44,19 +38,34 @@ export function useFetchLocation() {
 
           const geoData = reverseGeo[0] || {};
 
-          // Update user location in backend
+          // Update user location in backend. Some backend profile updates require
+          // username and email to be present even when only changing location data.
           if (user?.id) {
-            await api.put("/auth/profile", {
-              latitude,
-              longitude,
-              location_name: `${geoData.city}, ${geoData.region}`,
-              area: geoData.city,
-              district: geoData.region,
-              pincode: geoData.postalCode,
-            });
+            const profileResponse = await api.get("/auth/profile").catch(() => null);
+            const profileUser = profileResponse?.data?.user || profileResponse?.data || user || {};
 
-            // Update local auth context by fetching fresh profile
-            await api.get("/auth/profile");
+            const username = profileUser.username || user?.username || user?.name || "";
+            const email = profileUser.email || user?.email || "";
+
+            if (!username || !email) {
+              console.warn(
+                "Skipping profile location update because username/email are missing for this user profile."
+              );
+            } else {
+              await api.put("/auth/profile", {
+                ...profileUser,
+                username,
+                email,
+                latitude,
+                longitude,
+                location_name: `${geoData.city || profileUser.area || user?.area || ""}, ${geoData.region || profileUser.district || user?.district || ""}`.replace(/^,|,$/g, "").trim() || user?.location_name || "",
+                area: geoData.city || profileUser.area || user?.area || "",
+                district: geoData.region || profileUser.district || user?.district || "",
+                pincode: geoData.postalCode || profileUser.pincode || user?.pincode || "",
+              });
+
+              await api.get("/auth/profile");
+            }
           }
 
           // Call the success callback
@@ -79,7 +88,7 @@ export function useFetchLocation() {
         setFetchingLocation(false);
       }
     },
-    [user?.id]
+    [user]
   );
 
   return { fetchingLocation, locationError, fetchLocation };
