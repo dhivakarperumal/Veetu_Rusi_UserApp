@@ -30,7 +30,7 @@ interface StoreContextType {
   setLastChefFoodsFetchTime: (time: number | null) => void;
 }
 
-const StoreContext = createContext<StoreContextType | undefined>(undefined);
+export const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [chefFoodsCache, setChefFoodsCache] = useState<Product[]>([]);
