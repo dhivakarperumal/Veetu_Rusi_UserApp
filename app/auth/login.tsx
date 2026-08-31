@@ -1,5 +1,6 @@
 import { colors } from "@/config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -14,7 +15,7 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import api from "../api";
+import api, { setAuthToken } from "../api";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -52,13 +53,13 @@ export default function LoginScreen() {
       const userRole = res.data.user.role;
       setTimeout(() => {
         if (userRole === "superadmin") {
-          router.replace("/superadmin");
+          router.replace("/superadmin" as any);
         } else if (userRole === "admin") {
-          router.replace("/admin");
+          router.replace("/admin" as any);
         } else if (userRole === "delivery_partner") {
-          router.replace("/delivery");
+          router.replace("/delivery" as any);
         } else if (userRole === "homechef" || userRole === "chef") {
-          router.replace("/chef");
+          router.replace("/chef" as any);
         } else {
           router.replace("/(tabs)");
         }
@@ -406,7 +407,7 @@ export default function LoginScreen() {
                   fontWeight: "500",
                 }}
               >
-                Don't have an account?{" "}
+                {"Don't have an account? "}
               </Text>
               <Link href="/auth/register" asChild>
                 <TouchableOpacity>

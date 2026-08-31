@@ -47,7 +47,7 @@ export default function MoreScreen() {
               await AsyncStorage.removeItem("userToken");
               await AsyncStorage.removeItem("userProfile");
               router.replace("/auth/login");
-            } catch (error) {
+            } catch {
               Alert.alert("Error", "Failed to logout. Please try again.");
             } finally {
               setLoading(false);

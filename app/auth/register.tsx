@@ -20,13 +20,19 @@ export default function RegisterScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
+  const initialReferral = (
+    Array.isArray(params.referral_code)
+      ? params.referral_code[0]
+      : params.referral_code || (Array.isArray(params.ref) ? params.ref[0] : params.ref) || ""
+  ) as string;
+
   const [form, setForm] = useState({
     username: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-    referral_code: params.referral_code || "",
+    referral_code: initialReferral,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -34,9 +40,10 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (params.ref || params.referral_code) {
-      const referral = (params.ref || params.referral_code) as string;
-      setForm((prev) => ({ ...prev, referral_code: referral.trim() }));
+    const rawRef = params.ref || params.referral_code;
+    if (rawRef) {
+      const referral = Array.isArray(rawRef) ? rawRef[0] : rawRef;
+      setForm((prev) => ({ ...prev, referral_code: (referral || "").trim() }));
     }
   }, [params.ref, params.referral_code]);
 

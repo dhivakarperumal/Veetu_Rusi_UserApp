@@ -225,7 +225,7 @@ export default function ForgotPasswordScreen() {
                     marginTop: 8,
                   }}
                 >
-                  We've sent password reset instructions to your email.
+                  {"We've sent password reset instructions to your email."}
                 </Text>
               </View>
             )}

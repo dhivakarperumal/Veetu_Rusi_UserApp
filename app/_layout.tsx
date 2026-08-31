@@ -47,22 +47,14 @@ export default function RootLayout() {
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName={isSignedIn ? "(tabs)" : "auth"}
     >
-      {isSignedIn ? (
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            animationEnabled: false,
-          }}
-        />
-      ) : (
-        <Stack.Screen
-          name="auth"
-          options={{
-            animationEnabled: false,
-          }}
-        />
-      )}
+      <Stack.Screen
+        name="(tabs)"
+      />
+      <Stack.Screen
+        name="auth"
+      />
     </Stack>
   );
 }
