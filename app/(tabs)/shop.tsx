@@ -834,10 +834,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
                 }}
               >
                 {currentProducts.map((product) => (
-                  <View
-                    key={product.id}
-                    style={{ width: showFilters ? "48%" : "48%" }}
-                  >
+                  <View key={product.id} style={{ width: "100%" }}>
                     <ProductCard product={product} />
                   </View>
                 ))}

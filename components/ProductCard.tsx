@@ -1,4 +1,5 @@
 import { colors } from "@/config/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -37,9 +38,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const price = toNumber(product.final_price ?? product.offer_price ?? product.mrp ?? 0);
   const originalPrice = toNumber(product.mrp ?? 0);
   const discount = toNumber(product.offer ?? 0);
+  const rating = toNumber(product.rating ?? product.average_rating ?? product.star_rating ?? 4.5);
+  const chefName = product.chef_name || product.homeChefName || product.vendor_name || "Home Chef";
 
   const handlePress = () => {
-    // Navigate to product detail screen
     router.push({
       pathname: "/product/[id]",
       params: { id: product.id },
@@ -50,9 +52,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     <TouchableOpacity
       onPress={handlePress}
       style={styles.container}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
-      {/* Image Container */}
       <View style={styles.imageContainer}>
         {product.image ? (
           <Image
@@ -66,86 +67,72 @@ export default function ProductCard({ product }: ProductCardProps) {
           </View>
         )}
 
-        {/* Discount Badge */}
         {discount > 0 && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{discount}% OFF</Text>
           </View>
         )}
-
-        {/* Status Badge */}
-        {product.status && (
-          <View
-            style={[
-              styles.statusBadge,
-              {
-                backgroundColor:
-                  product.status.toLowerCase() === "active"
-                    ? colors.success
-                    : colors.warning,
-              },
-            ]}
-          >
-            <Text style={styles.statusText}>
-              {product.status.charAt(0).toUpperCase() +
-                product.status.slice(1).toLowerCase()}
-            </Text>
-          </View>
-        )}
       </View>
 
-      {/* Content Container */}
       <View style={styles.content}>
-        {/* Chef Name */}
-        {product.chef_name && (
-          <Text style={styles.chefName} numberOfLines={1}>
-            {product.chef_name}
-          </Text>
-        )}
-
-        {/* Product Name */}
         <Text style={styles.productName} numberOfLines={2}>
           {product.name}
         </Text>
 
-        {/* Category */}
-        {product.category && (
-          <Text style={styles.category} numberOfLines={1}>
-            {product.category}
-          </Text>
-        )}
-
-        {/* Price Section */}
-        <View style={styles.priceContainer}>
-          <Text style={styles.currentPrice}>₹{price.toFixed(0)}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.price}>₹{price.toFixed(0)}</Text>
           {originalPrice > price && (
             <Text style={styles.originalPrice}>₹{originalPrice.toFixed(0)}</Text>
           )}
         </View>
 
-        {/* Add to Cart Button */}
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add to Cart</Text>
-        </TouchableOpacity>
+        <View style={styles.ratingRow}>
+          <MaterialCommunityIcons name="star" size={14} color={colors.warning} />
+          <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+        </View>
+
+        {chefName && (
+          <Text style={styles.chefName} numberOfLines={1}>
+            {chefName}
+          </Text>
+        )}
       </View>
+
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={(event) => {
+          event.stopPropagation();
+        }}
+      >
+        <MaterialCommunityIcons name="plus" size={20} color={colors.primary} />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.white,
-    borderRadius: 12,
-    overflow: "hidden",
+    borderRadius: 18,
+    padding: 8,
     borderWidth: 1,
     borderColor: colors.borderLight,
-    marginBottom: 8,
+    marginBottom: 12,
+    shadowColor: colors.black,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   imageContainer: {
-    position: "relative",
-    width: "100%",
-    aspectRatio: 1,
+    width: 90,
+    height: 90,
+    borderRadius: 16,
+    overflow: "hidden",
     backgroundColor: colors.gray,
+    position: "relative",
   },
   image: {
     width: "100%",
@@ -159,80 +146,73 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: colors.grayDark,
-    fontSize: 12,
+    fontSize: 10,
   },
   discountBadge: {
     position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: colors.error,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   discountText: {
     color: colors.white,
-    fontSize: 11,
-    fontWeight: "bold",
-  },
-  statusBadge: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: "600",
+    fontSize: 9,
+    fontWeight: "700",
   },
   content: {
-    padding: 12,
-  },
-  chefName: {
-    fontSize: 11,
-    color: colors.primary,
-    fontWeight: "600",
-    marginBottom: 4,
+    flex: 1,
+    paddingHorizontal: 12,
+    justifyContent: "center",
   },
   productName: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
-  category: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    marginBottom: 8,
-  },
-  priceContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 10,
-  },
-  currentPrice: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.primary,
+    color: colors.text,
+    marginBottom: 6,
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
   },
   originalPrice: {
     fontSize: 12,
     color: colors.grayDark,
     textDecorationLine: "line-through",
+    marginLeft: 8,
+  },
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  ratingText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginLeft: 4,
+    fontWeight: "600",
+  },
+  chefName: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: "600",
   },
   addButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 10,
-    borderRadius: 8,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 2,
+    borderColor: colors.primary,
     alignItems: "center",
-  },
-  addButtonText: {
-    color: colors.white,
-    fontWeight: "600",
-    fontSize: 13,
+    justifyContent: "center",
+    backgroundColor: colors.white,
   },
 });
