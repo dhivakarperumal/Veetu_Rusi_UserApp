@@ -1,10 +1,12 @@
 import { colors } from "@/config/colors";
+import { AuthProvider } from "@/context/AuthContext";
+import { StoreProvider } from "@/context/StoreContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,5 +58,15 @@ export default function RootLayout() {
         name="auth"
       />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <StoreProvider>
+        <RootLayoutContent />
+      </StoreProvider>
+    </AuthProvider>
   );
 }
