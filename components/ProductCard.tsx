@@ -29,9 +29,14 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
-  const price = product.final_price || product.offer_price || product.mrp || 0;
-  const originalPrice = product.mrp || 0;
-  const discount = product.offer || 0;
+  const toNumber = (value: unknown) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : 0;
+  };
+
+  const price = toNumber(product.final_price ?? product.offer_price ?? product.mrp ?? 0);
+  const originalPrice = toNumber(product.mrp ?? 0);
+  const discount = toNumber(product.offer ?? 0);
 
   const handlePress = () => {
     // Navigate to product detail screen

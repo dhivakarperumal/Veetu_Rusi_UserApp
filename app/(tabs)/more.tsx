@@ -1,3 +1,4 @@
+import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -67,16 +68,8 @@ export default function MoreScreen() {
         paddingTop: insets.top,
       }}
     >
+      <AppHeader title="More" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={{ paddingHorizontal: 20, paddingVertical: 20 }}>
-          <Text
-            className="text-3xl font-bold"
-            style={{ color: colors.text }}
-          >
-            More
-          </Text>
-        </View>
 
         {/* User Profile Section */}
         {user && (
