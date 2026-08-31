@@ -3,8 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import "../global.css";
 
 export default function RootLayout() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -31,44 +29,40 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <SafeAreaProvider>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: colors.white,
-          }}
-        >
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </SafeAreaProvider>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.white,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        {isSignedIn ? (
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              animationTypeForReplace: isSignedIn ? "default" : "slide_from_right",
-            }}
-          />
-        ) : (
-          <Stack.Screen
-            name="auth"
-            options={{
-              animationTypeForReplace: "slide_from_right",
-            }}
-          />
-        )}
-      </Stack>
-    </SafeAreaProvider>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {isSignedIn ? (
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            animationEnabled: false,
+          }}
+        />
+      ) : (
+        <Stack.Screen
+          name="auth"
+          options={{
+            animationEnabled: false,
+          }}
+        />
+      )}
+    </Stack>
   );
 }
