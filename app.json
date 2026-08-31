@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "UserApp",
-    "slug": "UserApp",
+    "name": "Veetu Rusi",
+    "slug": "veetu-rusi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logos.png",
