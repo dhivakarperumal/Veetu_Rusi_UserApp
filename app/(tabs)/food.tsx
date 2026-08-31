@@ -1,11 +1,16 @@
 import colors from "@/config/colors";
-import { SafeAreaView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FoodScreen() {
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView
+    <View
       className="flex-1"
-      style={{ backgroundColor: colors.background }}
+      style={{
+        backgroundColor: colors.background,
+        paddingTop: insets.top,
+      }}
     >
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-3xl font-bold" style={{ color: colors.text }}>
@@ -18,6 +23,6 @@ export default function FoodScreen() {
           Browse our delicious meals
         </Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
