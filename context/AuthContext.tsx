@@ -16,6 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (user: User, token: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: User | null) => Promise<void>;
   isSignedIn: boolean;
 }
 
@@ -77,12 +78,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateUser = async (userData: User | null) => {
+    try {
+      setUser(userData);
+      if (userData) {
+        await AsyncStorage.setItem("userProfile", JSON.stringify(userData));
+      } else {
+        await AsyncStorage.removeItem("userProfile");
+      }
+    } catch (e) {
+      console.error("Update user error:", e);
+      throw e;
+    }
+  };
+
   const value = {
     user,
     token,
     isLoading,
     login,
     logout,
+    updateUser,
     isSignedIn: !!token,
   };
 

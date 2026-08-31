@@ -2,11 +2,14 @@ import api from "@/app/api";
 import { AuthContext } from "@/context/AuthContext";
 import * as Location from "expo-location";
 import { useCallback, useContext, useState } from "react";
+import { Alert } from "react-native";
 
 export function useFetchLocation() {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const { user } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
+  const updateUser = authContext?.updateUser;
 
   const fetchLocation = useCallback(
     async (onSuccess?: () => void) => {
@@ -17,7 +20,9 @@ export function useFetchLocation() {
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
-          setLocationError("Permission to access location was denied");
+          const permissionMessage = "Permission to access location was denied";
+          setLocationError(permissionMessage);
+          Alert.alert("Location access denied", "Please enable location access to see nearby products.");
           setFetchingLocation(false);
           return;
         }
@@ -52,7 +57,7 @@ export function useFetchLocation() {
                 "Skipping profile location update because username/email are missing for this user profile."
               );
             } else {
-              await api.put("/auth/profile", {
+              const updatedProfileResponse = await api.put("/auth/profile", {
                 ...profileUser,
                 username,
                 email,
@@ -64,7 +69,14 @@ export function useFetchLocation() {
                 pincode: geoData.postalCode || profileUser.pincode || user?.pincode || "",
               });
 
-              await api.get("/auth/profile");
+              const freshProfile =
+                updatedProfileResponse?.data?.user ||
+                updatedProfileResponse?.data ||
+                profileUser;
+
+              if (freshProfile && updateUser) {
+                await updateUser(freshProfile);
+              }
             }
           }
 
@@ -72,23 +84,28 @@ export function useFetchLocation() {
           if (onSuccess) {
             onSuccess();
           }
+
+          Alert.alert("Location updated", "Your area has been refreshed and nearby products are ready.");
         } catch (geoError) {
           console.warn("Reverse geocoding failed:", geoError);
           // Still proceed with just coordinates even if geocoding fails
           if (onSuccess) {
             onSuccess();
           }
+
+          Alert.alert("Location updated", "Your coordinates were captured. Nearby products are refreshing.");
         }
       } catch (error) {
         console.error("Error fetching location:", error);
-        setLocationError(
-          error instanceof Error ? error.message : "Failed to fetch location"
-        );
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to fetch location";
+        setLocationError(errorMessage);
+        Alert.alert("Location update failed", "Please try again or check your location permissions.");
       } finally {
         setFetchingLocation(false);
       }
     },
-    [user]
+    [user, updateUser]
   );
 
   return { fetchingLocation, locationError, fetchLocation };
