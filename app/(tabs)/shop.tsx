@@ -158,35 +158,42 @@ export default function ShopScreen({ defaultCategory = "" }) {
   }, []);
 
   // Fetch products
-  const fetchProducts = useCallback(async () => {
-    const isCacheValid =
-      lastChefFoodsFetchTime &&
-      Date.now() - lastChefFoodsFetchTime < 5 * 60 * 1000;
-    const hasLoc = Boolean(user?.latitude && user?.longitude);
+  const fetchProducts = useCallback(
+    async (
+      forceRefresh = false,
+      locationOverride?: { latitude: number; longitude: number }
+    ) => {
+      const activeLatitude = locationOverride?.latitude ?? user?.latitude;
+      const activeLongitude = locationOverride?.longitude ?? user?.longitude;
+      const isCacheValid =
+        !forceRefresh &&
+        lastChefFoodsFetchTime &&
+        Date.now() - lastChefFoodsFetchTime < 5 * 60 * 1000;
+      const hasLoc = Boolean(activeLatitude && activeLongitude);
 
-    if (isCacheValid && chefFoodsCache?.length > 0) {
-      const myProducts = chefFoodsCache.filter((product) => {
-        if (product.status?.toLowerCase() !== "active") return false;
-        if (!hasLoc || !product.latitude || !product.longitude) return true;
+      if (isCacheValid && chefFoodsCache?.length > 0) {
+        const myProducts = chefFoodsCache.filter((product) => {
+          if (product.status?.toLowerCase() !== "active") return false;
+          if (!hasLoc || !product.latitude || !product.longitude) return true;
 
-        const distance = parseFloat(
-          calculateDistance(
-            user.latitude,
-            user.longitude,
-            product.latitude,
-            product.longitude
-          ) || "999"
-        );
+          const distance = parseFloat(
+            calculateDistance(
+              activeLatitude,
+              activeLongitude,
+              product.latitude,
+              product.longitude
+            ) || "999"
+          );
 
-        const radius = parseFloat(product.delivery_radius || 0);
-        return distance <= radius;
-      });
+          const radius = parseFloat(product.delivery_radius || 0);
+          return distance <= radius;
+        });
 
-      setProducts(myProducts);
-      setFilteredProducts(myProducts);
-      setLoading(false);
-      return;
-    }
+        setProducts(myProducts);
+        setFilteredProducts(myProducts);
+        setLoading(false);
+        return;
+      }
 
     try {
       setLoading(true);
@@ -218,8 +225,8 @@ export default function ShopScreen({ defaultCategory = "" }) {
 
         const distance = parseFloat(
           calculateDistance(
-            user.latitude,
-            user.longitude,
+            activeLatitude,
+            activeLongitude,
             product.latitude,
             product.longitude
           ) || "999"
@@ -238,7 +245,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
     } finally {
       setLoading(false);
     }
-  }, [user, chefFoodsCache, lastChefFoodsFetchTime, calculateDistance, setChefFoodsCache, setLastChefFoodsFetchTime]);
+    },
+    [user, chefFoodsCache, lastChefFoodsFetchTime, calculateDistance, setChefFoodsCache, setLastChefFoodsFetchTime]
+  );
 
   // Initial fetch
   useEffect(() => {
@@ -488,7 +497,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
 
             <TouchableOpacity
               style={styles.fetchLocationBtn}
-              onPress={() => fetchLocation(() => fetchProducts())}
+              onPress={() =>
+                fetchLocation((location) => fetchProducts(true, location))
+              }
               disabled={fetchingLocation}
             >
               {fetchingLocation ? (
@@ -552,7 +563,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
 
           <TouchableOpacity
             style={styles.updateLocationBtn}
-            onPress={() => fetchLocation(() => fetchProducts())}
+            onPress={() =>
+              fetchLocation((location) => fetchProducts(true, location))
+            }
             disabled={fetchingLocation}
           >
             {fetchingLocation ? (
@@ -843,7 +856,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
 
                 <TouchableOpacity
                   style={styles.refetchLocationBtn}
-                  onPress={() => fetchLocation(() => fetchProducts())}
+                  onPress={() =>
+                    fetchLocation((location) => fetchProducts(true, location))
+                  }
                   disabled={fetchingLocation}
                 >
                   {fetchingLocation ? (

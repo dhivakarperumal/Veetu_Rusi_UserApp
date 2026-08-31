@@ -12,7 +12,7 @@ export function useFetchLocation() {
   const updateUser = authContext?.updateUser;
 
   const fetchLocation = useCallback(
-    async (onSuccess?: () => void) => {
+    async (onSuccess?: (location: { latitude: number; longitude: number }) => void) => {
       try {
         setFetchingLocation(true);
         setLocationError(null);
@@ -82,7 +82,7 @@ export function useFetchLocation() {
 
           // Call the success callback
           if (onSuccess) {
-            onSuccess();
+            onSuccess({ latitude, longitude });
           }
 
           Alert.alert("Location updated", "Your area has been refreshed and nearby products are ready.");
@@ -90,7 +90,7 @@ export function useFetchLocation() {
           console.warn("Reverse geocoding failed:", geoError);
           // Still proceed with just coordinates even if geocoding fails
           if (onSuccess) {
-            onSuccess();
+            onSuccess({ latitude, longitude });
           }
 
           Alert.alert("Location updated", "Your coordinates were captured. Nearby products are refreshing.");
