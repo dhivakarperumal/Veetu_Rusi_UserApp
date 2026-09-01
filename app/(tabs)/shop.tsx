@@ -23,19 +23,28 @@ interface Product {
   category: string;
   subcategory?: string;
   status?: string;
-  final_price?: number;
-  offer_price?: number;
-  mrp?: number;
-  offer?: number;
+  final_price?: number | string;
+  offer_price?: number | string;
+  mrp?: number | string;
+  offer?: number | string;
   variants?: Array<{
-    colorName: string;
+    colorName?: string;
     selectedSizes?: string[];
+    weight?: string;
+    price?: number;
+    offer?: number;
+    final_price?: number;
+    stock?: number;
+    images?: string;
   }>;
   chef_name?: string;
-  delivery_radius?: number;
-  latitude?: number;
-  longitude?: number;
+  delivery_radius?: number | string;
+  latitude?: number | string;
+  longitude?: number | string;
   area_name?: string;
+  city?: string;
+  district?: string;
+  state?: string;
   pincode?: string;
   [key: string]: any;
 }
@@ -44,16 +53,6 @@ interface Category {
   c_name: string;
   category_type: string;
   name?: string;
-  [key: string]: any;
-}
-
-interface HomeChef {
-  chef_name: string;
-  delivery_radius?: number;
-  area_name?: string;
-  latitude?: number;
-  longitude?: number;
-  pincode?: string;
   [key: string]: any;
 }
 
@@ -67,15 +66,90 @@ export default function ShopScreen({ defaultCategory = "" }) {
     setLastChefFoodsFetchTime,
   } = useStore();
 
+  // Parse delivery radius from various formats (e.g. "5 KM", "10km", 5, etc.)
+  const parseRadius = (val: unknown, fallback = 15): number => {
+    if (typeof val === "number" && !isNaN(val) && val > 0) return val;
+    if (!val) return fallback;
+    const match = String(val).match(/[\d.]+/);
+    if (match) {
+      const num = parseFloat(match[0]);
+      if (!isNaN(num) && num > 0) return num;
+    }
+    return fallback;
+  };
+
+  // Calculate distance between two coordinates in km
+  const calculateDistance = useCallback(
+    (lat1: any, lon1: any, lat2: any, lon2: any): string | null => {
+      const nLat1 = parseFloat(String(lat1 ?? ""));
+      const nLon1 = parseFloat(String(lon1 ?? ""));
+      const nLat2 = parseFloat(String(lat2 ?? ""));
+      const nLon2 = parseFloat(String(lon2 ?? ""));
+
+      if (isNaN(nLat1) || isNaN(nLon1) || isNaN(nLat2) || isNaN(nLon2)) return null;
+
+      const R = 6371; // Radius of earth in km
+      const dLat = ((nLat2 - nLat1) * Math.PI) / 180;
+      const dLon = ((nLon2 - nLon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((nLat1 * Math.PI) / 180) *
+          Math.cos((nLat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return (R * c).toFixed(2);
+    },
+    []
+  );
+
+  const isProductDeliverable = useCallback(
+    (product: Product, userLat?: number, userLon?: number) => {
+      if (product.status && product.status.toLowerCase() !== "active") return false;
+      if (!userLat || !userLon) return true;
+
+      const prodLat = parseFloat(String(product.latitude ?? ""));
+      const prodLon = parseFloat(String(product.longitude ?? ""));
+
+      if (isNaN(prodLat) || isNaN(prodLon) || prodLat === 0 || prodLon === 0) {
+        return true;
+      }
+
+      const distStr = calculateDistance(userLat, userLon, prodLat, prodLon);
+      if (!distStr) return true;
+      const distance = parseFloat(distStr);
+
+      const radius = parseRadius(product.delivery_radius, 15);
+
+      // Check if distance is within radius with a 3km GPS accuracy tolerance
+      if (distance <= radius + 3) return true;
+
+      // Check matching area / city / district or pincode (e.g. Tirupathur)
+      const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const userArea = clean(`${user?.area || ""} ${user?.district || ""} ${user?.location_name || ""}`);
+      const prodCity = clean(`${product.city || ""} ${product.district || ""} ${product.area_name || ""}`);
+      const userPin = String(user?.pincode || "").trim();
+      const prodPin = String(product.pincode || "").trim();
+
+      if (userPin && prodPin && userPin === prodPin) return true;
+      if (userArea && prodCity && (userArea.includes(prodCity) || prodCity.includes(userArea))) {
+        if (distance <= 35) return true;
+      }
+
+      return false;
+    },
+    [calculateDistance, user]
+  );
+
   // Products state
   const [products, setProducts] = useState<Product[]>(() => {
     const cache = Array.isArray(chefFoodsCache) ? chefFoodsCache : [];
-    return cache.filter((p) => p.status?.toLowerCase() === "active");
+    return cache.filter((p) => isProductDeliverable(p, user?.latitude, user?.longitude));
   });
 
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(() => {
     const cache = Array.isArray(chefFoodsCache) ? chefFoodsCache : [];
-    return cache.filter((p) => p.status?.toLowerCase() === "active");
+    return cache.filter((p) => isProductDeliverable(p, user?.latitude, user?.longitude));
   });
 
   // UI State
@@ -96,7 +170,6 @@ export default function ShopScreen({ defaultCategory = "" }) {
   // Other state
   const [groupedCategories, setGroupedCategories] = useState<Record<string, Category[]>>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [gridCols, setGridCols] = useState(2);
   const [activeLocation, setActiveLocation] = useState<{
     latitude?: number;
     longitude?: number;
@@ -117,25 +190,6 @@ export default function ShopScreen({ defaultCategory = "" }) {
       longitude: user?.longitude,
     });
   }, [user?.latitude, user?.longitude]);
-
-  // Calculate distance between two coordinates
-  const calculateDistance = useCallback(
-    (lat1: number, lon1: number, lat2: number, lon2: number): string | null => {
-      if (!lat1 || !lon1 || !lat2 || !lon2) return null;
-      const R = 6371; // Radius of earth in km
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return (R * c).toFixed(2);
-    },
-    []
-  );
 
   // Fetch categories
   useEffect(() => {
@@ -176,31 +230,17 @@ export default function ShopScreen({ defaultCategory = "" }) {
       forceRefresh = false,
       locationOverride?: { latitude: number; longitude: number }
     ) => {
-      const activeLatitude = locationOverride?.latitude ?? user?.latitude;
-      const activeLongitude = locationOverride?.longitude ?? user?.longitude;
+      const activeLatitude = locationOverride?.latitude ?? activeLocation.latitude ?? user?.latitude;
+      const activeLongitude = locationOverride?.longitude ?? activeLocation.longitude ?? user?.longitude;
       const isCacheValid =
         !forceRefresh &&
         lastChefFoodsFetchTime &&
         Date.now() - lastChefFoodsFetchTime < 5 * 60 * 1000;
-      const hasLoc = Boolean(activeLatitude && activeLongitude);
 
       if (isCacheValid && chefFoodsCache?.length > 0) {
-        const myProducts = chefFoodsCache.filter((product) => {
-          if (product.status?.toLowerCase() !== "active") return false;
-          if (!hasLoc || !product.latitude || !product.longitude) return true;
-
-          const distance = parseFloat(
-            calculateDistance(
-              activeLatitude,
-              activeLongitude,
-              product.latitude,
-              product.longitude
-            ) || "999"
-          );
-
-          const radius = Number(product.delivery_radius || 0);
-          return distance <= radius;
-        });
+        const myProducts = chefFoodsCache.filter((product) =>
+          isProductDeliverable(product, activeLatitude, activeLongitude)
+        );
 
         setProducts(myProducts);
         setFilteredProducts(myProducts);
@@ -208,58 +248,54 @@ export default function ShopScreen({ defaultCategory = "" }) {
         return;
       }
 
-    try {
-      setLoading(true);
-      const [foodsRes, productsRes] = await Promise.all([
-        api
-          .get("/chef-foods")
-          .catch((err) => {
-            console.error(err);
-            return { data: [] };
-          }),
-        api
-          .get("/products", { params: { source: "chef_products" } })
-          .catch((err) => {
-            console.error(err);
-            return { data: [] };
-          }),
-      ]);
+      try {
+        setLoading(true);
+        const [foodsRes, productsRes] = await Promise.all([
+          api
+            .get("/chef-foods")
+            .catch((err) => {
+              console.error(err);
+              return { data: [] };
+            }),
+          api
+            .get("/products", { params: { source: "chef_products" } })
+            .catch((err) => {
+              console.error(err);
+              return { data: [] };
+            }),
+        ]);
 
-      const foodsData = Array.isArray(foodsRes.data) ? foodsRes.data : [];
-      const productsData = Array.isArray(productsRes.data) ? productsRes.data : [];
-      const data = [...foodsData, ...productsData];
+        const foodsData = Array.isArray(foodsRes.data) ? foodsRes.data : [];
+        const productsData = Array.isArray(productsRes.data) ? productsRes.data : [];
+        const data = [...foodsData, ...productsData];
 
-      setChefFoodsCache(data);
-      setLastChefFoodsFetchTime(Date.now());
+        setChefFoodsCache(data);
+        setLastChefFoodsFetchTime(Date.now());
 
-      const myProducts = data.filter((product) => {
-        if (product.status?.toLowerCase() !== "active") return false;
-        if (!hasLoc || !product.latitude || !product.longitude) return true;
-
-        const distance = parseFloat(
-          calculateDistance(
-            activeLatitude,
-            activeLongitude,
-            product.latitude,
-            product.longitude
-          ) || "999"
+        const myProducts = data.filter((product) =>
+          isProductDeliverable(product, activeLatitude, activeLongitude)
         );
 
-        const radius = Number(product.delivery_radius || 0);
-        return distance <= radius;
-      });
-
-      setProducts(myProducts);
-      setFilteredProducts(myProducts);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-      setFilteredProducts([]);
-    } finally {
-      setLoading(false);
-    }
+        setProducts(myProducts);
+        setFilteredProducts(myProducts);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setProducts([]);
+        setFilteredProducts([]);
+      } finally {
+        setLoading(false);
+      }
     },
-    [user, chefFoodsCache, lastChefFoodsFetchTime, calculateDistance, setChefFoodsCache, setLastChefFoodsFetchTime]
+    [
+      user,
+      activeLocation.latitude,
+      activeLocation.longitude,
+      chefFoodsCache,
+      lastChefFoodsFetchTime,
+      isProductDeliverable,
+      setChefFoodsCache,
+      setLastChefFoodsFetchTime,
+    ]
   );
 
   // Initial fetch

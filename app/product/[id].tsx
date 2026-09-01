@@ -50,17 +50,37 @@ export default function ProductDetailScreen() {
   const discount = Number(product?.offer ?? 0);
   const rating = Number(product?.rating ?? product?.average_rating ?? 4.5);
   const chefName = product?.chef_name || product?.homeChefName || product?.vendor_name;
-  const imageUrl =
-    product?.image ||
-    (Array.isArray(product?.images) && product?.images.length > 0
-      ? typeof product?.images[0] === "string"
-        ? product?.images[0]
-        : product?.images[0]?.url || product?.images[0]?.image
-      : undefined) ||
-    product?.image_url ||
-    product?.product_image ||
-    product?.food_image ||
-    product?.photo;
+  const getImageUrl = () => {
+    if (typeof product?.image === "string" && product.image.trim()) {
+      return product.image.trim().split(/\s+/)[0];
+    }
+    if (Array.isArray(product?.images) && product.images.length > 0) {
+      const first = product.images[0];
+      if (typeof first === "string") return first.trim().split(/\s+/)[0];
+      if (first && typeof first === "object") return (first.url || first.image || "").trim();
+    }
+    if (typeof product?.images === "string" && product.images.trim()) {
+      return product.images.trim().split(/\s+/)[0];
+    }
+    if (Array.isArray(product?.variants) && product.variants.length > 0) {
+      const vImg = product.variants[0]?.images;
+      if (typeof vImg === "string" && vImg.trim()) {
+        return vImg.trim().split(/\s+/)[0];
+      }
+      if (Array.isArray(vImg) && vImg.length > 0) {
+        return typeof vImg[0] === "string" ? vImg[0].trim() : (vImg[0]?.url || "");
+      }
+    }
+    return (
+      product?.image_url ||
+      product?.product_image ||
+      product?.food_image ||
+      product?.photo ||
+      undefined
+    );
+  };
+
+  const imageUrl = getImageUrl();
 
   return (
     <SafeAreaView className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
