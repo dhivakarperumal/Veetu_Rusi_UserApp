@@ -1,5 +1,4 @@
 import AppHeader from "@/components/AppHeader";
-import { colors } from "@/config/colors";
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

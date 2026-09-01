@@ -476,10 +476,10 @@ export default function ShopScreen({ defaultCategory = "" }) {
   // Loading screen
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading products...</Text>
+          <Text className="mt-3 text-sm text-text">Loading products...</Text>
         </View>
       </SafeAreaView>
     );
@@ -488,10 +488,10 @@ export default function ShopScreen({ defaultCategory = "" }) {
   // No location screen
   if (!loading && !hasLocation) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <ScrollView contentContainerStyle={styles.noLocationContainer}>
-          <View style={styles.noLocationCard}>
-            <View style={styles.locationIconContainer}>
+      <SafeAreaView className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+        <ScrollView contentContainerClassName="grow items-center justify-center px-3">
+          <View className="items-center rounded-2xl border border-borderLight bg-white p-5">
+            <View className="mb-4 h-[60px] w-[60px] items-center justify-center rounded-full bg-primary/20">
               <MaterialCommunityIcons
                 name="map-marker"
                 size={48}
@@ -499,17 +499,17 @@ export default function ShopScreen({ defaultCategory = "" }) {
               />
             </View>
 
-            <Text style={styles.noLocationTitle}>
+            <Text className="mb-2 text-center text-lg font-bold text-text">
               Fetch your location to see nearby home chef products
             </Text>
 
-            <Text style={styles.noLocationSubtitle}>
+            <Text className="mb-4 text-center text-[13px] text-textSecondary">
               We use your location to find fresh, delicious home-cooked meals
               and authentic products available for delivery in your area.
             </Text>
 
             <TouchableOpacity
-              style={styles.fetchLocationBtn}
+              className="mb-3 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3"
               onPress={() =>
                 fetchLocation((location) => {
                   setActiveLocation(location);
@@ -521,7 +521,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
               {fetchingLocation ? (
                 <>
                   <ActivityIndicator size="small" color={colors.white} />
-                  <Text style={styles.fetchLocationBtnText}>
+                  <Text className="text-sm font-semibold text-white">
                     Fetching Location...
                   </Text>
                 </>
@@ -532,14 +532,14 @@ export default function ShopScreen({ defaultCategory = "" }) {
                     size={20}
                     color={colors.white}
                   />
-                  <Text style={styles.fetchLocationBtnText}>
+                  <Text className="text-sm font-semibold text-white">
                     Fetch Current Location
                   </Text>
                 </>
               )}
             </TouchableOpacity>
 
-            <Text style={styles.permissionNote}>
+            <Text className="text-xs text-textSecondary">
               🔒 Allow location access in your app when prompted
             </Text>
           </View>
@@ -549,24 +549,24 @@ export default function ShopScreen({ defaultCategory = "" }) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerClassName="p-3"
       >
         {/* Location Badge */}
-        <View style={styles.locationBadge}>
-          <View style={styles.locationInfo}>
-            <View style={styles.locationIconSmall}>
+        <View className="mb-3 flex-row items-center justify-between rounded-xl border border-borderLight bg-white p-3">
+          <View className="flex-1 flex-row items-center gap-2.5">
+            <View className="h-9 w-9 items-center justify-center rounded-lg bg-primary/20">
               <MaterialCommunityIcons
                 name="map-marker"
                 size={18}
                 color={colors.primary}
               />
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.locationLabel}>Delivery Location:</Text>
-              <Text style={styles.locationValue}>
+            <View className="flex-1">
+              <Text className="text-[11px] font-semibold text-textSecondary">Delivery Location:</Text>
+              <Text className="text-[13px] font-semibold text-text">
                 {user?.area ||
                   user?.district ||
                   user?.location_name ||
@@ -578,7 +578,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
           </View>
 
           <TouchableOpacity
-            style={styles.updateLocationBtn}
+            className="rounded-lg border border-borderLight px-3 py-2"
             onPress={() =>
               fetchLocation((location) => {
                 setActiveLocation(location);
@@ -600,9 +600,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
         </View>
 
         {/* Toolbar */}
-        <View style={styles.toolbar}>
+        <View className="mb-3 gap-2.5">
           <TouchableOpacity
-            style={styles.filterToggle}
+            className="flex-row items-center gap-1.5 self-start rounded-xl bg-gray px-3 py-2"
             onPress={() => setShowFilters(!showFilters)}
           >
             <MaterialCommunityIcons
@@ -610,19 +610,19 @@ export default function ShopScreen({ defaultCategory = "" }) {
               size={20}
               color={colors.text}
             />
-            <Text style={styles.filterToggleText}>
+            <Text className="text-[13px] font-semibold text-text">
               {showFilters ? "Close" : "Filters"}
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.searchContainer}>
+          <View className="h-10 flex-1 flex-row items-center gap-2 rounded-xl border border-borderLight bg-white px-2.5">
             <MaterialCommunityIcons
               name="magnify"
               size={18}
               color={colors.textSecondary}
             />
             <TextInput
-              style={styles.searchInput}
+              className="flex-1 text-[13px] text-text"
               placeholder="Search products..."
               value={search}
               onChangeText={setSearch}
@@ -641,12 +641,12 @@ export default function ShopScreen({ defaultCategory = "" }) {
         </View>
 
         {/* Sort Options */}
-        <View style={styles.sortContainer}>
-          <Text style={styles.sortLabel}>Sort By:</Text>
+        <View className="mb-3">
+          <Text className="mb-2 text-xs font-semibold text-text">Sort By:</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.sortOptions}
+            className="flex-row gap-2"
           >
             {[
               { label: "Default", value: "" },
@@ -658,17 +658,17 @@ export default function ShopScreen({ defaultCategory = "" }) {
             ].map((opt) => (
               <TouchableOpacity
                 key={opt.value}
-                style={[
-                  styles.sortOption,
-                  sortOption === opt.value && styles.sortOptionActive,
-                ]}
+                className={`rounded-lg border px-3 py-1.5 ${
+                  sortOption === opt.value
+                    ? "border-primary bg-primary"
+                    : "border-borderLight bg-white"
+                }`}
                 onPress={() => setSortOption(opt.value)}
               >
                 <Text
-                  style={[
-                    styles.sortOptionText,
-                    sortOption === opt.value && styles.sortOptionTextActive,
-                  ]}
+                  className={`text-xs font-medium ${
+                    sortOption === opt.value ? "text-white" : "text-text"
+                  }`}
                 >
                   {opt.label}
                 </Text>
@@ -678,49 +678,49 @@ export default function ShopScreen({ defaultCategory = "" }) {
         </View>
 
         {/* Results Count */}
-        <Text style={styles.resultsCount}>
-          Showing <Text style={styles.resultsBold}>{filteredProducts.length}</Text> of{" "}
-          <Text style={styles.resultsBold}>{products.length}</Text> products
+        <Text className="mb-3 text-xs text-textSecondary">
+          Showing <Text className="font-bold text-text">{filteredProducts.length}</Text> of{" "}
+          <Text className="font-bold text-text">{products.length}</Text> products
         </Text>
 
         {/* Filter Sidebar + Products Grid */}
-        <View style={styles.mainContainer}>
+        <View className="mb-4 flex-row gap-3">
           {/* Filters */}
           {showFilters && (
-            <View style={styles.filterSidebar}>
-              <View style={styles.filterHeader}>
-                <Text style={styles.filterTitle}>Filters</Text>
+            <View className="w-[30%] rounded-xl border border-borderLight bg-white p-3">
+              <View className="mb-4 flex-row items-center justify-between">
+                <Text className="text-sm font-bold text-text">Filters</Text>
                 <TouchableOpacity
                   onPress={clearFilters}
-                  style={styles.clearFilterBtn}
+                  className="rounded border border-error px-2 py-1"
                 >
-                  <Text style={styles.clearFilterText}>Clear</Text>
+                  <Text className="text-[11px] font-medium text-error">Clear</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Price Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Price</Text>
-                <View style={styles.priceInputContainer}>
+              <View className="mb-3 border-b border-borderLight pb-3">
+                <Text className="mb-2 text-xs font-semibold text-text">Price</Text>
+                <View className="mb-2 flex-row gap-2">
                   <TextInput
-                    style={styles.priceInput}
+                    className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
                     value={String(priceRange)}
                     onChangeText={(val) => setPriceRange(Number(val))}
                     keyboardType="numeric"
                   />
                 </View>
-                <Text style={styles.priceValue}>
+                <Text className="text-xs text-textSecondary">
                   Up to ₹{Number(priceRange).toLocaleString()}
                 </Text>
               </View>
 
               {/* Type Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Type</Text>
+              <View className="mb-3 border-b border-borderLight pb-3">
+                <Text className="mb-2 text-xs font-semibold text-text">Type</Text>
                 {["Food", "Products"].map((type) => (
                   <TouchableOpacity
                     key={type}
-                    style={styles.radioOption}
+                    className="flex-row items-center gap-2 py-1.5"
                     onPress={() => {
                       setSelectedType(type);
                       if (selectedCategory) {
@@ -738,80 +738,93 @@ export default function ShopScreen({ defaultCategory = "" }) {
                     }}
                   >
                     <View
-                      style={[
-                        styles.radio,
-                        selectedType === type && styles.radioSelected,
-                      ]}
+                      className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                        selectedType === type
+                          ? "border-primary"
+                          : "border-borderLight"
+                      }`}
                     >
-                      {selectedType === type && <View style={styles.radioDot} />}
+                      {selectedType === type && (
+                        <View className="h-2 w-2 rounded-full bg-primary" />
+                      )}
                     </View>
-                    <Text style={styles.radioLabel}>{type}</Text>
+                    <Text className="text-xs text-text">{type}</Text>
                   </TouchableOpacity>
                 ))}
                 <TouchableOpacity
-                  style={styles.radioOption}
+                  className="flex-row items-center gap-2 py-1.5"
                   onPress={() => setSelectedType("")}
                 >
                   <View
-                    style={[
-                      styles.radio,
-                      selectedType === "" && styles.radioSelected,
-                    ]}
+                    className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                      selectedType === ""
+                        ? "border-primary"
+                        : "border-borderLight"
+                    }`}
                   >
-                    {selectedType === "" && <View style={styles.radioDot} />}
+                    {selectedType === "" && (
+                      <View className="h-2 w-2 rounded-full bg-primary" />
+                    )}
                   </View>
-                  <Text style={styles.radioLabel}>All Types</Text>
+                  <Text className="text-xs text-text">All Types</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Category Filter */}
               {categories.length > 0 && (
-                <View style={styles.filterSection}>
-                  <Text style={styles.filterSectionTitle}>Category</Text>
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={styles.radioOption}
-                      onPress={() => setSelectedCategory(cat)}
-                    >
-                      <View
-                        style={[
-                          styles.radio,
-                          cat?.trim().toLowerCase() ===
-                            decodeURIComponent(selectedCategory || "")
-                              .trim()
-                              .toLowerCase() && styles.radioSelected,
-                        ]}
+                <View className="mb-3 border-b border-borderLight pb-3">
+                  <Text className="mb-2 text-xs font-semibold text-text">Category</Text>
+                  {categories.map((cat) => {
+                    const isCatSelected =
+                      cat?.trim().toLowerCase() ===
+                      decodeURIComponent(selectedCategory || "")
+                        .trim()
+                        .toLowerCase();
+                    return (
+                      <TouchableOpacity
+                        key={cat}
+                        className="flex-row items-center gap-2 py-1.5"
+                        onPress={() => setSelectedCategory(cat)}
                       >
-                        {cat?.trim().toLowerCase() ===
-                          decodeURIComponent(selectedCategory || "")
-                            .trim()
-                            .toLowerCase() && <View style={styles.radioDot} />}
-                      </View>
-                      <Text style={styles.radioLabel}>{cat}</Text>
-                    </TouchableOpacity>
-                  ))}
+                        <View
+                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                            isCatSelected
+                              ? "border-primary"
+                              : "border-borderLight"
+                          }`}
+                        >
+                          {isCatSelected && (
+                            <View className="h-2 w-2 rounded-full bg-primary" />
+                          )}
+                        </View>
+                        <Text className="text-xs text-text">{cat}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               )}
 
               {/* Offers Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Offers</Text>
+              <View className="mb-3 border-b border-borderLight pb-3">
+                <Text className="mb-2 text-xs font-semibold text-text">Offers</Text>
                 {[10, 20, 30, 40, 50].map((offer) => (
                   <TouchableOpacity
                     key={offer}
-                    style={styles.radioOption}
+                    className="flex-row items-center gap-2 py-1.5"
                     onPress={() => setOfferFilter(offer)}
                   >
                     <View
-                      style={[
-                        styles.radio,
-                        offerFilter === offer && styles.radioSelected,
-                      ]}
+                      className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                        offerFilter === offer
+                          ? "border-primary"
+                          : "border-borderLight"
+                      }`}
                     >
-                      {offerFilter === offer && <View style={styles.radioDot} />}
+                      {offerFilter === offer && (
+                        <View className="h-2 w-2 rounded-full bg-primary" />
+                      )}
                     </View>
-                    <Text style={styles.radioLabel}>{offer}% and above</Text>
+                    <Text className="text-xs text-text">{offer}% and above</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -819,31 +832,24 @@ export default function ShopScreen({ defaultCategory = "" }) {
           )}
 
           {/* Products Grid */}
-          <View style={styles.productsContainer}>
+          <View className="flex-1">
             {currentProducts.length > 0 ? (
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  justifyContent: "space-between",
-                  gap: 10,
-                }}
-              >
+              <View className="flex-row flex-wrap justify-between gap-2.5">
                 {currentProducts.map((product, index) => (
-                  <View key={product.id || product._id || `product-${index}`} style={{ width: "100%" }}>
+                  <View key={product.id || product._id || `product-${index}`} className="w-full">
                     <ProductCard product={product} />
                   </View>
                 ))}
               </View>
             ) : (
-              <View style={styles.noProductsContainer}>
+              <View className="items-center justify-center py-8">
                 <MaterialCommunityIcons
                   name="magnify"
                   size={48}
                   color={colors.grayDark}
                 />
-                <Text style={styles.noProductsTitle}>No products found</Text>
-                <Text style={styles.noProductsSubtitle}>
+                <Text className="mt-3 text-base font-bold text-text">No products found</Text>
+                <Text className="mb-3 mt-1 text-center text-xs text-textSecondary">
                   {search ||
                   selectedCategory ||
                   selectedType ||
@@ -863,15 +869,15 @@ export default function ShopScreen({ defaultCategory = "" }) {
                   selectedColor ||
                   selectedSize) && (
                   <TouchableOpacity
-                    style={styles.clearFiltersBtn}
+                    className="mb-2 rounded-lg bg-gray px-3 py-2"
                     onPress={clearFilters}
                   >
-                    <Text style={styles.clearFiltersBtnText}>Clear Filters</Text>
+                    <Text className="text-xs font-semibold text-text">Clear Filters</Text>
                   </TouchableOpacity>
                 )}
 
                 <TouchableOpacity
-                  style={styles.refetchLocationBtn}
+                  className="flex-row items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2"
                   onPress={() =>
                     fetchLocation((location) => {
                       setActiveLocation(location);
@@ -889,7 +895,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
                       color={colors.white}
                     />
                   )}
-                  <Text style={styles.refetchLocationBtnText}>
+                  <Text className="text-xs font-semibold text-white">
                     Re-fetch Location
                   </Text>
                 </TouchableOpacity>
@@ -900,12 +906,11 @@ export default function ShopScreen({ defaultCategory = "" }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <View style={styles.paginationContainer}>
+          <View className="mb-6 flex-row items-center justify-center gap-2">
             <TouchableOpacity
-              style={[
-                styles.paginationBtn,
-                currentPage === 1 && styles.paginationBtnDisabled,
-              ]}
+              className={`rounded-lg border border-borderLight bg-white px-2.5 py-2 ${
+                currentPage === 1 ? "opacity-40" : "opacity-100"
+              }`}
               onPress={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
             >
@@ -919,24 +924,24 @@ export default function ShopScreen({ defaultCategory = "" }) {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={styles.pageNumbers}
+              className="max-h-10"
             >
               {[...Array(totalPages)].map((_, i) => {
                 const page = i + 1;
                 return (
                   <TouchableOpacity
                     key={page}
-                    style={[
-                      styles.pageBtn,
-                      currentPage === page && styles.pageBtnActive,
-                    ]}
+                    className={`mx-1 rounded-lg border px-2.5 py-2 ${
+                      currentPage === page
+                        ? "border-primary bg-primary"
+                        : "border-borderLight bg-white"
+                    }`}
                     onPress={() => setCurrentPage(page)}
                   >
                     <Text
-                      style={[
-                        styles.pageBtnText,
-                        currentPage === page && styles.pageBtnTextActive,
-                      ]}
+                      className={`text-xs font-semibold ${
+                        currentPage === page ? "text-white" : "text-text"
+                      }`}
                     >
                       {page}
                     </Text>
@@ -946,10 +951,9 @@ export default function ShopScreen({ defaultCategory = "" }) {
             </ScrollView>
 
             <TouchableOpacity
-              style={[
-                styles.paginationBtn,
-                currentPage === totalPages && styles.paginationBtnDisabled,
-              ]}
+              className={`rounded-lg border border-borderLight bg-white px-2.5 py-2 ${
+                currentPage === totalPages ? "opacity-40" : "opacity-100"
+              }`}
               onPress={() =>
                 setCurrentPage((p) => Math.min(p + 1, totalPages))
               }
@@ -967,382 +971,3 @@ export default function ShopScreen({ defaultCategory = "" }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 12,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    color: colors.text,
-    fontSize: 14,
-  },
-  noLocationContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 12,
-  },
-  noLocationCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    padding: 20,
-    alignItems: "center",
-  },
-  locationIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary + "20",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  noLocationTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  noLocationSubtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  fetchLocationBtn: {
-    backgroundColor: colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    gap: 8,
-    marginBottom: 12,
-  },
-  fetchLocationBtnText: {
-    color: colors.white,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  permissionNote: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  locationBadge: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    padding: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  locationInfo: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  locationIconSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: colors.primary + "20",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  locationLabel: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    fontWeight: "600",
-  },
-  locationValue: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: "600",
-  },
-  updateLocationBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  toolbar: {
-    gap: 10,
-    marginBottom: 12,
-  },
-  filterToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: colors.gray,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    alignSelf: "flex-start",
-  },
-  filterToggleText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 13,
-    color: colors.text,
-  },
-  sortContainer: {
-    marginBottom: 12,
-  },
-  sortLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 8,
-  },
-  sortOptions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  sortOption: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.white,
-  },
-  sortOptionActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  sortOptionText: {
-    fontSize: 12,
-    fontWeight: "500",
-    color: colors.text,
-  },
-  sortOptionTextActive: {
-    color: colors.white,
-  },
-  resultsCount: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  resultsBold: {
-    fontWeight: "700",
-    color: colors.text,
-  },
-  mainContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-  },
-  filterSidebar: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    padding: 12,
-    width: "30%",
-  },
-  filterHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  filterTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  clearFilterBtn: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.error,
-  },
-  clearFilterText: {
-    fontSize: 11,
-    color: colors.error,
-    fontWeight: "500",
-  },
-  filterSection: {
-    marginBottom: 12,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  filterSectionTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 8,
-  },
-  radioOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 6,
-  },
-  radio: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: colors.borderLight,
-  },
-  radioSelected: {
-    borderColor: colors.primary,
-  },
-  radioDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    margin: 2,
-  },
-  radioLabel: {
-    fontSize: 12,
-    color: colors.text,
-  },
-  priceInputContainer: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 8,
-  },
-  priceInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    fontSize: 12,
-  },
-  priceValue: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  productsContainer: {
-    flex: 1,
-  },
-  noProductsContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 32,
-  },
-  noProductsTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-    marginTop: 12,
-  },
-  noProductsSubtitle: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  clearFiltersBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: colors.gray,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  clearFiltersBtnText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  refetchLocationBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  refetchLocationBtnText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.white,
-  },
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 24,
-  },
-  paginationBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.white,
-  },
-  paginationBtnDisabled: {
-    opacity: 0.4,
-  },
-  pageNumbers: {
-    maxHeight: 40,
-  },
-  pageBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.white,
-    marginHorizontal: 4,
-  },
-  pageBtnActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  pageBtnText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  pageBtnTextActive: {
-    color: colors.white,
-  },
-});
