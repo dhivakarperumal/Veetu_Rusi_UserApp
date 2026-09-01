@@ -34,10 +34,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   const discount = toNumber(product.offer ?? 0);
   const rating = toNumber(product.rating ?? product.average_rating ?? product.star_rating ?? 4.5);
   const chefName = product.chef_name || product.homeChefName || product.vendor_name || "Home Chef";
+  const imageUrl =
+    product.image ||
+    (Array.isArray(product.images) && product.images.length > 0
+      ? typeof product.images[0] === "string"
+        ? product.images[0]
+        : product.images[0]?.url || product.images[0]?.image
+      : undefined) ||
+    product.image_url ||
+    product.product_image ||
+    product.food_image ||
+    product.photo;
 
   const handlePress = () => {
     router.push({
-      pathname: "/product/[id]",
+      pathname: "/product/[id]" as any,
       params: { id: product.id },
     });
   };
@@ -56,8 +67,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       }}
     >
       <View className="relative h-[90px] w-[90px] overflow-hidden rounded-[16px] bg-[#F5F5F5]">
-        {product.image ? (
-          <Image source={{ uri: product.image }} className="h-full w-full" resizeMode="cover" />
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} className="h-full w-full" resizeMode="cover" />
         ) : (
           <View className="h-full w-full items-center justify-center bg-[#E8E8E8]">
             <Text className="text-[10px] text-[#757575]">No Image</Text>

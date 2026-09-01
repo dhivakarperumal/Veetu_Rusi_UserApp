@@ -1,3 +1,4 @@
+import "../global.css";
 import { colors } from "@/config/colors";
 import { AuthProvider } from "@/context/AuthContext";
 import { StoreProvider } from "@/context/StoreContext";

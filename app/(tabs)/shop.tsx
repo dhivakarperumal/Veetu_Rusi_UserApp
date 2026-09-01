@@ -1,11 +1,11 @@
 import api from "@/app/api";
 import ProductCard from "@/components/ProductCard";
 import { colors } from "@/config/colors";
-import { AuthContext } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Dimensions,
@@ -63,7 +63,7 @@ const { width } = Dimensions.get("window");
 
 export default function ShopScreen({ defaultCategory = "" }) {
   const insets = useSafeAreaInsets();
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const {
     chefFoodsCache,
     setChefFoodsCache,
@@ -202,7 +202,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
             ) || "999"
           );
 
-          const radius = parseFloat(product.delivery_radius || 0);
+          const radius = Number(product.delivery_radius || 0);
           return distance <= radius;
         });
 
@@ -249,7 +249,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
           ) || "999"
         );
 
-        const radius = parseFloat(product.delivery_radius || 0);
+        const radius = Number(product.delivery_radius || 0);
         return distance <= radius;
       });
 
@@ -332,13 +332,13 @@ export default function ShopScreen({ defaultCategory = "" }) {
     // Price filter
     updated = updated.filter(
       (p) =>
-        parseFloat(p.final_price || p.offer_price || p.mrp || 0) <=
-        parseFloat(priceRange)
+        Number(p.final_price ?? p.offer_price ?? p.mrp ?? 0) <=
+        Number(priceRange)
     );
 
     // Offer filter
     if (offerFilter) {
-      updated = updated.filter((p) => parseFloat(p.offer || 0) >= offerFilter);
+      updated = updated.filter((p) => Number(p.offer || 0) >= offerFilter);
     }
 
     // Sorting
@@ -349,19 +349,19 @@ export default function ShopScreen({ defaultCategory = "" }) {
     if (sortOption === "priceLowHigh")
       updated.sort(
         (a, b) =>
-          parseFloat(a.final_price || a.offer_price || 0) -
-          parseFloat(b.final_price || b.offer_price || 0)
+          Number(a.final_price ?? a.offer_price ?? 0) -
+          Number(b.final_price ?? b.offer_price ?? 0)
       );
     if (sortOption === "priceHighLow")
       updated.sort(
         (a, b) =>
-          parseFloat(b.final_price || b.offer_price || 0) -
-          parseFloat(a.final_price || a.offer_price || 0)
+          Number(b.final_price ?? b.offer_price ?? 0) -
+          Number(a.final_price ?? a.offer_price ?? 0)
       );
     if (sortOption === "offerHighLow")
-      updated.sort((a, b) => parseFloat(b.offer || 0) - parseFloat(a.offer || 0));
+      updated.sort((a, b) => Number(b.offer || 0) - Number(a.offer || 0));
     if (sortOption === "offerLowHigh")
-      updated.sort((a, b) => parseFloat(a.offer || 0) - parseFloat(b.offer || 0));
+      updated.sort((a, b) => Number(a.offer || 0) - Number(b.offer || 0));
 
     setFilteredProducts([...updated]);
     setCurrentPage(1);
@@ -394,19 +394,19 @@ export default function ShopScreen({ defaultCategory = "" }) {
   const apiCategoryNames = Object.values(groupedCategories || {})
     .flat()
     .map((cat) => cat.name?.trim())
-    .filter(Boolean);
+    .filter((name): name is string => Boolean(name));
 
-  const categories = selectedType
+  const categories: string[] = selectedType
     ? [
         ...new Set(
           (groupedCategories[selectedType] || [])
             .map((cat) => cat.name?.trim())
-            .filter(Boolean)
+            .filter((name): name is string => Boolean(name))
         ),
       ]
     : apiCategoryNames.length > 0
     ? [...new Set(apiCategoryNames)]
-    : [...new Set(products.map((p) => p.category).filter(Boolean).map((cat) => cat.trim()))];
+    : [...new Set(products.map((p) => p.category).filter((cat): cat is string => Boolean(cat)).map((cat) => cat.trim()))];
 
   const subCategories = [
     ...new Set(
