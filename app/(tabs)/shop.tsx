@@ -575,7 +575,7 @@ export default function ShopScreen({ defaultCategory = "" }) {
                   user?.district ||
                   user?.location_name ||
                   (user?.latitude && user?.longitude
-                    ? `${parseFloat(user.latitude).toFixed(4)}, ${parseFloat(user.longitude).toFixed(4)}`
+                    ? `${Number(user.latitude).toFixed(4)}, ${Number(user.longitude).toFixed(4)}`
                     : "Current Location")}
               </Text>
             </View>
@@ -833,8 +833,8 @@ export default function ShopScreen({ defaultCategory = "" }) {
                   gap: 10,
                 }}
               >
-                {currentProducts.map((product) => (
-                  <View key={product.id} style={{ width: "100%" }}>
+                {currentProducts.map((product, index) => (
+                  <View key={product.id || product._id || `product-${index}`} style={{ width: "100%" }}>
                     <ProductCard product={product} />
                   </View>
                 ))}
