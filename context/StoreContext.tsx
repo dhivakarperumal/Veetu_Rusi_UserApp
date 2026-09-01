@@ -6,19 +6,28 @@ interface Product {
   category: string;
   subcategory?: string;
   status?: string;
-  final_price?: number;
-  offer_price?: number;
-  mrp?: number;
-  offer?: number;
+  final_price?: number | string;
+  offer_price?: number | string;
+  mrp?: number | string;
+  offer?: number | string;
   variants?: Array<{
-    colorName: string;
+    colorName?: string;
     selectedSizes?: string[];
+    weight?: string;
+    price?: number;
+    offer?: number;
+    final_price?: number;
+    stock?: number;
+    images?: string;
   }>;
   chef_name?: string;
-  delivery_radius?: number;
-  latitude?: number;
-  longitude?: number;
+  delivery_radius?: number | string;
+  latitude?: number | string;
+  longitude?: number | string;
   area_name?: string;
+  city?: string;
+  district?: string;
+  state?: string;
   pincode?: string;
   [key: string]: any;
 }

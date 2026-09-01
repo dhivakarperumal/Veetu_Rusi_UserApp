@@ -7,10 +7,10 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 interface Product {
   id: string;
   name: string;
-  mrp?: number;
-  offer_price?: number;
-  final_price?: number;
-  offer?: number;
+  mrp?: number | string;
+  offer_price?: number | string;
+  final_price?: number | string;
+  offer?: number | string;
   image?: string;
   chef_name?: string;
   category?: string;
