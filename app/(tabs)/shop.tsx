@@ -7,15 +7,13 @@ import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -58,8 +56,6 @@ interface HomeChef {
   pincode?: string;
   [key: string]: any;
 }
-
-const { width } = Dimensions.get("window");
 
 export default function ShopScreen({ defaultCategory = "" }) {
   const insets = useSafeAreaInsets();

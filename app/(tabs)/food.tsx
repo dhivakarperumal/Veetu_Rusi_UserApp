@@ -7,21 +7,17 @@ export default function FoodScreen() {
   const insets = useSafeAreaInsets();
   return (
     <View
-      className="flex-1"
+      className="flex-1 bg-background"
       style={{
-        backgroundColor: colors.background,
         paddingTop: insets.top,
       }}
     >
       <AppHeader title="Food" />
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-3xl font-bold" style={{ color: colors.text }}>
+        <Text className="text-3xl font-bold text-text">
           Food
         </Text>
-        <Text
-          className="mt-3 text-base"
-          style={{ color: colors.textSecondary }}
-        >
+        <Text className="mt-3 text-base text-textSecondary">
           Browse our delicious meals
         </Text>
       </View>

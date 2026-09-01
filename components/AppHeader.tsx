@@ -3,7 +3,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useContext, useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title: string;
@@ -41,51 +41,53 @@ export default function AppHeader({ title }: AppHeaderProps) {
   };
 
   return (
-    <View style={styles.headerWrap}>
-      <View style={styles.leftSection}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>V</Text>
+    <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-[18px] py-3">
+      {/* Left section: Logo and Title */}
+      <View className="flex-1 flex-row items-center">
+        <View className="mr-2.5 h-[34px] w-[34px] items-center justify-center rounded-full bg-primary">
+          <Text className="text-[18px] font-bold text-white">V</Text>
         </View>
-        <Text style={styles.title}>{title}</Text>
+        <Text className="text-[22px] font-bold text-text">{title}</Text>
       </View>
 
-      <View style={styles.rightSection}>
-        <Pressable style={styles.iconButton} hitSlop={10}>
+      {/* Right section: Notification & Profile */}
+      <View className="flex-row items-center gap-2.5">
+        <Pressable className="h-9 w-9 items-center justify-center rounded-full bg-gray" hitSlop={10}>
           <MaterialCommunityIcons name="bell-outline" size={22} color={colors.text} />
         </Pressable>
 
-        <View style={styles.profileContainer}>
+        <View className="relative">
           <Pressable
-            style={styles.avatarButton}
+            className="h-9 w-9 items-center justify-center rounded-full bg-primary shadow-sm shadow-black"
             onPress={() => setMenuOpen((prev) => !prev)}
             hitSlop={8}
           >
-            <Text style={styles.avatarText}>{initialLetter}</Text>
+            <Text className="text-[16px] font-bold text-white">{initialLetter}</Text>
           </Pressable>
 
           {menuOpen && (
-            <View style={styles.dropdown}>
-              <View style={styles.userSummary}>
-                <Text style={styles.userName} numberOfLines={1}>
+            <View className="absolute right-0 top-[46px] z-50 w-[220px] rounded-xl border border-border bg-white py-2 shadow-lg shadow-black">
+              <View className="border-b border-borderLight px-3.5 py-2.5">
+                <Text className="text-[15px] font-bold text-text" numberOfLines={1}>
                   {user?.username || user?.name || "Guest User"}
                 </Text>
-                <Text style={styles.userEmail} numberOfLines={1}>
+                <Text className="mt-0.5 text-[12px] text-textSecondary" numberOfLines={1}>
                   {user?.email || "No email available"}
                 </Text>
               </View>
 
               <Pressable
-                style={styles.dropdownItem}
+                className="px-3.5 py-3"
                 onPress={() => {
                   setMenuOpen(false);
                   router.push("/(tabs)/more");
                 }}
               >
-                <Text style={styles.dropdownItemText}>Profile</Text>
+                <Text className="text-[15px] font-semibold text-text">Profile</Text>
               </Pressable>
 
-              <Pressable style={styles.dropdownItem} onPress={handleLogout}>
-                <Text style={[styles.dropdownItemText, styles.logoutText]}>Logout</Text>
+              <Pressable className="px-3.5 py-3" onPress={handleLogout}>
+                <Text className="text-[15px] font-semibold text-error">Logout</Text>
               </Pressable>
             </View>
           )}
@@ -94,118 +96,3 @@ export default function AppHeader({ title }: AppHeaderProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  headerWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  leftSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  logoCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
-  logoText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  rightSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.gray,
-  },
-  profileContainer: {
-    position: "relative",
-  },
-  avatarButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  avatarText: {
-    color: colors.white,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  dropdown: {
-    position: "absolute",
-    right: 0,
-    top: 46,
-    width: 220,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 8,
-    shadowColor: colors.black,
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  userSummary: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  userName: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  userEmail: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    marginTop: 3,
-  },
-  dropdownItem: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  dropdownItemText: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  logoutText: {
-    color: colors.error,
-  },
-});

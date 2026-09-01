@@ -32,14 +32,7 @@ function RootLayoutContent() {
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: colors.white,
-        }}
-      >
+      <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );

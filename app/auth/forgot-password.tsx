@@ -50,25 +50,19 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerClassName="grow"
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 30,
-              paddingBottom: 20,
-            }}
-          >
+          <View className="px-5 pb-5 pt-8">
             <Link href="/auth/login" asChild>
-              <TouchableOpacity style={{ marginBottom: 20 }}>
+              <TouchableOpacity className="mb-5">
                 <MaterialCommunityIcons
                   name="arrow-left"
                   size={28}
@@ -76,45 +70,17 @@ export default function ForgotPasswordScreen() {
                 />
               </TouchableOpacity>
             </Link>
-            <Text
-              style={{
-                fontSize: 32,
-                fontWeight: "bold",
-                color: colors.secondary,
-                marginBottom: 8,
-              }}
-            >
+            <Text className="mb-2 text-3xl font-bold text-secondary">
               Reset Password
             </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.textSecondary,
-                fontWeight: "500",
-              }}
-            >
+            <Text className="text-base font-medium text-textSecondary">
               Enter your email to receive reset instructions
             </Text>
           </View>
 
           {/* Logo */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 20,
-              alignItems: "center",
-            }}
-          >
-            <View
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
-                backgroundColor: colors.primary,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+          <View className="items-center px-5 py-5">
+            <View className="h-20 w-20 items-center justify-center rounded-full bg-primary">
               <MaterialCommunityIcons
                 name="lock-reset"
                 size={40}
@@ -124,37 +90,19 @@ export default function ForgotPasswordScreen() {
           </View>
 
           {/* Form */}
-          <View style={{ paddingHorizontal: 20, paddingBottom: 30 }}>
+          <View className="px-5 pb-7">
             {!submitted ? (
               <>
-                <View style={{ marginBottom: 24 }}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      fontWeight: "600",
-                      color: colors.secondary,
-                      marginBottom: 8,
-                      marginLeft: 4,
-                    }}
-                  >
+                <View className="mb-6">
+                  <Text className="mb-2 ml-1 text-sm font-semibold text-secondary">
                     Email Address
                   </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      borderRadius: 14,
-                      paddingHorizontal: 16,
-                      backgroundColor: colors.gray,
-                    }}
-                  >
+                  <View className="flex-row items-center rounded-2xl border border-border bg-gray px-4">
                     <MaterialCommunityIcons
                       name="email-outline"
                       size={20}
                       color={colors.textSecondary}
-                      style={{ marginRight: 8 }}
+                      className="mr-2"
                     />
                     <TextInput
                       placeholder="e.g. awesome@user.com"
@@ -162,12 +110,8 @@ export default function ForgotPasswordScreen() {
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
-                      style={{
-                        flex: 1,
-                        paddingVertical: 14,
-                        fontSize: 16,
-                        color: colors.text,
-                      }}
+                      autoCapitalize="none"
+                      className="flex-1 py-3.5 text-base text-text"
                     />
                   </View>
                 </View>
@@ -175,56 +119,29 @@ export default function ForgotPasswordScreen() {
                 <TouchableOpacity
                   onPress={handleSubmit}
                   disabled={loading}
-                  style={{
-                    backgroundColor: colors.primary,
-                    paddingVertical: 14,
-                    borderRadius: 14,
-                    alignItems: "center",
-                    marginBottom: 20,
-                    opacity: loading ? 0.6 : 1,
-                  }}
+                  className={`mb-5 items-center rounded-2xl bg-primary py-3.5 ${loading ? "opacity-60" : "opacity-100"}`}
                 >
                   {loading ? (
                     <ActivityIndicator color={colors.white} size="small" />
                   ) : (
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: colors.white,
-                      }}
-                    >
+                    <Text className="text-base font-bold text-white">
                       Send Reset Link
                     </Text>
                   )}
                 </TouchableOpacity>
               </>
             ) : (
-              <View style={{ alignItems: "center", paddingVertical: 20 }}>
+              <View className="items-center py-5">
                 <MaterialCommunityIcons
                   name="check-circle"
                   size={64}
                   color={colors.success}
-                  style={{ marginBottom: 16 }}
+                  className="mb-4"
                 />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "600",
-                    color: colors.secondary,
-                    textAlign: "center",
-                  }}
-                >
+                <Text className="text-center text-lg font-semibold text-secondary">
                   Check Your Email
                 </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: colors.textSecondary,
-                    textAlign: "center",
-                    marginTop: 8,
-                  }}
-                >
+                <Text className="mt-2 text-center text-sm text-textSecondary">
                   {"We've sent password reset instructions to your email."}
                 </Text>
               </View>

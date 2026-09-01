@@ -98,155 +98,73 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerClassName="grow"
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 30,
-              paddingBottom: 20,
-              backgroundColor: colors.white,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 32,
-                fontWeight: "bold",
-                color: colors.secondary,
-                marginBottom: 8,
-              }}
-            >
+          <View className="bg-white px-5 pb-5 pt-8">
+            <Text className="mb-2 text-3xl font-bold text-secondary">
               Create Account
             </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.textSecondary,
-                fontWeight: "500",
-              }}
-            >
+            <Text className="text-base font-medium text-textSecondary">
               Register to get started
             </Text>
           </View>
 
           {/* Logo/Brand Section */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              alignItems: "center",
-            }}
-          >
-            <View
-              style={{
-                width: 70,
-                height: 70,
-                borderRadius: 35,
-                backgroundColor: colors.primary,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 8,
-              }}
-            >
-              <Text style={{ fontSize: 32, fontWeight: "bold", color: colors.white }}>
+          <View className="items-center px-5 py-4">
+            <View className="mb-2 h-[70px] w-[70px] items-center justify-center rounded-full bg-primary">
+              <Text className="text-3xl font-bold text-white">
                 VR
               </Text>
             </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                color: colors.secondary,
-              }}
-            >
+            <Text className="text-xl font-bold text-secondary">
               Veetu Rusi
             </Text>
           </View>
 
           {/* Form Section */}
-          <View style={{ paddingHorizontal: 20, paddingBottom: 30 }}>
+          <View className="px-5 pb-8">
             {/* Username Field */}
-            <View style={{ marginBottom: 14 }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "600",
-                  color: colors.secondary,
-                  marginBottom: 6,
-                  marginLeft: 4,
-                }}
-              >
+            <View className="mb-3.5">
+              <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                 Username
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 12,
-                  paddingHorizontal: 14,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-xl border border-border bg-gray px-3.5">
                 <MaterialCommunityIcons
                   name="account-outline"
                   size={18}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="e.g. johndoe"
                   placeholderTextColor={colors.textSecondary}
                   value={form.username}
                   onChangeText={(value) => handleChange("username", value)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3 text-[15px] text-text"
+                  autoCapitalize="none"
                 />
               </View>
             </View>
 
             {/* Email Field */}
-            <View style={{ marginBottom: 14 }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "600",
-                  color: colors.secondary,
-                  marginBottom: 6,
-                  marginLeft: 4,
-                }}
-              >
+            <View className="mb-3.5">
+              <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                 Email Address
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 12,
-                  paddingHorizontal: 14,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-xl border border-border bg-gray px-3.5">
                 <MaterialCommunityIcons
                   name="email-outline"
                   size={18}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="e.g. awesome@user.com"
@@ -254,45 +172,23 @@ export default function RegisterScreen() {
                   value={form.email}
                   onChangeText={(value) => handleChange("email", value)}
                   keyboardType="email-address"
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3 text-[15px] text-text"
+                  autoCapitalize="none"
                 />
               </View>
             </View>
 
             {/* Phone Field */}
-            <View style={{ marginBottom: 14 }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "600",
-                  color: colors.secondary,
-                  marginBottom: 6,
-                  marginLeft: 4,
-                }}
-              >
+            <View className="mb-3.5">
+              <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                 Phone Number
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 12,
-                  paddingHorizontal: 14,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-xl border border-border bg-gray px-3.5">
                 <MaterialCommunityIcons
                   name="phone-outline"
                   size={18}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="e.g. +1 234 567 890"
@@ -300,95 +196,50 @@ export default function RegisterScreen() {
                   value={form.phone}
                   onChangeText={(value) => handleChange("phone", value)}
                   keyboardType="phone-pad"
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3 text-[15px] text-text"
                 />
               </View>
             </View>
 
             {/* Referral Code Field */}
-            <View style={{ marginBottom: 14 }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "600",
-                  color: colors.secondary,
-                  marginBottom: 6,
-                  marginLeft: 4,
-                }}
-              >
+            <View className="mb-3.5">
+              <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                 Referral Code{" "}
-                <Text style={{ color: colors.textSecondary, fontWeight: "400" }}>
+                <Text className="font-normal text-textSecondary">
                   (optional)
                 </Text>
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 12,
-                  paddingHorizontal: 14,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-xl border border-border bg-gray px-3.5">
                 <MaterialCommunityIcons
                   name="gift-outline"
                   size={18}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="Enter invite code"
                   placeholderTextColor={colors.textSecondary}
                   value={form.referral_code}
                   onChangeText={(value) => handleChange("referral_code", value)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3 text-[15px] text-text"
+                  autoCapitalize="characters"
                 />
               </View>
             </View>
 
             {/* Password Fields Row */}
-            <View style={{ flexDirection: "row", gap: 12, marginBottom: 20 }}>
+            <View className="mb-5 flex-row gap-3">
               {/* Password Field */}
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "600",
-                    color: colors.secondary,
-                    marginBottom: 6,
-                    marginLeft: 4,
-                  }}
-                >
+              <View className="flex-1">
+                <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                   Password
                 </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    borderRadius: 12,
-                    paddingHorizontal: 12,
-                    backgroundColor: colors.gray,
-                  }}
-                >
+                <View className="flex-row items-center rounded-xl border border-border bg-gray px-3">
                   <MaterialCommunityIcons
                     name="lock-outline"
                     size={16}
                     color={colors.textSecondary}
-                    style={{ marginRight: 6 }}
+                    className="mr-1.5"
                   />
                   <TextInput
                     placeholder="••••••••"
@@ -396,12 +247,7 @@ export default function RegisterScreen() {
                     value={form.password}
                     onChangeText={(value) => handleChange("password", value)}
                     secureTextEntry={!showPassword}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 12,
-                      fontSize: 15,
-                      color: colors.text,
-                    }}
+                    className="flex-1 py-3 text-[15px] text-text"
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
@@ -416,34 +262,16 @@ export default function RegisterScreen() {
               </View>
 
               {/* Confirm Password Field */}
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "600",
-                    color: colors.secondary,
-                    marginBottom: 6,
-                    marginLeft: 4,
-                  }}
-                >
+              <View className="flex-1">
+                <Text className="mb-1.5 ml-1 text-xs font-semibold text-secondary">
                   Confirm
                 </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    borderRadius: 12,
-                    paddingHorizontal: 12,
-                    backgroundColor: colors.gray,
-                  }}
-                >
+                <View className="flex-row items-center rounded-xl border border-border bg-gray px-3">
                   <MaterialCommunityIcons
                     name="lock-outline"
                     size={16}
                     color={colors.textSecondary}
-                    style={{ marginRight: 6 }}
+                    className="mr-1.5"
                   />
                   <TextInput
                     placeholder="••••••••"
@@ -453,12 +281,7 @@ export default function RegisterScreen() {
                       handleChange("confirmPassword", value)
                     }
                     secureTextEntry={!showConfirmPassword}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 12,
-                      fontSize: 15,
-                      color: colors.text,
-                    }}
+                    className="flex-1 py-3 text-[15px] text-text"
                   />
                   <TouchableOpacity
                     onPress={() =>
@@ -483,50 +306,25 @@ export default function RegisterScreen() {
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={loading}
-              style={{
-                backgroundColor: colors.primary,
-                paddingVertical: 14,
-                borderRadius: 12,
-                alignItems: "center",
-                marginBottom: 20,
-                opacity: loading ? 0.6 : 1,
-              }}
+              className={`mb-5 items-center rounded-xl bg-primary py-3.5 ${loading ? "opacity-60" : "opacity-100"}`}
             >
               {loading ? (
                 <ActivityIndicator color={colors.white} size="small" />
               ) : (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: colors.white,
-                  }}
-                >
+                <Text className="text-base font-bold text-white">
                   Sign Up
                 </Text>
               )}
             </TouchableOpacity>
 
             {/* Login Link */}
-            <View style={{ flexDirection: "row", justifyContent: "center" }}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textSecondary,
-                  fontWeight: "500",
-                }}
-              >
+            <View className="flex-row justify-center">
+              <Text className="text-[15px] font-medium text-textSecondary">
                 Already have an account?{" "}
               </Text>
               <Link href="/auth/login" asChild>
                 <TouchableOpacity>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      color: colors.primary,
-                      fontWeight: "700",
-                    }}
-                  >
+                  <Text className="text-[15px] font-bold text-primary">
                     Log In
                   </Text>
                 </TouchableOpacity>

@@ -62,9 +62,8 @@ export default function MoreScreen() {
 
   return (
     <View
-      className="flex-1"
+      className="flex-1 bg-background"
       style={{
-        backgroundColor: colors.background,
         paddingTop: insets.top,
       }}
     >
@@ -73,56 +72,18 @@ export default function MoreScreen() {
 
         {/* User Profile Section */}
         {user && (
-          <View
-            style={{
-              marginHorizontal: 20,
-              marginBottom: 20,
-              padding: 16,
-              borderRadius: 12,
-              backgroundColor: colors.white,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  backgroundColor: colors.primary,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginRight: 12,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    color: colors.white,
-                  }}
-                >
+          <View className="mx-5 mb-5 rounded-xl border border-border bg-white p-4">
+            <View className="flex-row items-center">
+              <View className="mr-3 h-[50px] w-[50px] items-center justify-center rounded-full bg-primary">
+                <Text className="text-[20px] font-bold text-white">
                   {user.username?.charAt(0).toUpperCase() || "U"}
                 </Text>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: colors.text,
-                  }}
-                >
+              <View className="flex-1">
+                <Text className="text-[16px] font-semibold text-text">
                   {user.username}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: colors.textSecondary,
-                    marginTop: 2,
-                  }}
-                >
+                <Text className="mt-0.5 text-[13px] text-textSecondary">
                   {user.email}
                 </Text>
               </View>
@@ -131,134 +92,94 @@ export default function MoreScreen() {
         )}
 
         {/* Menu Items */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 30 }}>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
+        <View className="mb-[30px] px-5">
+          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
             <MaterialCommunityIcons
               name="account-circle-outline"
               size={24}
               color={colors.primary}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text style={{ fontSize: 16, color: colors.text, fontWeight: "500" }}>
+            <Text className="text-[16px] font-medium text-text">
               Profile Settings
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={colors.textSecondary}
-              style={{ marginLeft: "auto" }}
+              className="ml-auto"
             />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
+          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
             <MaterialCommunityIcons
               name="bell-outline"
               size={24}
               color={colors.primary}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text style={{ fontSize: 16, color: colors.text, fontWeight: "500" }}>
+            <Text className="text-[16px] font-medium text-text">
               Notifications
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={colors.textSecondary}
-              style={{ marginLeft: "auto" }}
+              className="ml-auto"
             />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
+          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
             <MaterialCommunityIcons
               name="history"
               size={24}
               color={colors.primary}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text style={{ fontSize: 16, color: colors.text, fontWeight: "500" }}>
+            <Text className="text-[16px] font-medium text-text">
               Order History
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={colors.textSecondary}
-              style={{ marginLeft: "auto" }}
+              className="ml-auto"
             />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
+          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
             <MaterialCommunityIcons
               name="cog-outline"
               size={24}
               color={colors.primary}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text style={{ fontSize: 16, color: colors.text, fontWeight: "500" }}>
+            <Text className="text-[16px] font-medium text-text">
               Settings
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={colors.textSecondary}
-              style={{ marginLeft: "auto" }}
+              className="ml-auto"
             />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
+          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
             <MaterialCommunityIcons
               name="information-outline"
               size={24}
               color={colors.primary}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text style={{ fontSize: 16, color: colors.text, fontWeight: "500" }}>
+            <Text className="text-[16px] font-medium text-text">
               About
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
               color={colors.textSecondary}
-              style={{ marginLeft: "auto" }}
+              className="ml-auto"
             />
           </TouchableOpacity>
 
@@ -266,26 +187,15 @@ export default function MoreScreen() {
           <TouchableOpacity
             onPress={handleLogout}
             disabled={loading}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 12,
-              opacity: loading ? 0.6 : 1,
-            }}
+            className={`flex-row items-center py-3 ${loading ? "opacity-60" : "opacity-100"}`}
           >
             <MaterialCommunityIcons
               name="logout"
               size={24}
               color={colors.error}
-              style={{ marginRight: 12 }}
+              className="mr-3"
             />
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.error,
-                fontWeight: "600",
-              }}
-            >
+            <Text className="text-[16px] font-semibold text-error">
               Logout
             </Text>
           </TouchableOpacity>

@@ -75,177 +75,83 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerClassName="grow"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header with background gradient effect */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 40,
-              paddingBottom: 30,
-              backgroundColor: colors.white,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 32,
-                fontWeight: "bold",
-                color: colors.secondary,
-                marginBottom: 8,
-              }}
-            >
+          {/* Header */}
+          <View className="bg-white px-5 pb-7 pt-10">
+            <Text className="mb-2 text-3xl font-bold text-secondary">
               Welcome Back
             </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.textSecondary,
-                fontWeight: "500",
-              }}
-            >
+            <Text className="text-base font-medium text-textSecondary">
               Log in to your account to continue
             </Text>
           </View>
 
           {/* Logo/Brand Section */}
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 20,
-              alignItems: "center",
-            }}
-          >
-            <View
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
-                backgroundColor: colors.primary,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ fontSize: 40, fontWeight: "bold", color: colors.white }}>
+          <View className="items-center px-5 py-5">
+            <View className="mb-2.5 h-20 w-20 items-center justify-center rounded-full bg-primary">
+              <Text className="text-4xl font-bold text-white">
                 VR
               </Text>
             </View>
-            <Text
-              style={{
-                fontSize: 24,
-                fontWeight: "bold",
-                color: colors.secondary,
-              }}
-            >
+            <Text className="text-2xl font-bold text-secondary">
               Veetu Rusi
             </Text>
           </View>
 
           {/* Form Section */}
-          <View style={{ paddingHorizontal: 20, paddingBottom: 30 }}>
+          <View className="px-5 pb-7">
             {/* Email Field */}
-            <View style={{ marginBottom: 18 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "600",
-                  color: colors.secondary,
-                  marginBottom: 8,
-                  marginLeft: 4,
-                }}
-              >
+            <View className="mb-4">
+              <Text className="mb-2 ml-1 text-sm font-semibold text-secondary">
                 Email Address
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 14,
-                  paddingHorizontal: 16,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-2xl border border-border bg-gray px-4">
                 <MaterialCommunityIcons
                   name="email-outline"
                   size={20}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="e.g. awesome@user.com"
                   placeholderTextColor={colors.textSecondary}
                   value={form.identifier}
                   onChangeText={(value) => handleChange("identifier", value)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 14,
-                    fontSize: 16,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3.5 text-base text-text"
                   keyboardType="email-address"
+                  autoCapitalize="none"
                 />
               </View>
             </View>
 
             {/* Password Field */}
-            <View style={{ marginBottom: 20 }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 8,
-                  marginLeft: 4,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: "600",
-                    color: colors.secondary,
-                  }}
-                >
+            <View className="mb-5">
+              <View className="mb-2 ml-1 flex-row items-center justify-between">
+                <Text className="text-sm font-semibold text-secondary">
                   Password
                 </Text>
                 <Link href="/auth/forgot-password" asChild>
                   <TouchableOpacity>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        color: colors.primary,
-                        fontWeight: "600",
-                      }}
-                    >
+                    <Text className="text-xs font-semibold text-primary">
                       Forgot password?
                     </Text>
                   </TouchableOpacity>
                 </Link>
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 14,
-                  paddingHorizontal: 16,
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <View className="flex-row items-center rounded-2xl border border-border bg-gray px-4">
                 <MaterialCommunityIcons
                   name="lock-outline"
                   size={20}
                   color={colors.textSecondary}
-                  style={{ marginRight: 8 }}
+                  className="mr-2"
                 />
                 <TextInput
                   placeholder="Enter your password"
@@ -253,12 +159,7 @@ export default function LoginScreen() {
                   value={form.password}
                   onChangeText={(value) => handleChange("password", value)}
                   secureTextEntry={!showPassword}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 14,
-                    fontSize: 16,
-                    color: colors.text,
-                  }}
+                  className="flex-1 py-3.5 text-base text-text"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -276,120 +177,43 @@ export default function LoginScreen() {
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={loading}
-              style={{
-                backgroundColor: colors.primary,
-                paddingVertical: 14,
-                borderRadius: 14,
-                alignItems: "center",
-                marginBottom: 24,
-                opacity: loading ? 0.6 : 1,
-              }}
+              className={`mb-6 items-center rounded-2xl bg-primary py-3.5 ${loading ? "opacity-60" : "opacity-100"}`}
             >
               {loading ? (
                 <ActivityIndicator color={colors.white} size="small" />
               ) : (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: colors.white,
-                  }}
-                >
+                <Text className="text-base font-bold text-white">
                   Log In
                 </Text>
               )}
             </TouchableOpacity>
 
             {/* Divider */}
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginVertical: 24,
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  height: 1,
-                  backgroundColor: colors.border,
-                }}
-              />
-              <Text
-                style={{
-                  paddingHorizontal: 12,
-                  fontSize: 12,
-                  color: colors.textSecondary,
-                  fontWeight: "600",
-                }}
-              >
+            <View className="my-6 flex-row items-center">
+              <View className="h-[1px] flex-1 bg-border" />
+              <Text className="px-3 text-xs font-semibold text-textSecondary">
                 OR CONTINUE WITH
               </Text>
-              <View
-                style={{
-                  flex: 1,
-                  height: 1,
-                  backgroundColor: colors.border,
-                }}
-              />
+              <View className="h-[1px] flex-1 bg-border" />
             </View>
 
             {/* Social Login */}
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around",
-                marginBottom: 24,
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: colors.gray,
-                }}
-              >
+            <View className="mb-6 flex-row justify-around">
+              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
                 <MaterialCommunityIcons
                   name="facebook"
                   size={24}
                   color="#1877F2"
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
                 <MaterialCommunityIcons
                   name="google"
                   size={24}
                   color="#EA4335"
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: colors.gray,
-                }}
-              >
+              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
                 <MaterialCommunityIcons
                   name="apple"
                   size={24}
@@ -399,25 +223,13 @@ export default function LoginScreen() {
             </View>
 
             {/* Sign Up Link */}
-            <View style={{ flexDirection: "row", justifyContent: "center" }}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textSecondary,
-                  fontWeight: "500",
-                }}
-              >
+            <View className="flex-row justify-center">
+              <Text className="text-[15px] font-medium text-textSecondary">
                 {"Don't have an account? "}
               </Text>
               <Link href="/auth/register" asChild>
                 <TouchableOpacity>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      color: colors.primary,
-                      fontWeight: "700",
-                    }}
-                  >
+                  <Text className="text-[15px] font-bold text-primary">
                     Sign up
                   </Text>
                 </TouchableOpacity>
