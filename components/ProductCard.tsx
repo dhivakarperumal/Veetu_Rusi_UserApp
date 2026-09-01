@@ -2,13 +2,7 @@ import { colors } from "@/config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface Product {
   id: string;
@@ -51,55 +45,62 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <TouchableOpacity
       onPress={handlePress}
-      style={styles.container}
       activeOpacity={0.8}
+      className="mb-3 flex-row items-center rounded-[18px] border border-[#F0F0F0] bg-white p-2 shadow-sm"
+      style={{
+        shadowColor: colors.black,
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+      }}
     >
-      <View style={styles.imageContainer}>
+      <View className="relative h-[90px] w-[90px] overflow-hidden rounded-[16px] bg-[#F5F5F5]">
         {product.image ? (
-          <Image
-            source={{ uri: product.image }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: product.image }} className="h-full w-full" resizeMode="cover" />
         ) : (
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>No Image</Text>
+          <View className="h-full w-full items-center justify-center bg-[#E8E8E8]">
+            <Text className="text-[10px] text-[#757575]">No Image</Text>
           </View>
         )}
 
         {discount > 0 && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>{discount}% OFF</Text>
+          <View className="absolute right-2 top-2 rounded-lg bg-[#FF8C42] px-1.5 py-1">
+            <Text className="text-[9px] font-bold text-white">{discount}% OFF</Text>
           </View>
         )}
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.productName} numberOfLines={2}>
+      <View className="flex-1 justify-center px-3">
+        <Text className="mb-1.5 text-base font-bold text-[#2D3E50]" numberOfLines={2}>
           {product.name}
         </Text>
 
-        <View style={styles.metaRow}>
-          <Text style={styles.price}>₹{price.toFixed(0)}</Text>
+        <View className="mb-1 flex-row items-center">
+          <Text className="text-[15px] font-bold text-[#2D3E50]">₹{price.toFixed(0)}</Text>
           {originalPrice > price && (
-            <Text style={styles.originalPrice}>₹{originalPrice.toFixed(0)}</Text>
+            <Text className="ml-2 text-[12px] text-[#757575] line-through">
+              ₹{originalPrice.toFixed(0)}
+            </Text>
           )}
         </View>
 
-        <View style={styles.ratingRow}>
+        <View className="mb-1 flex-row items-center">
           <MaterialCommunityIcons name="star" size={14} color={colors.warning} />
-          <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+          <Text className="ml-1 text-[12px] font-semibold text-[#757575]">
+            {rating.toFixed(1)}
+          </Text>
         </View>
 
         {chefName && (
-          <Text style={styles.chefName} numberOfLines={1}>
+          <Text className="text-[12px] font-semibold text-[#FF8C42]" numberOfLines={1}>
             {chefName}
           </Text>
         )}
       </View>
 
       <TouchableOpacity
-        style={styles.addButton}
+        className="h-[34px] w-[34px] items-center justify-center rounded-full border-2 border-[#FF8C42] bg-white"
         onPress={(event) => {
           event.stopPropagation();
         }}
@@ -109,110 +110,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.white,
-    borderRadius: 18,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    marginBottom: 12,
-    shadowColor: colors.black,
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  imageContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: colors.gray,
-    position: "relative",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  imagePlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.grayLight,
-  },
-  placeholderText: {
-    color: colors.grayDark,
-    fontSize: 10,
-  },
-  discountBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  discountText: {
-    color: colors.white,
-    fontSize: 9,
-    fontWeight: "700",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 12,
-    justifyContent: "center",
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 6,
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  originalPrice: {
-    fontSize: 12,
-    color: colors.grayDark,
-    textDecorationLine: "line-through",
-    marginLeft: 8,
-  },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  ratingText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginLeft: 4,
-    fontWeight: "600",
-  },
-  chefName: {
-    fontSize: 12,
-    color: colors.primary,
-    fontWeight: "600",
-  },
-  addButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.white,
-  },
-});
