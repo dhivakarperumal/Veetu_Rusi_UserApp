@@ -72,6 +72,7 @@ export default function OrdersScreen() {
   const [reviewComment, setReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+  const [submittedReviewKeys, setSubmittedReviewKeys] = useState<string[]>([]);
 
   const normalizeOrderList = (payload: any): any[] => {
     if (Array.isArray(payload)) return payload;
@@ -286,6 +287,9 @@ export default function OrdersScreen() {
     setReviewMessage(null);
   };
 
+  const getReviewKey = (type: string, order: any) =>
+    `${type}:${String(getOrderId(order) ?? "")}`;
+
   const submitReview = async () => {
     if (!reviewType || !reviewOrder || (reviewType === "food" && !reviewItem))
       return;
@@ -308,6 +312,9 @@ export default function OrdersScreen() {
           reviewOrder.deliveryPartnerId ||
           reviewOrder.delivery_partner?.id,
       });
+      setSubmittedReviewKeys((keys) => [
+        ...new Set([...keys, getReviewKey(reviewType, reviewOrder)]),
+      ]);
       setReviewMessage("Thank you for your review.");
     } catch (error) {
       console.error("Failed to submit review", error);
@@ -327,7 +334,7 @@ export default function OrdersScreen() {
       normalizedStatus === "delivered" ||
       normalizedStatus === "order delivered"
     ) {
-      return [
+      const actionButtons = [
         {
           label: "Food Review",
           icon: "star-outline",
@@ -353,6 +360,16 @@ export default function OrdersScreen() {
           },
         },
       ];
+
+      return actionButtons.filter(
+        (action) =>
+          !(
+            (action.label === "Food Review" &&
+              submittedReviewKeys.includes(getReviewKey("food", order))) ||
+            (action.label === "Delivery Partner Review" &&
+              submittedReviewKeys.includes(getReviewKey("delivery", order)))
+          ),
+      );
     }
 
     const actionButtons = [
