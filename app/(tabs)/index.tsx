@@ -513,114 +513,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {homeChefs.length > 0 && (
-          <View className="mt-5 px-4">
-            <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-[27px] font-black text-text">
-                Top Home Chefs
-              </Text>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
-            </View>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-4"
-            >
-              {homeChefs.map((chef: Record<string, any>, idx: number) => (
-                <View
-                  key={chef.id || chef.name || idx}
-                  className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
-                >
-                  <View className="items-center">
-                    <Image
-                      source={{ uri: chef.image }}
-                      className="h-[120px] w-[120px] rounded-full border-2 border-primary"
-                      resizeMode="cover"
-                    />
-                  </View>
-                  <View className="mt-2 items-center">
-                    <Text
-                      className="text-[15px] font-black text-text"
-                      numberOfLines={1}
-                    >
-                      {chef.name}
-                    </Text>
-                    <Text
-                      className="mt-1 text-[12px] font-semibold text-textSecondary"
-                      numberOfLines={1}
-                    >
-                      {chef.location}
-                    </Text>
-                    <View className="mt-1 flex-row items-center">
-                      <Ionicons name="star" size={14} color={colors.warning} />
-                      <Text className="ml-1 text-[12px] font-black text-text">
-                        {String(chef.rating || "4.8")}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {homeChefs.length > 0 && (
-          <View className="mt-5 px-4">
-            <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-[27px] font-black text-text">
-                Top Home Chefs
-              </Text>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
-            </View>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-4"
-            >
-              {homeChefs.map((chef: Record<string, any>, idx: number) => (
-                <View
-                  key={chef.id || chef.name || idx}
-                  className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
-                >
-                  <View className="items-center">
-                    <Image
-                      source={{ uri: chef.image }}
-                      className="h-[120px] w-[120px] rounded-full border-2 border-primary"
-                      resizeMode="cover"
-                    />
-                  </View>
-                  <View className="mt-2 items-center">
-                    <Text
-                      className="text-[15px] font-black text-text"
-                      numberOfLines={1}
-                    >
-                      {chef.name}
-                    </Text>
-                    <Text
-                      className="mt-1 text-[12px] font-semibold text-textSecondary"
-                      numberOfLines={1}
-                    >
-                      {chef.location}
-                    </Text>
-                    <View className="mt-1 flex-row items-center">
-                      <Ionicons name="star" size={14} color={colors.warning} />
-                      <Text className="ml-1 text-[12px] font-black text-text">
-                        {String(chef.rating || "4.8")}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
         {/* Categories Section */}
         <View className="mx-4 mt-4 flex-row flex-wrap items-center justify-between">
           {loading ? (
@@ -702,6 +594,64 @@ export default function HomeScreen() {
             ))
           )}
         </View>
+
+        {homeChefs.length > 0 && (
+          <View className="mt-5 px-4">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-[27px] font-black text-text">
+                Top Home Chefs
+              </Text>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {homeChefs.map((chef: Record<string, any>, idx: number) => (
+                <View
+                  key={chef.id || chef.name || idx}
+                  className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                >
+                  <View className="items-center">
+                    <Image
+                      source={{ uri: chef.image }}
+                      className="h-[120px] w-[120px] rounded-full border-2 border-primary"
+                      resizeMode="cover"
+                    />
+                  </View>
+                  <View className="mt-2 items-center">
+                    <Text
+                      className="text-[15px] font-black text-text"
+                      numberOfLines={1}
+                    >
+                      {chef.name}
+                    </Text>
+                    <Text
+                      className="mt-1 text-[12px] font-semibold text-textSecondary"
+                      numberOfLines={1}
+                    >
+                      {chef.location}
+                    </Text>
+                    <View className="mt-1 flex-row items-center">
+                      <Ionicons name="star" size={14} color={colors.warning} />
+                      <Text className="ml-1 text-[12px] font-black text-text">
+                        {String(chef.rating || "4.8")}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+       
+
+        
 
         {/* Promo Banner */}
         <View className="mx-4 mt-1 rounded-[20px] border border-primary/30 bg-gradient-to-r from-[#ffe6d5] to-[#fffaf7] px-4 py-4">
