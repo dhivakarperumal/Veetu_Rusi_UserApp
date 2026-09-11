@@ -1,6 +1,6 @@
 import { colors } from "@/config/colors";
+import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -15,10 +15,11 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import api, { setAuthToken } from "../api";
+import api from "../api";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     identifier: "",
     password: "",
@@ -40,12 +41,11 @@ export default function LoginScreen() {
     try {
       const res = await api.post("/auth/login", form);
 
-      // Store user data and token
-      await setAuthToken(res.data.token);
-      await AsyncStorage.setItem(
-        "userProfile",
-        JSON.stringify(res.data.user)
-      );
+      const userData = res.data.user || res.data;
+      const authToken = res.data.token;
+
+      // Update AuthContext, storage, and API token
+      await login(userData, authToken);
 
       Alert.alert("Success", "Login successful!");
 

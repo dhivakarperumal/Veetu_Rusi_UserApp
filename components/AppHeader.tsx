@@ -1,8 +1,9 @@
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
@@ -13,12 +14,36 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const [localUser, setLocalUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!user) {
+        try {
+          const stored = await AsyncStorage.getItem("userProfile");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const actual = parsed.user || parsed;
+            setLocalUser(actual);
+            if (authContext?.updateUser) {
+              await authContext.updateUser(actual);
+            }
+          }
+        } catch (e) {
+          console.warn("Error syncing user in AppHeader:", e);
+        }
+      }
+    };
+    syncUser();
+  }, [user, authContext]);
+
+  const activeUser = user || localUser;
+
   const initialLetter = useMemo(() => {
-    const source = user?.username || user?.name || user?.email || "User";
+    const source = activeUser?.username || activeUser?.name || activeUser?.email || "User";
     return String(source).trim().charAt(0).toUpperCase() || "U";
-  }, [user?.username, user?.name, user?.email]);
+  }, [activeUser?.username, activeUser?.name, activeUser?.email]);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -28,6 +53,7 @@ export default function AppHeader({ title }: AppHeaderProps) {
         style: "destructive",
         onPress: async () => {
           try {
+            setLocalUser(null);
             await authContext?.logout();
             setMenuOpen(false);
             router.replace("/auth/login");
@@ -81,13 +107,13 @@ export default function AppHeader({ title }: AppHeaderProps) {
                   className="text-[15px] font-bold text-text"
                   numberOfLines={1}
                 >
-                  {user?.username || user?.name || "Guest User"}
+                  {activeUser?.username || activeUser?.name || "Guest User"}
                 </Text>
                 <Text
                   className="mt-0.5 text-[12px] text-textSecondary"
                   numberOfLines={1}
                 >
-                  {user?.email || "No email available"}
+                  {activeUser?.email || "No email available"}
                 </Text>
               </View>
 
@@ -103,11 +129,25 @@ export default function AppHeader({ title }: AppHeaderProps) {
                 </Text>
               </Pressable>
 
-              <Pressable className="px-3.5 py-3" onPress={handleLogout}>
-                <Text className="text-[15px] font-semibold text-error">
-                  Logout
-                </Text>
-              </Pressable>
+              {activeUser ? (
+                <Pressable className="px-3.5 py-3" onPress={handleLogout}>
+                  <Text className="text-[15px] font-semibold text-error">
+                    Logout
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  className="px-3.5 py-3"
+                  onPress={() => {
+                    setMenuOpen(false);
+                    router.push("/auth/login");
+                  }}
+                >
+                  <Text className="text-[15px] font-semibold text-primary">
+                    Login
+                  </Text>
+                </Pressable>
+              )}
             </View>
           )}
         </View>

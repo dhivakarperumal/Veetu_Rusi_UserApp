@@ -2,11 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { clearTokenCache, setAuthToken } from "../app/api";
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
+export interface User {
+  id?: string;
+  user_id?: string;
+  username?: string;
+  name?: string;
+  email?: string;
+  role?: string;
   [key: string]: any;
 }
 
@@ -17,6 +19,7 @@ interface AuthContextType {
   login: (user: User, token: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: User | null) => Promise<void>;
+  refreshUser: () => Promise<User | null>;
   isSignedIn: boolean;
 }
 
@@ -44,13 +47,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed.user || parsed);
       }
     } catch (e) {
       console.error("Auth bootstrap error:", e);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const refreshUser = async (): Promise<User | null> => {
+    try {
+      const storedToken = await AsyncStorage.getItem("userToken");
+      const storedUser = await AsyncStorage.getItem("userProfile");
+
+      if (storedToken) {
+        setToken(storedToken);
+        setAuthToken(storedToken);
+      }
+
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        const actual = parsed.user || parsed;
+        setUser(actual);
+        return actual;
+      }
+    } catch (e) {
+      console.error("refreshUser error:", e);
+    }
+    return null;
   };
 
   const login = async (userData: User, authToken: string) => {
@@ -99,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     updateUser,
+    refreshUser,
     isSignedIn: !!token,
   };
 
