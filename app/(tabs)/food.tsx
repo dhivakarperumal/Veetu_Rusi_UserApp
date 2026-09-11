@@ -1,14 +1,17 @@
 import api from "@/app/api";
+import AppHeader from "@/components/AppHeader";
 import ProductCard from "@/components/ProductCard";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, UserLocation } from "@/context/LocationContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
+  Modal,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -26,8 +29,13 @@ interface Category {
   [key: string]: any;
 }
 
-export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?: string }) {
+export default function FoodScreen({
+  defaultCategory = "",
+}: {
+  defaultCategory?: string;
+}) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const params = useLocalSearchParams<{
     category?: string;
     search?: string;
@@ -71,6 +79,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
   const [priceRange, setPriceRange] = useState(10000);
   const [offerFilter, setOfferFilter] = useState(0);
   const [sortOption, setSortOption] = useState("");
+  const [viewMode, setViewMode] = useState<"card" | "table">("card");
 
   // Other state
   const [groupedCategories, setGroupedCategories] = useState<
@@ -130,10 +139,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
 
   // Fetch products
   const fetchProducts = useCallback(
-    async (
-      forceRefresh = false,
-      locationOverride?: UserLocation | null,
-    ) => {
+    async (forceRefresh = false, locationOverride?: UserLocation | null) => {
       const activeLoc =
         locationOverride !== undefined ? locationOverride : location;
       const isCacheValid =
@@ -361,7 +367,6 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
           ),
         ];
 
-
   // Pagination
   const productsPerPage = 6;
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -456,6 +461,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
       className="flex-1 bg-background"
       style={{ paddingTop: insets.top }}
     >
+      <AppHeader title="Food" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="p-3"
@@ -525,15 +531,15 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
         <View className="mb-3 gap-2.5">
           <TouchableOpacity
             className="flex-row items-center gap-1.5 self-start rounded-xl bg-gray px-3 py-2"
-            onPress={() => setShowFilters(!showFilters)}
+            onPress={() => setShowFilters(true)}
           >
             <MaterialCommunityIcons
-              name={showFilters ? "close" : "filter"}
+              name="filter"
               size={20}
               color={colors.text}
             />
             <Text className="text-[13px] font-semibold text-text">
-              {showFilters ? "Close" : "Filters"}
+              Filters
             </Text>
           </TouchableOpacity>
 
@@ -599,29 +605,83 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
           </ScrollView>
         </View>
 
-        {/* Results Count */}
-        <Text className="mb-3 text-xs text-textSecondary">
-          Showing{" "}
-          <Text className="font-bold text-text">{filteredProducts.length}</Text>{" "}
-          of <Text className="font-bold text-text">{products.length}</Text>{" "}
-          products
-        </Text>
+        {/* Results Count and View Mode */}
+        <View className="mb-3 flex-row items-center justify-between">
+          <Text className="text-xs text-textSecondary">
+            Showing{" "}
+            <Text className="font-bold text-text">
+              {filteredProducts.length}
+            </Text>{" "}
+            of <Text className="font-bold text-text">{products.length}</Text>{" "}
+            products
+          </Text>
+          <View className="flex-row rounded-lg border border-borderLight bg-white p-1">
+            <TouchableOpacity
+              accessibilityLabel="Card view"
+              onPress={() => setViewMode("card")}
+              className={`flex-row items-center rounded-md px-2.5 py-1.5 ${
+                viewMode === "card" ? "bg-primary" : ""
+              }`}
+            >
+              <MaterialCommunityIcons
+                name="view-grid-outline"
+                size={16}
+                color={viewMode === "card" ? colors.white : colors.text}
+              />
+              <Text
+                className={`ml-1 text-[11px] font-bold ${
+                  viewMode === "card" ? "text-white" : "text-text"
+                }`}
+              >
+                Card
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityLabel="Table view"
+              onPress={() => setViewMode("table")}
+              className={`ml-1 flex-row items-center rounded-md px-2.5 py-1.5 ${
+                viewMode === "table" ? "bg-primary" : ""
+              }`}
+            >
+              <MaterialCommunityIcons
+                name="view-list-outline"
+                size={16}
+                color={viewMode === "table" ? colors.white : colors.text}
+              />
+              <Text
+                className={`ml-1 text-[11px] font-bold ${
+                  viewMode === "table" ? "text-white" : "text-text"
+                }`}
+              >
+                Table
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Filter Sidebar + Products Grid */}
-        <View className="mb-4 flex-row gap-3">
-          {/* Filters */}
-          {showFilters && (
-            <View className="w-[30%] rounded-xl border border-borderLight bg-white p-3">
+        <View className="mb-4">
+          <Modal
+            visible={showFilters}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setShowFilters(false)}
+          >
+            <View className="flex-1 justify-end bg-black/40">
+            <View className="max-h-[82%] rounded-t-[26px] bg-white p-4">
               <View className="mb-4 flex-row items-center justify-between">
                 <Text className="text-sm font-bold text-text">Filters</Text>
-                <TouchableOpacity
-                  onPress={clearFilters}
-                  className="rounded border border-error px-2 py-1"
-                >
-                  <Text className="text-[11px] font-medium text-error">
-                    Clear
-                  </Text>
-                </TouchableOpacity>
+                <View className="flex-row items-center">
+                  <TouchableOpacity
+                    onPress={clearFilters}
+                    className="mr-3 rounded border border-error px-2 py-1"
+                  >
+                    <Text className="text-[11px] font-medium text-error">Clear</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowFilters(false)}>
+                    <MaterialCommunityIcons name="close" size={22} color={colors.text} />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Price Filter */}
@@ -766,21 +826,108 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
                 ))}
               </View>
             </View>
-          )}
+            </View>
+          </Modal>
 
           {/* Products Grid */}
           <View className="flex-1">
             {currentProducts.length > 0 ? (
-              <View className="flex-row flex-wrap justify-between gap-2.5">
-                {currentProducts.map((product, index) => (
-                  <View
-                    key={product.id || product._id || `product-${index}`}
-                    className="w-full"
-                  >
-                    <ProductCard product={product} />
+              viewMode === "card" ? (
+                <View className="flex-row flex-wrap justify-between gap-2.5">
+                  {currentProducts.map((product, index) => (
+                    <View
+                      key={product.id || product._id || `product-${index}`}
+                      className="w-full"
+                    >
+                      <ProductCard product={product} />
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <View className="rounded-xl border border-borderLight bg-white">
+                  <View className="flex-row border-b border-borderLight bg-gray px-3 py-2">
+                    <Text className="flex-1 text-[11px] font-bold uppercase text-textSecondary">
+                      Product
+                    </Text>
+                    <Text className="w-[78px] text-right text-[11px] font-bold uppercase text-textSecondary">
+                      Price
+                    </Text>
+                    <Text className="w-[42px] text-right text-[11px] font-bold uppercase text-textSecondary">
+                      Add
+                    </Text>
                   </View>
-                ))}
-              </View>
+                  {currentProducts.map((product, index) => {
+                    const productId = product.id || product._id;
+                    const price = Number(
+                      product.final_price ??
+                        product.offer_price ??
+                        product.mrp ??
+                        0,
+                    );
+                    const image =
+                      typeof product.image === "string"
+                        ? product.image.split(/\s+/)[0]
+                        : Array.isArray(product.images) && product.images[0]
+                          ? String(product.images[0]?.url || product.images[0])
+                          : undefined;
+
+                    return (
+                      <TouchableOpacity
+                        key={productId || `table-product-${index}`}
+                        onPress={() =>
+                          productId &&
+                          router.push({
+                            pathname: "/product/[id]" as any,
+                            params: { id: String(productId) },
+                          })
+                        }
+                        className="flex-row items-center border-b border-borderLight px-3 py-3 last:border-b-0"
+                      >
+                        {image ? (
+                          <Image
+                            source={{ uri: image }}
+                            className="mr-3 h-12 w-12 rounded-lg bg-gray"
+                          />
+                        ) : (
+                          <View className="mr-3 h-12 w-12 items-center justify-center rounded-lg bg-gray">
+                            <MaterialCommunityIcons
+                              name="food-outline"
+                              size={22}
+                              color={colors.grayDark}
+                            />
+                          </View>
+                        )}
+                        <View className="flex-1">
+                          <Text
+                            className="text-[14px] font-bold text-text"
+                            numberOfLines={1}
+                          >
+                            {product.name || "Product"}
+                          </Text>
+                          <Text
+                            className="mt-1 text-[11px] text-textSecondary"
+                            numberOfLines={1}
+                          >
+                            {product.chef_name ||
+                              product.category ||
+                              "Home Food"}
+                          </Text>
+                        </View>
+                        <Text className="w-[78px] text-right text-[14px] font-bold text-primary">
+                          ₹{price.toFixed(0)}
+                        </Text>
+                        <View className="w-[42px] items-end">
+                          <MaterialCommunityIcons
+                            name="plus-circle"
+                            size={24}
+                            color={colors.primary}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )
             ) : (
               <View className="items-center justify-center py-8">
                 <MaterialCommunityIcons
