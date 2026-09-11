@@ -102,7 +102,7 @@ const getAvailableDates = () => {
 export default function CheckoutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { userFoodCart, placeFoodOrder } = useStore();
   const params = useLocalSearchParams<{
     buyNowItem?: string;
@@ -483,7 +483,31 @@ export default function CheckoutScreen() {
         ]
       );
     } catch (err: any) {
-      console.error("Order submission error:", err);
+      console.warn("Order submission error:", err?.message || err);
+      const is401 =
+        err?.status === 401 ||
+        err?.response?.status === 401 ||
+        String(err?.message || "").toLowerCase().includes("token expired") ||
+        String(err?.message || "").toLowerCase().includes("unauthorized");
+
+      if (is401) {
+        Alert.alert(
+          "Session Expired",
+          "Your login session has expired. Please log in again to place your order.",
+          [
+            {
+              text: "Log In",
+              onPress: async () => {
+                await logout();
+                router.replace("/auth/login");
+              },
+            },
+            { text: "Cancel", style: "cancel" },
+          ]
+        );
+        return;
+      }
+
       Alert.alert(
         "Order Failed",
         err?.message || "Unable to place your order. Please try again."

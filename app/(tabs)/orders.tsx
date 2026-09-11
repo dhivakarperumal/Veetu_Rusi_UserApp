@@ -186,12 +186,13 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams<{ newOrderId?: string }>();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { fetchUserFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   // Selected order details modal
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -223,15 +224,42 @@ export default function OrdersScreen() {
       return;
     }
     try {
+      setSessionExpired(false);
       const res = await api.get("/user-food-orders/my-orders");
       setOrders(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Failed to load food orders:", err);
+    } catch (err: any) {
+      console.warn("Failed to load food orders:", err?.message || err);
+      const is401 =
+        err?.status === 401 ||
+        err?.response?.status === 401 ||
+        String(err?.message || "").toLowerCase().includes("token expired") ||
+        String(err?.message || "").toLowerCase().includes("unauthorized");
+
+      if (is401) {
+        setSessionExpired(true);
+        Alert.alert(
+          "Session Expired",
+          "Your login session has expired. Please log in again to access your orders.",
+          [
+            {
+              text: "Log In",
+              onPress: async () => {
+                await logout();
+                router.replace("/auth/login");
+              },
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+          ]
+        );
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user]);
+  }, [user, logout, router]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -594,7 +622,7 @@ export default function OrdersScreen() {
     return { bg: "bg-blue-100", text: "text-blue-700" };
   };
 
-  if (!user) {
+  if (!user || sessionExpired) {
     return (
       <View
         className="flex-1 bg-[#F8F9FA]"
@@ -603,17 +631,32 @@ export default function OrdersScreen() {
         <AppHeader title="My Orders" />
         <View className="flex-1 items-center justify-center px-6">
           <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-            <MaterialCommunityIcons name="account-lock-outline" size={48} color={colors.primary} />
+            <MaterialCommunityIcons
+              name={sessionExpired ? "clock-alert-outline" : "account-lock-outline"}
+              size={48}
+              color={colors.primary}
+            />
           </View>
-          <Text className="text-xl font-black text-text">Login Required</Text>
+          <Text className="text-xl font-black text-text">
+            {sessionExpired ? "Session Expired" : "Login Required"}
+          </Text>
           <Text className="mt-2 text-center text-xs text-textSecondary">
-            Please log in to your account to view and track your food orders.
+            {sessionExpired
+              ? "Your login session has expired. Please sign in again to view and track your food orders."
+              : "Please log in to your account to view and track your food orders."}
           </Text>
           <TouchableOpacity
-            onPress={() => router.push("/auth/login")}
+            onPress={async () => {
+              if (sessionExpired) {
+                await logout();
+              }
+              router.push("/auth/login");
+            }}
             className="mt-6 rounded-2xl bg-primary px-8 py-3.5 shadow-md shadow-primary/30"
           >
-            <Text className="font-bold text-white">Log In Now</Text>
+            <Text className="font-bold text-white">
+              {sessionExpired ? "Log In Again" : "Log In Now"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
