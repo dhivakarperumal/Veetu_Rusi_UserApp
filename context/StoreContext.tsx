@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 interface Product {
   id: string;
@@ -32,20 +32,34 @@ interface Product {
   [key: string]: any;
 }
 
+interface CategoryItem {
+  c_name?: string;
+  category_type?: string;
+  name?: string;
+  image?: string | string[];
+  images?: string | string[];
+  [key: string]: any;
+}
+
 interface StoreContextType {
   chefFoodsCache: Product[];
   setChefFoodsCache: (products: Product[]) => void;
   lastChefFoodsFetchTime: number | null;
   setLastChefFoodsFetchTime: (time: number | null) => void;
+  categoriesCache: CategoryItem[];
+  setCategoriesCache: (categories: CategoryItem[]) => void;
 }
 
-export const StoreContext = createContext<StoreContextType | undefined>(undefined);
+export const StoreContext = createContext<StoreContextType | undefined>(
+  undefined,
+);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [chefFoodsCache, setChefFoodsCache] = useState<Product[]>([]);
   const [lastChefFoodsFetchTime, setLastChefFoodsFetchTime] = useState<
     number | null
   >(null);
+  const [categoriesCache, setCategoriesCache] = useState<CategoryItem[]>([]);
 
   return (
     <StoreContext.Provider
@@ -54,6 +68,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setChefFoodsCache,
         lastChefFoodsFetchTime,
         setLastChefFoodsFetchTime,
+        categoriesCache,
+        setCategoriesCache,
       }}
     >
       {children}
