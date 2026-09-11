@@ -43,6 +43,7 @@ export default function RegisterScreen() {
     const rawRef = params.ref || params.referral_code;
     if (rawRef) {
       const referral = Array.isArray(rawRef) ? rawRef[0] : rawRef;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm((prev) => ({ ...prev, referral_code: (referral || "").trim() }));
     }
   }, [params.ref, params.referral_code]);
