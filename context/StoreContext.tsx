@@ -97,6 +97,7 @@ interface StoreContextType {
   updateFoodCartQuantity: (id: string, qty: number) => Promise<void>;
   clearUserFoodCart: () => Promise<void>;
   fetchUserFoodCart: () => Promise<void>;
+  placeFoodOrder: (orderData: Record<string, any>) => Promise<any>;
 }
 
 export const StoreContext = createContext<StoreContextType | undefined>(
@@ -381,6 +382,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Place food order
+  const placeFoodOrder = useCallback(
+    async (orderData: Record<string, any>) => {
+      const res = await api.post("/user-food-orders", orderData);
+      if (!orderData.isBuyNow) {
+        await clearUserFoodCart();
+      }
+      return res.data;
+    },
+    [clearUserFoodCart]
+  );
+
   return (
     <StoreContext.Provider
       value={{
@@ -396,6 +409,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         updateFoodCartQuantity,
         clearUserFoodCart,
         fetchUserFoodCart,
+        placeFoodOrder,
       }}
     >
       {children}

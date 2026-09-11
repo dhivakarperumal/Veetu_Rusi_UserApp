@@ -1,5 +1,6 @@
 import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
+import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { user } = useAuth();
   const {
     userFoodCart,
     updateFoodCartQuantity,
@@ -46,29 +48,18 @@ export default function CartScreen() {
   };
 
   const handleCheckout = () => {
-    Alert.alert(
-      "Order Confirmation 🎉",
-      `Your total is ₹${grandTotal}. Would you like to place the order?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Confirm Order",
-          onPress: async () => {
-            await clearUserFoodCart();
-            Alert.alert(
-              "Order Placed! 🍲",
-              "Your chef has received your order and started cooking with love!",
-              [
-                {
-                  text: "Go to Orders",
-                  onPress: () => router.push("/(tabs)/orders"),
-                },
-              ],
-            );
-          },
-        },
-      ],
-    );
+    if (!user) {
+      Alert.alert(
+        "Login Required",
+        "Please login to your account to proceed to checkout.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Login", onPress: () => router.push("/auth/login") },
+        ]
+      );
+      return;
+    }
+    router.push("/checkout");
   };
 
   return (
@@ -300,7 +291,7 @@ export default function CartScreen() {
 
             <View className="flex-row items-center gap-1">
               <Text className="text-base font-black text-white">
-                Place Order
+                Proceed to Checkout
               </Text>
               <MaterialCommunityIcons
                 name="arrow-right"
