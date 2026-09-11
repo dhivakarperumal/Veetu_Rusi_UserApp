@@ -84,6 +84,21 @@ export async function upsertUserAddress(
   }
 }
 
+export async function saveUserAddresses(
+  userId: string | number,
+  addresses: UserAddress[]
+): Promise<void> {
+  if (!userId) return;
+  try {
+    await AsyncStorage.setItem(
+      `${STORAGE_PREFIX}${userId}`,
+      JSON.stringify(addresses)
+    );
+  } catch (err) {
+    console.error("Failed to save user addresses:", err);
+  }
+}
+
 export async function deleteUserAddress(
   userId: string | number,
   addressId: string
@@ -102,3 +117,5 @@ export async function deleteUserAddress(
     return [];
   }
 }
+
+export const removeUserAddress = deleteUserAddress;
