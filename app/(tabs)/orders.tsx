@@ -1,5 +1,6 @@
 import AppHeader from "@/components/AppHeader";
 import { AuthContext } from "@/context/AuthContext";
+import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -51,6 +52,7 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const { addToCart } = useStore();
 
   const router = useRouter();
 
@@ -221,8 +223,60 @@ export default function OrdersScreen() {
     return `₹${amount.toLocaleString("en-IN")}`;
   };
 
+  const reorderFood = (order: any) => {
+    const orderItems =
+      order?.items || order?.order_items || order?.food_items || [];
+
+    if (!Array.isArray(orderItems) || orderItems.length === 0) {
+      Alert.alert("Reorder Food", "No food items were found in this order.");
+      return;
+    }
+
+    orderItems.forEach((item: any, index: number) => {
+      const product = item?.product || item?.food || item;
+      const productId =
+        product?.id ??
+        product?._id ??
+        item?.product_id ??
+        item?.food_id ??
+        `${getOrderId(order)}-${index}`;
+      const price =
+        item?.price ??
+        item?.unit_price ??
+        product?.final_price ??
+        product?.offer_price ??
+        product?.mrp ??
+        0;
+
+      addToCart(
+        {
+          ...product,
+          id: String(productId),
+          name:
+            product?.name || product?.product_name || item?.name || "Food item",
+          final_price: price,
+          image: product?.image || product?.image_url || item?.image,
+        },
+        item?.quantity ?? item?.qty ?? 1,
+      );
+    });
+
+    Alert.alert(
+      "Reorder Food",
+      "The ordered food has been added to your cart.",
+    );
+  };
+
   const getActionButtons = (status?: string, order?: any) => {
-    if (String(status || "").toLowerCase() === "delivered") {
+    const normalizedStatus = String(status || "")
+      .toLowerCase()
+      .replace(/[_-]+/g, " ")
+      .trim();
+
+    if (
+      normalizedStatus === "delivered" ||
+      normalizedStatus === "order delivered"
+    ) {
       return [
         {
           label: "Food Review",
@@ -233,15 +287,10 @@ export default function OrdersScreen() {
           },
         },
         {
-          label: "Reorder",
+          label: "Reorder Food",
           icon: "refresh",
           variant: "blue",
-          action: () => {
-            Alert.alert(
-              "Reorder",
-              "Reordering this meal from your previous order.",
-            );
-          },
+          action: (order?: any) => reorderFood(order),
         },
         {
           label: "Delivery Partner Review",
@@ -268,17 +317,6 @@ export default function OrdersScreen() {
           } else {
             setShowPopup(true);
           }
-        },
-      },
-      {
-        label: "Reorder Food",
-        icon: "refresh",
-        variant: "blue",
-        action: () => {
-          Alert.alert(
-            "Reorder Food",
-            "Reordering this meal from your previous order.",
-          );
         },
       },
       {
@@ -394,7 +432,7 @@ export default function OrdersScreen() {
                     </Text>
                   </TouchableOpacity>
 
-                  <View className="mt-4 flex-row flex-wrap">
+                  <View className="mt-4 flex-row flex-wrap justify-between">
                     {actionButtons.map((action) => {
                       const isGreen = action.variant === "green";
                       const isBlue = action.variant === "blue";
@@ -404,7 +442,7 @@ export default function OrdersScreen() {
                         <TouchableOpacity
                           key={action.label}
                           onPress={() => action.action(order)}
-                          className={`mb-2 mr-2 rounded-full border px-3 py-3 ${
+                          className={`mb-2 rounded-full border px-3 py-3 ${
                             isGreen
                               ? "border-[#1E7D5B] bg-[#1E7D5B]"
                               : isBlue
@@ -434,60 +472,47 @@ export default function OrdersScreen() {
                       );
                     })}
                   </View>
-                </View>
 
-                {hasAssignedDeliveryPartner(order) ? (
-                  <View className="rounded-[22px] border border-[#CFE2FF] bg-[#F1F7FF] p-5">
-                    <View className="mb-3 flex-row items-center justify-between">
-                      <Text className="text-[12px] font-bold text-[#1558D6]">
-                        Delivery Partner Assigned
-                      </Text>
-                      <View className="rounded-full bg-[#DCEAFF] px-3 py-1">
-                        <Text className="text-[11px] font-bold text-[#1558D6]">
-                          ASSIGNED
-                        </Text>
-                      </View>
-                    </View>
-                    <Text className="text-[13px] font-bold uppercase tracking-[3px] text-[#2872F0]">
-                      Delivery Partner
-                    </Text>
-                    <View className="mt-3 flex-row items-center justify-between">
-                      <View className="flex-1">
-                        <Text className="text-[16px] font-bold text-text">
-                          {getDeliveryPartnerDetails(order).name}
-                        </Text>
-                        <View className="mt-1 flex-row items-center">
-                          <MaterialCommunityIcons
-                            name="account-outline"
-                            size={16}
-                            color="#6B7A90"
-                          />
-                          <Text className="ml-1 text-[13px] text-textSecondary">
-                            {getDeliveryPartnerDetails(order).phone}
+                  {hasAssignedDeliveryPartner(order) ? (
+                    <View className="rounded-[22px] border border-[#CFE2FF] bg-[#F1F7FF] p-5">
+                      <View className="mt-3 flex-row items-center justify-between">
+                        <View className="flex-1">
+                          <Text className="text-[16px] font-bold text-text">
+                            {getDeliveryPartnerDetails(order).name}
                           </Text>
+                          <View className="mt-1 flex-row items-center">
+                            <MaterialCommunityIcons
+                              name="account-outline"
+                              size={16}
+                              color="#6B7A90"
+                            />
+                            <Text className="ml-1 text-[13px] text-textSecondary">
+                              {getDeliveryPartnerDetails(order).phone}
+                            </Text>
+                          </View>
                         </View>
+                        <TouchableOpacity
+                          className="flex-row items-center rounded-[14px] bg-[#2167F5] px-4 py-3"
+                          onPress={() =>
+                            Alert.alert(
+                              "Track Delivery",
+                              "Your delivery partner is assigned. Live tracking will be available shortly.",
+                            )
+                          }
+                        >
+                          <MaterialCommunityIcons
+                            name="map-marker-outline"
+                            size={17}
+                            color="#FFFFFF"
+                          />
+                          <Text className="ml-2 text-[13px] font-bold text-white">
+                            TRACK
+                          </Text>
+                        </TouchableOpacity>
                       </View>
-                      <TouchableOpacity
-                        className="flex-row items-center rounded-[14px] bg-[#2167F5] px-4 py-3"
-                        onPress={() =>
-                          Alert.alert(
-                            "Track Delivery",
-                            "Your delivery partner is assigned. Live tracking will be available shortly.",
-                          )
-                        }
-                      >
-                        <MaterialCommunityIcons
-                          name="map-marker-outline"
-                          size={17}
-                          color="#FFFFFF"
-                        />
-                        <Text className="ml-2 text-[13px] font-bold text-white">
-                          TRACK
-                        </Text>
-                      </TouchableOpacity>
                     </View>
-                  </View>
-                ) : null}
+                  ) : null}
+                </View>
               </View>
             );
           })}

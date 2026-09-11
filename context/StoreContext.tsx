@@ -10,7 +10,7 @@ interface Product {
   offer_price?: number | string;
   mrp?: number | string;
   offer?: number | string;
-  variants?: Array<{
+  variants?: {
     colorName?: string;
     selectedSizes?: string[];
     weight?: string;
@@ -19,7 +19,7 @@ interface Product {
     final_price?: number;
     stock?: number;
     images?: string;
-  }>;
+  }[];
   chef_name?: string;
   delivery_radius?: number | string;
   latitude?: number | string;
@@ -41,6 +41,10 @@ interface CategoryItem {
   [key: string]: any;
 }
 
+interface CartItem extends Product {
+  quantity: number;
+}
+
 interface StoreContextType {
   chefFoodsCache: Product[];
   setChefFoodsCache: (products: Product[]) => void;
@@ -48,6 +52,8 @@ interface StoreContextType {
   setLastChefFoodsFetchTime: (time: number | null) => void;
   categoriesCache: CategoryItem[];
   setCategoriesCache: (categories: CategoryItem[]) => void;
+  cartItems: CartItem[];
+  addToCart: (product: Product, quantity?: number) => void;
 }
 
 export const StoreContext = createContext<StoreContextType | undefined>(
@@ -60,6 +66,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     number | null
   >(null);
   const [categoriesCache, setCategoriesCache] = useState<CategoryItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const addToCart = (product: Product, quantity = 1) => {
+    const productId = String(product.id);
+    const safeQuantity = Math.max(1, Number(quantity) || 1);
+
+    setCartItems((currentItems) => {
+      const existingItem = currentItems.find(
+        (item) => String(item.id) === productId,
+      );
+
+      if (!existingItem) {
+        return [
+          ...currentItems,
+          { ...product, id: productId, quantity: safeQuantity },
+        ];
+      }
+
+      return currentItems.map((item) =>
+        String(item.id) === productId
+          ? { ...item, quantity: item.quantity + safeQuantity }
+          : item,
+      );
+    });
+  };
 
   return (
     <StoreContext.Provider
@@ -70,6 +101,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setLastChefFoodsFetchTime,
         categoriesCache,
         setCategoriesCache,
+        cartItems,
+        addToCart,
       }}
     >
       {children}
