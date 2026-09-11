@@ -11,6 +11,7 @@ import {
   Pressable,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -62,6 +63,15 @@ export default function OrdersScreen() {
   const [loading, setLoading] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [address, setAddress] = useState<any>(null);
+  const [reviewType, setReviewType] = useState<
+    "food-select" | "food" | "delivery" | null
+  >(null);
+  const [reviewOrder, setReviewOrder] = useState<any>(null);
+  const [reviewItem, setReviewItem] = useState<any>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState<string | null>(null);
 
   const normalizeOrderList = (payload: any): any[] => {
     if (Array.isArray(payload)) return payload;
@@ -267,6 +277,46 @@ export default function OrdersScreen() {
     );
   };
 
+  const openReview = (type: "food" | "delivery", order: any) => {
+    setReviewOrder(order);
+    setReviewItem(null);
+    setReviewType(type === "food" ? "food-select" : type);
+    setReviewRating(5);
+    setReviewComment("");
+    setReviewMessage(null);
+  };
+
+  const submitReview = async () => {
+    if (!reviewType || !reviewOrder || (reviewType === "food" && !reviewItem))
+      return;
+
+    setSubmittingReview(true);
+    try {
+      await api.post("/reviews", {
+        order_id: getOrderId(reviewOrder),
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+        review_type: reviewType,
+        product_id:
+          reviewItem?.product?.id ??
+          reviewItem?.product?._id ??
+          reviewItem?.product_id ??
+          reviewItem?.food_id ??
+          reviewItem?.id,
+        delivery_partner_id:
+          reviewOrder.delivery_partner_id ||
+          reviewOrder.deliveryPartnerId ||
+          reviewOrder.delivery_partner?.id,
+      });
+      setReviewMessage("Thank you for your review.");
+    } catch (error) {
+      console.error("Failed to submit review", error);
+      setReviewMessage("Unable to submit your review right now.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   const getActionButtons = (status?: string, order?: any) => {
     const normalizedStatus = String(status || "")
       .toLowerCase()
@@ -282,8 +332,9 @@ export default function OrdersScreen() {
           label: "Food Review",
           icon: "star-outline",
           variant: "green",
-          action: () => {
-            Alert.alert("Food Review", "Food review is ready for this order.");
+          action: (order?: any) => {
+            setSelectedOrder(order);
+            openReview("food", order);
           },
         },
         {
@@ -296,14 +347,11 @@ export default function OrdersScreen() {
           label: "Delivery Partner Review",
           icon: "truck-delivery-outline",
           variant: "outline",
-          action: () => {
-            Alert.alert(
-              "Delivery Partner Review",
-              "Delivery partner review is ready for this order.",
-            );
+          action: (order?: any) => {
+            setSelectedOrder(order);
+            openReview("delivery", order);
           },
         },
-        
       ];
     }
 
@@ -320,7 +368,7 @@ export default function OrdersScreen() {
           }
         },
       },
-      
+
       {
         label: "Back to cart",
         icon: "cart-arrow-left",
@@ -686,6 +734,126 @@ export default function OrdersScreen() {
                   </View>
                 ) : null}
               </ScrollView>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={reviewType !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setReviewType(null)}
+      >
+        <View className="flex-1 justify-center bg-black/40 px-5">
+          <View className="rounded-[24px] bg-white p-5">
+            <Text className="text-[20px] font-black text-text">
+              {reviewMessage
+                ? "Review"
+                : reviewType === "food-select" || reviewType === "food"
+                  ? "Food Review"
+                  : "Delivery Partner Review"}
+            </Text>
+            {reviewMessage ? (
+              <View className="items-center py-6">
+                <MaterialCommunityIcons
+                  name="check-circle-outline"
+                  size={48}
+                  color="#1E7D5B"
+                />
+                <Text className="mt-3 text-center text-[16px] font-bold text-text">
+                  {reviewMessage}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setReviewType(null);
+                    setReviewMessage(null);
+                  }}
+                  className="mt-5 rounded-[14px] bg-[#1E7D5B] px-5 py-3"
+                >
+                  <Text className="font-bold text-white">Close</Text>
+                </TouchableOpacity>
+              </View>
+            ) : reviewType === "food-select" ? (
+              <View className="mt-4">
+                <Text className="mb-2 text-[13px] font-bold text-textSecondary">
+                  Select a food item to review
+                </Text>
+                {(
+                  reviewOrder?.items ||
+                  reviewOrder?.order_items ||
+                  reviewOrder?.food_items ||
+                  []
+                ).map((item: any, index: number) => {
+                  const product = item?.product || item?.food || item;
+                  return (
+                    <TouchableOpacity
+                      key={`${product?.id || product?._id || index}`}
+                      onPress={() => {
+                        setReviewItem(item);
+                        setReviewType("food");
+                      }}
+                      className="mb-2 rounded-[14px] border border-borderLight px-4 py-3"
+                    >
+                      <Text className="text-[15px] font-bold text-text">
+                        {product?.name ||
+                          product?.product_name ||
+                          item?.name ||
+                          "Food item"}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : (
+              <>
+                <Text className="mt-4 text-[13px] font-bold text-textSecondary">
+                  Rating
+                </Text>
+                <View className="mt-2 flex-row">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <TouchableOpacity
+                      key={rating}
+                      onPress={() => setReviewRating(rating)}
+                      className="mr-2"
+                    >
+                      <MaterialCommunityIcons
+                        name={rating <= reviewRating ? "star" : "star-outline"}
+                        size={30}
+                        color="#F59E0B"
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <TextInput
+                  value={reviewComment}
+                  onChangeText={setReviewComment}
+                  placeholder="Write your review"
+                  multiline
+                  className="mt-4 min-h-[100px] rounded-[14px] border border-borderLight p-3 text-[14px] text-text"
+                  textAlignVertical="top"
+                />
+              </>
+            )}
+            {!reviewMessage ? (
+              <View className="mt-4 flex-row justify-end">
+                <Pressable
+                  onPress={() => setReviewType(null)}
+                  className="mr-4 px-3 py-3"
+                >
+                  <Text className="font-bold text-textSecondary">Cancel</Text>
+                </Pressable>
+                {reviewType !== "food-select" ? (
+                  <TouchableOpacity
+                    onPress={submitReview}
+                    disabled={submittingReview}
+                    className="rounded-[14px] bg-[#1E7D5B] px-4 py-3"
+                  >
+                    <Text className="font-bold text-white">
+                      {submittingReview ? "Submitting..." : "Submit Review"}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             ) : null}
           </View>
         </View>
