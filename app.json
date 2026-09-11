@@ -7,7 +7,6 @@
     "icon": "./assets/images/logos.png",
     "scheme": "userapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -18,7 +17,6 @@
         "backgroundImage": "./assets/images/logos.png",
         "monochromeImage": "./assets/images/logos.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {

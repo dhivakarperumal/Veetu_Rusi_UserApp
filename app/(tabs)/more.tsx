@@ -3,7 +3,7 @@ import { colors } from "@/config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { clearTokenCache } from "../api";
@@ -29,35 +29,47 @@ export default function MoreScreen() {
     }
   };
 
+  const initials = useMemo(() => {
+    return (user?.username || user?.email || "User")
+      .toString()
+      .trim()
+      .charAt(0)
+      .toUpperCase();
+  }, [user]);
+
+  const menuItems = [
+    { label: "Profile Settings", icon: "account-circle-outline" },
+    { label: "Notifications", icon: "bell-outline" },
+    { label: "Order History", icon: "history" },
+    { label: "Settings", icon: "cog-outline" },
+    { label: "About", icon: "information-outline" },
+  ];
+
   const handleLogout = async () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
-          style: "cancel",
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => {},
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: async () => {
+          setLoading(true);
+          try {
+            clearTokenCache();
+            await AsyncStorage.removeItem("userToken");
+            await AsyncStorage.removeItem("userProfile");
+            router.replace("/auth/login");
+          } catch {
+            Alert.alert("Error", "Failed to logout. Please try again.");
+          } finally {
+            setLoading(false);
+          }
         },
-        {
-          text: "Logout",
-          onPress: async () => {
-            setLoading(true);
-            try {
-              clearTokenCache();
-              await AsyncStorage.removeItem("userToken");
-              await AsyncStorage.removeItem("userProfile");
-              router.replace("/auth/login");
-            } catch {
-              Alert.alert("Error", "Failed to logout. Please try again.");
-            } finally {
-              setLoading(false);
-            }
-          },
-          style: "destructive",
-        },
-      ]
-    );
+        style: "destructive",
+      },
+    ]);
   };
 
   return (
@@ -68,136 +80,96 @@ export default function MoreScreen() {
       }}
     >
       <AppHeader title="More" />
-      <ScrollView showsVerticalScrollIndicator={false}>
-
-        {/* User Profile Section */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
+        {/* User Profile Card */}
         {user && (
-          <View className="mx-5 mb-5 rounded-xl border border-border bg-white p-4">
+          <View className="mx-5 mt-4 rounded-[26px] border border-borderLight bg-white p-4 shadow-sm shadow-black/10">
             <View className="flex-row items-center">
-              <View className="mr-3 h-[50px] w-[50px] items-center justify-center rounded-full bg-primary">
-                <Text className="text-[20px] font-bold text-white">
-                  {user.username?.charAt(0).toUpperCase() || "U"}
+              <View className="mr-4 h-[58px] w-[58px] items-center justify-center rounded-full bg-primary">
+                <Text className="text-[22px] font-black text-white">
+                  {initials}
                 </Text>
               </View>
               <View className="flex-1">
-                <Text className="text-[16px] font-semibold text-text">
-                  {user.username}
+                <Text className="text-[18px] font-bold text-text">
+                  {user.username || "Foodie User"}
                 </Text>
-                <Text className="mt-0.5 text-[13px] text-textSecondary">
-                  {user.email}
+                <Text className="mt-1 text-[13px] font-medium text-textSecondary">
+                  {user.email || "No email available"}
                 </Text>
               </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={26}
+                color={colors.textSecondary}
+              />
             </View>
           </View>
         )}
 
-        {/* Menu Items */}
-        <View className="mb-[30px] px-5">
-          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
-            <MaterialCommunityIcons
-              name="account-circle-outline"
-              size={24}
-              color={colors.primary}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-medium text-text">
-              Profile Settings
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color={colors.textSecondary}
-              className="ml-auto"
-            />
-          </TouchableOpacity>
+        {/* Menu Card */}
+        <View className="mx-5 mt-4 overflow-hidden rounded-[26px] border border-borderLight bg-white shadow-sm shadow-black/10">
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={item.label}
+              className={`flex-row items-center px-4 py-4 ${
+                index !== menuItems.length - 1
+                  ? "border-b border-borderLight"
+                  : ""
+              }`}
+            >
+              <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-gray">
+                <MaterialCommunityIcons
+                  name={
+                    item.icon as keyof typeof MaterialCommunityIcons.glyphMap
+                  }
+                  size={23}
+                  color={colors.primary}
+                />
+              </View>
+              <Text className="flex-1 text-[16px] font-semibold text-text">
+                {item.label}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={23}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+          ))}
 
-          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={24}
-              color={colors.primary}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-medium text-text">
-              Notifications
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color={colors.textSecondary}
-              className="ml-auto"
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
-            <MaterialCommunityIcons
-              name="history"
-              size={24}
-              color={colors.primary}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-medium text-text">
-              Order History
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color={colors.textSecondary}
-              className="ml-auto"
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
-            <MaterialCommunityIcons
-              name="cog-outline"
-              size={24}
-              color={colors.primary}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-medium text-text">
-              Settings
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color={colors.textSecondary}
-              className="ml-auto"
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-row items-center border-b border-border py-3">
-            <MaterialCommunityIcons
-              name="information-outline"
-              size={24}
-              color={colors.primary}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-medium text-text">
-              About
-            </Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color={colors.textSecondary}
-              className="ml-auto"
-            />
-          </TouchableOpacity>
-
-          {/* Logout Button */}
           <TouchableOpacity
             onPress={handleLogout}
             disabled={loading}
-            className={`flex-row items-center py-3 ${loading ? "opacity-60" : "opacity-100"}`}
+            className={`flex-row items-center px-4 py-4 ${
+              loading ? "opacity-60" : "opacity-100"
+            }`}
           >
-            <MaterialCommunityIcons
-              name="logout"
-              size={24}
-              color={colors.error}
-              className="mr-3"
-            />
-            <Text className="text-[16px] font-semibold text-error">
+            <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-red-50">
+              <MaterialCommunityIcons
+                name="logout"
+                size={23}
+                color={colors.error}
+              />
+            </View>
+            <Text className="flex-1 text-[16px] font-bold text-error">
               Logout
             </Text>
+            {loading ? (
+              <Text className="text-[13px] font-semibold text-textSecondary">
+                Loading...
+              </Text>
+            ) : (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={23}
+                color={colors.textSecondary}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -1,8 +1,11 @@
 import api from "@/app/api";
+import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
+import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
+import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -66,9 +69,9 @@ const getFirstImageUrl = (value: unknown): string | null => {
       return firstString.trim().split(/\s+/)[0] || null;
     }
 
-    const objectImage = value.find((item) => typeof item === "object" && item !== null) as
-      | { url?: string; image?: string; uri?: string }
-      | undefined;
+    const objectImage = value.find(
+      (item) => typeof item === "object" && item !== null,
+    ) as { url?: string; image?: string; uri?: string } | undefined;
 
     if (objectImage?.url) return objectImage.url.trim();
     if (objectImage?.image) return objectImage.image.trim();
@@ -79,14 +82,20 @@ const getFirstImageUrl = (value: unknown): string | null => {
 
   if (typeof value === "object") {
     const imageValue = value as { url?: string; image?: string; uri?: string };
-    return imageValue.url?.trim() || imageValue.image?.trim() || imageValue.uri?.trim() || null;
+    return (
+      imageValue.url?.trim() ||
+      imageValue.image?.trim() ||
+      imageValue.uri?.trim() ||
+      null
+    );
   }
 
   return null;
 };
 
 const getCategoryImageUrl = (category: CategoryItem) => {
-  const raw = category.image ?? category.images ?? category.image_url ?? category.photo;
+  const raw =
+    category.image ?? category.images ?? category.image_url ?? category.photo;
   return getFirstImageUrl(raw) || null;
 };
 
@@ -100,6 +109,63 @@ const getIconByCategory = (label: string) => {
   if (lower.includes("offer")) return "pricetag";
   if (lower.includes("tiff")) return "food";
   return "silverware-fork-knife";
+};
+
+const parseJsonField = (value: unknown) => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    return JSON.parse(String(value));
+  } catch {
+    return [String(value)];
+  }
+};
+
+const getFoodImage = (item: Record<string, any>) => {
+  const rawImages =
+    item.images ?? item.image ?? item.images_url ?? item.image_url;
+  const images = parseJsonField(rawImages);
+  if (Array.isArray(images) && images.length > 0 && images[0]) {
+    return String(images[0]);
+  }
+
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || item.c_name || "Chef Food")}&background=random&size=600`;
+};
+
+const getStatusClasses = (status: string) => {
+  switch ((status || "").toLowerCase()) {
+    case "active":
+      return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    case "low stock":
+      return "bg-amber-100 text-amber-700 border-amber-200";
+    case "out of stock":
+      return "bg-rose-100 text-rose-700 border-rose-200";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-200";
+  }
+};
+
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return (R * c).toFixed(2);
 };
 
 const popularKitchens = [
@@ -171,12 +237,20 @@ const foodTypes = [
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { categoriesCache, setCategoriesCache } = useStore();
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user ?? null;
+
+  const { fetchingLocation, fetchLocation } = useFetchLocation();
+
   const [categories, setCategories] = useState<CategoryItem[]>(
     categoriesCache || [],
   );
+  const [foods, setFoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(
     !categoriesCache || categoriesCache.length === 0,
   );
+  const [foodsLoading, setFoodsLoading] = useState(false);
+  const [foodsError, setFoodsError] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -203,37 +277,94 @@ export default function HomeScreen() {
     }
   }, [categoriesCache, setCategoriesCache]);
 
+  const fetchFoods = useCallback(async () => {
+    setFoodsLoading(true);
+    setFoodsError(null);
+
+    try {
+      const hasLocation = Boolean(user?.latitude && user?.longitude);
+      const [foodsRes, productsRes] = await Promise.all([
+        api.get("/chef-foods"),
+        api.get("/products", {
+          params: { source: "chef_products" },
+        }),
+      ]);
+
+      const foodsFromApi = Array.isArray(foodsRes.data) ? foodsRes.data : [];
+      const productsFromApi = Array.isArray(productsRes.data)
+        ? productsRes.data
+        : [];
+
+      const allItems = [...foodsFromApi, ...productsFromApi];
+
+      const filtered = allItems.filter((item: Record<string, any>) => {
+        if ((item.status || "").toLowerCase() !== "active") return false;
+
+        if (!hasLocation || !item.latitude || !item.longitude) return true;
+
+        const distance = parseFloat(
+          calculateDistance(
+            Number(user.latitude),
+            Number(user.longitude),
+            Number(item.latitude),
+            Number(item.longitude),
+          ) || "0",
+        );
+
+        const radius = parseFloat(item.delivery_radius || 0);
+        return distance <= radius;
+      });
+
+      setFoods(filtered);
+    } catch (error) {
+      console.error("Error fetching chef foods:", error);
+      setFoodsError("Unable to load items.");
+      setFoods([]);
+    } finally {
+      setFoodsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchFoods();
+  }, [fetchCategories, fetchFoods]);
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center justify-between bg-white px-4 py-3">
-        <View className="flex-row items-center">
-          <Ionicons name="location" size={20} color={colors.primary} />
-          <Text className="ml-2 text-[16px] font-bold text-text">
-            600053, Chennai
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={16}
-            color={colors.textSecondary}
-          />
-        </View>
-        <View className="flex-row items-center">
-          <Pressable className="mr-4">
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={colors.text}
-            />
-          </Pressable>
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-primary">
-            <Text className="font-bold text-white">V</Text>
+      <AppHeader title="Veetu Rusi" />
+
+      {/* Location Bar - Home screen only */}
+      <Pressable
+        className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-2.5"
+        onPress={() => fetchLocation()}
+        disabled={fetchingLocation}
+      >
+        <View className="flex-row items-center flex-1">
+          <Ionicons name="location" size={18} color={colors.primary} />
+          <View className="ml-2 flex-1">
+            <Text className="text-[11px] font-semibold text-textSecondary">
+              Delivering to
+            </Text>
+            <Text className="text-[14px] font-bold text-text" numberOfLines={1}>
+              {user?.location_name ||
+                (user?.area && user?.district
+                  ? `${user.area}, ${user.district}`
+                  : user?.area || user?.district || user?.pincode || "Set your location")}
+            </Text>
           </View>
+          <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
         </View>
-      </View>
+        {fetchingLocation ? (
+          <ActivityIndicator size="small" color={colors.primary} className="ml-2" />
+        ) : (
+          <View className="ml-2 rounded-full bg-primary/10 px-3 py-1">
+            <Text className="text-[12px] font-bold text-primary">
+              Refresh
+            </Text>
+          </View>
+        )}
+      </Pressable>
 
       <ScrollView
         className="flex-1 bg-[#f8f8f7]"
@@ -308,10 +439,14 @@ export default function HomeScreen() {
                     ) : (
                       <Ionicons
                         name={
-                          getIconByCategory(categoryName) as keyof typeof Ionicons.glyphMap
+                          getIconByCategory(
+                            categoryName,
+                          ) as keyof typeof Ionicons.glyphMap
                         }
                         size={22}
-                        color={index % 2 === 0 ? colors.primary : colors.secondary}
+                        color={
+                          index % 2 === 0 ? colors.primary : colors.secondary
+                        }
                       />
                     )}
                   </View>
@@ -375,61 +510,85 @@ export default function HomeScreen() {
             </Text>
             <Text className="text-[14px] font-bold text-primary">See all</Text>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-4"
-          >
-            {popularKitchens.map((k, i) => (
-              <View
-                key={k.name}
-                className="mr-4 w-[210px] rounded-[18px] border border-border bg-white p-2"
-              >
-                <View className="relative">
-                  <Image
-                    source={{ uri: k.image }}
-                    className="h-[130px] w-full rounded-[14px]"
-                  />
-                  <View className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white">
-                    <Ionicons
-                      name="heart-outline"
-                      size={18}
-                      color={colors.primary}
-                    />
-                  </View>
-                  <View className="absolute left-2 top-2 rounded-full bg-white/90 px-3 py-1">
-                    <Text className="text-[12px] font-bold text-text">
-                      {k.time}
-                    </Text>
-                  </View>
-                </View>
-                <View className="px-2 py-3">
-                  <Text className="text-[18px] font-black text-text">
-                    {k.name}
-                  </Text>
-                  <View className="mt-1 flex-row items-center">
-                    <Ionicons name="star" size={14} color={colors.warning} />
-                    <Text className="ml-1 text-[12px] font-bold text-text">
-                      {k.rating} ({k.orders})
-                    </Text>
-                  </View>
-                  <Text className="mt-2 text-[13px] font-semibold text-textSecondary">
-                    {k.type}
-                  </Text>
-                  <View className="mt-2 flex-row flex-wrap">
-                    {k.tags.map((tag) => (
-                      <Text
-                        key={tag}
-                        className="mr-2 rounded-full bg-gray px-2 py-1 text-[11px] font-bold text-textSecondary"
-                      >
-                        {tag}
+
+          {foodsLoading ? (
+            <View className="mb-4 h-[160px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : foodsError ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-error">{foodsError}</Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {foods.slice(0, 8).map((food: Record<string, any>, i) => {
+                const image = getFoodImage(food);
+                const sellingPrice =
+                  food.final_price && Number(food.final_price) > 0
+                    ? Number(food.final_price)
+                    : food.offer && Number(food.offer) > 0 && food.mrp
+                      ? Number(food.mrp) -
+                        (Number(food.mrp) * Number(food.offer)) / 100
+                      : Number(food.mrp || 0);
+
+                return (
+                  <View
+                    key={food.id || food.name || i}
+                    className="mr-4 w-[210px] rounded-[18px] border border-border bg-white p-2"
+                  >
+                    <View className="relative">
+                      <Image
+                        source={{ uri: image }}
+                        className="h-[130px] w-full rounded-[14px]"
+                      />
+                      <View className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white">
+                        <Ionicons
+                          name="heart-outline"
+                          size={18}
+                          color={colors.primary}
+                        />
+                      </View>
+                      <View className="absolute left-2 top-2 rounded-full bg-white/90 px-3 py-1">
+                        <Text className="text-[12px] font-bold text-text">
+                          {food.delivery_radius ?? "30 mins"}
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="px-2 py-3">
+                      <Text className="text-[18px] font-black text-text">
+                        {food.name || food.c_name || "Chef Food"}
                       </Text>
-                    ))}
+                      <View className="mt-1 flex-row items-center">
+                        <Ionicons
+                          name="star"
+                          size={14}
+                          color={colors.warning}
+                        />
+                        <Text className="ml-1 text-[12px] font-bold text-text">
+                          {food.rating ?? "4.8"} ({food.orders ?? "1.2K"})
+                        </Text>
+                      </View>
+                      <Text className="mt-2 text-[13px] font-semibold text-textSecondary">
+                        {food.category || food.category_type || "Home Food"}
+                      </Text>
+                      <View className="mt-2 flex-row flex-wrap">
+                        <Text className="mr-2 rounded-full bg-gray px-2 py-1 text-[11px] font-bold text-textSecondary">
+                          {food.status || "Active"}
+                        </Text>
+                        <Text className="rounded-full bg-gray px-2 py-1 text-[11px] font-bold text-textSecondary">
+                          ₹{Math.round(sellingPrice)}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
 
         <View className="px-4">
