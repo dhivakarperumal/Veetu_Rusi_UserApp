@@ -7,13 +7,13 @@ import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
