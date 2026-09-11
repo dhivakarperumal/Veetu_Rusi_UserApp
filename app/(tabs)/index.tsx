@@ -246,6 +246,7 @@ export default function HomeScreen() {
     categoriesCache || [],
   );
   const [foods, setFoods] = useState<any[]>([]);
+  const [homeChefs, setHomeChefs] = useState<any[]>([]);
   const [loading, setLoading] = useState(
     !categoriesCache || categoriesCache.length === 0,
   );
@@ -315,11 +316,54 @@ export default function HomeScreen() {
         return distance <= radius;
       });
 
+      const chefMap = new Map<string, Record<string, any>>();
+      filtered.forEach((item: Record<string, any>) => {
+        const rawChefName =
+          item.chef_name ||
+          item.homeChefName ||
+          item.vendor_name ||
+          item.chef ||
+          item.homeChef ||
+          item.provider_name ||
+          item.name ||
+          "Home Chef";
+
+        const chefName = String(rawChefName).trim();
+        if (!chefName || chefMap.has(chefName)) return;
+
+        chefMap.set(chefName, {
+          id:
+            item.chef_id ||
+            item.home_chef_id ||
+            item.vendor_id ||
+            item.id ||
+            chefName,
+          name: chefName,
+          image: getFoodImage(item),
+          location:
+            item.location_name ||
+            item.area ||
+            item.city ||
+            item.district ||
+            item.state ||
+            item.pincode ||
+            "Chennai, TN",
+          rating:
+            item.rating ||
+            item.average_rating ||
+            item.stars ||
+            item.review_rating ||
+            "4.8",
+        });
+      });
+
       setFoods(filtered);
+      setHomeChefs(Array.from(chefMap.values()).slice(0, 12));
     } catch (error) {
       console.error("Error fetching chef foods:", error);
       setFoodsError("Unable to load items.");
       setFoods([]);
+      setHomeChefs([]);
     } finally {
       setFoodsLoading(false);
     }
@@ -350,18 +394,27 @@ export default function HomeScreen() {
               {user?.location_name ||
                 (user?.area && user?.district
                   ? `${user.area}, ${user.district}`
-                  : user?.area || user?.district || user?.pincode || "Set your location")}
+                  : user?.area ||
+                    user?.district ||
+                    user?.pincode ||
+                    "Set your location")}
             </Text>
           </View>
-          <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
+          <Ionicons
+            name="chevron-down"
+            size={16}
+            color={colors.textSecondary}
+          />
         </View>
         {fetchingLocation ? (
-          <ActivityIndicator size="small" color={colors.primary} className="ml-2" />
+          <ActivityIndicator
+            size="small"
+            color={colors.primary}
+            className="ml-2"
+          />
         ) : (
           <View className="ml-2 rounded-full bg-primary/10 px-3 py-1">
-            <Text className="text-[12px] font-bold text-primary">
-              Refresh
-            </Text>
+            <Text className="text-[12px] font-bold text-primary">Refresh</Text>
           </View>
         )}
       </Pressable>
@@ -519,6 +572,17 @@ export default function HomeScreen() {
             <View className="mb-4 rounded-2xl bg-white px-4 py-4">
               <Text className="font-semibold text-error">{foodsError}</Text>
             </View>
+          ) : foods.length === 0 ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-8 items-center">
+              <Ionicons
+                name="restaurant-outline"
+                size={40}
+                color={colors.grayDark}
+              />
+              <Text className="mt-2 text-[14px] font-semibold text-textSecondary">
+                No items available near you
+              </Text>
+            </View>
           ) : (
             <ScrollView
               horizontal
@@ -527,61 +591,67 @@ export default function HomeScreen() {
             >
               {foods.slice(0, 8).map((food: Record<string, any>, i) => {
                 const image = getFoodImage(food);
+                const mrp = Number(food.mrp || 0);
                 const sellingPrice =
                   food.final_price && Number(food.final_price) > 0
                     ? Number(food.final_price)
-                    : food.offer && Number(food.offer) > 0 && food.mrp
-                      ? Number(food.mrp) -
-                        (Number(food.mrp) * Number(food.offer)) / 100
-                      : Number(food.mrp || 0);
+                    : food.offer && Number(food.offer) > 0 && mrp
+                      ? mrp - (mrp * Number(food.offer)) / 100
+                      : mrp;
 
                 return (
                   <View
                     key={food.id || food.name || i}
-                    className="mr-4 w-[210px] rounded-[18px] border border-border bg-white p-2"
+                    className="mr-4 w-[200px] rounded-[18px] border border-border bg-white overflow-hidden"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[130px] w-full rounded-[14px]"
+                        className="h-[130px] w-full"
+                        resizeMode="cover"
                       />
-                      <View className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white">
+                      <Pressable className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
                         <Ionicons
                           name="heart-outline"
                           size={18}
                           color={colors.primary}
                         />
-                      </View>
-                      <View className="absolute left-2 top-2 rounded-full bg-white/90 px-3 py-1">
-                        <Text className="text-[12px] font-bold text-text">
-                          {food.delivery_radius ?? "30 mins"}
-                        </Text>
-                      </View>
+                      </Pressable>
+                      {Number(food.offer) > 0 && (
+                        <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2.5 py-1">
+                          <Text className="text-[11px] font-black text-white">
+                            {food.offer}% OFF
+                          </Text>
+                        </View>
+                      )}
                     </View>
-                    <View className="px-2 py-3">
-                      <Text className="text-[18px] font-black text-text">
+                    <View className="p-3">
+                      <Text
+                        className="text-[15px] font-black text-text"
+                        numberOfLines={1}
+                      >
                         {food.name || food.c_name || "Chef Food"}
                       </Text>
-                      <View className="mt-1 flex-row items-center">
-                        <Ionicons
-                          name="star"
-                          size={14}
-                          color={colors.warning}
-                        />
-                        <Text className="ml-1 text-[12px] font-bold text-text">
-                          {food.rating ?? "4.8"} ({food.orders ?? "1.2K"})
-                        </Text>
-                      </View>
-                      <Text className="mt-2 text-[13px] font-semibold text-textSecondary">
+                      <Text
+                        className="mt-0.5 text-[12px] font-medium text-textSecondary"
+                        numberOfLines={1}
+                      >
                         {food.category || food.category_type || "Home Food"}
                       </Text>
-                      <View className="mt-2 flex-row flex-wrap">
-                        <Text className="mr-2 rounded-full bg-gray px-2 py-1 text-[11px] font-bold text-textSecondary">
-                          {food.status || "Active"}
-                        </Text>
-                        <Text className="rounded-full bg-gray px-2 py-1 text-[11px] font-bold text-textSecondary">
-                          ₹{Math.round(sellingPrice)}
-                        </Text>
+                      <View className="mt-2 flex-row items-center justify-between">
+                        <View>
+                          <Text className="text-[16px] font-black text-primary">
+                            ₹{Math.round(sellingPrice)}
+                          </Text>
+                          {Number(food.offer) > 0 && mrp > 0 && (
+                            <Text className="text-[11px] text-textSecondary line-through">
+                              ₹{Math.round(mrp)}
+                            </Text>
+                          )}
+                        </View>
+                        <Pressable className="h-8 w-8 items-center justify-center rounded-full bg-primary">
+                          <Ionicons name="add" size={20} color="white" />
+                        </Pressable>
                       </View>
                     </View>
                   </View>
@@ -611,6 +681,78 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </View>
+        </View>
+
+        <View className="mt-4 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="text-[27px] font-black text-text">
+              Top Home Chefs
+            </Text>
+            <Text className="text-[14px] font-bold text-primary">See all</Text>
+          </View>
+
+          {foodsLoading ? (
+            <View className="mb-4 h-[180px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : foodsError ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-error">{foodsError}</Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {homeChefs.length > 0 ? (
+                homeChefs.map((chef: Record<string, any>, idx: number) => (
+                  <View
+                    key={chef.id || chef.name || idx}
+                    className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                  >
+                    <View className="items-center">
+                      <Image
+                        source={{ uri: chef.image }}
+                        className="h-[120px] w-[120px] rounded-full border-2 border-primary"
+                        resizeMode="cover"
+                      />
+                    </View>
+                    <View className="mt-2 items-center">
+                      <Text
+                        className="text-[15px] font-black text-text"
+                        numberOfLines={1}
+                      >
+                        {chef.name}
+                      </Text>
+                      <Text
+                        className="mt-1 text-[12px] font-semibold text-textSecondary"
+                        numberOfLines={1}
+                      >
+                        {chef.location}
+                      </Text>
+                      <View className="mt-1 flex-row items-center">
+                        <Ionicons
+                          name="star"
+                          size={14}
+                          color={colors.warning}
+                        />
+                        <Text className="ml-1 text-[12px] font-black text-text">
+                          {String(chef.rating || "4.8")}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View className="rounded-2xl bg-white px-4 py-4">
+                  <Text className="font-semibold text-textSecondary">
+                    No home chefs available right now.
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+          )}
         </View>
 
         <View className="mt-4 px-4">
@@ -698,55 +840,91 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        <View className="mt-4 px-4">
+        {/* Best Offers for You — real data filtered by offer > 0 */}
+        <View className="mt-4 px-4 pb-6">
           <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-[26px] font-black text-text">
               Best Offers for You
             </Text>
             <Text className="text-[14px] font-bold text-primary">See all</Text>
           </View>
-          <View className="flex-row">
-            {[
-              {
-                title: "Combo Meals",
-                text: "Starting at ₹99",
-                button: "Order Now →",
-              },
-              {
-                title: "Lunch Box",
-                text: "Subscriptions 20% OFF",
-                button: "Subscribe →",
-              },
-              {
-                title: "Celebrate",
-                text: "with Homemade Cakes",
-                button: "Explore →",
-              },
-            ].map((offer, idx) => (
-              <View
-                key={offer.title}
-                className="mr-3 w-[160px] rounded-[16px] border border-border bg-white p-3"
-              >
-                <Image
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
-                  }}
-                  className="h-[90px] w-[120px] rounded-[14px]"
-                />
-                <Text className="mt-2 text-[16px] font-black text-text">
-                  {offer.title}
-                </Text>
-                <Text className="text-[13px] font-bold text-textSecondary">
-                  {offer.text}
-                </Text>
-                <Pressable className="mt-3 rounded-full bg-primary px-4 py-2">
-                  <Text className="text-center text-[12px] font-black text-white">
-                    {offer.button}
-                  </Text>
-                </Pressable>
-              </View>
-            ))}
-          </View>
+          {foodsLoading ? (
+            <View className="h-[160px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {(foods.filter((f) => Number(f.offer) > 0).length > 0
+                ? foods.filter((f) => Number(f.offer) > 0)
+                : foods
+              )
+                .slice(0, 8)
+                .map((food: Record<string, any>, i) => {
+                  const image = getFoodImage(food);
+                  const mrp = Number(food.mrp || 0);
+                  const hasOffer = Number(food.offer) > 0;
+                  const discountedPrice =
+                    food.final_price && Number(food.final_price) > 0
+                      ? Number(food.final_price)
+                      : hasOffer && mrp
+                        ? mrp - (mrp * Number(food.offer)) / 100
+                        : mrp;
+
+                  return (
+                    <View
+                      key={food.id || i}
+                      className="mr-3 w-[170px] overflow-hidden rounded-[16px] border border-border bg-white"
+                    >
+                      <View className="relative">
+                        <Image
+                          source={{ uri: image }}
+                          className="h-[105px] w-full"
+                          resizeMode="cover"
+                        />
+                        {hasOffer && (
+                          <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-3 py-1">
+                            <Text className="text-[12px] font-black text-white">
+                              {food.offer}% OFF
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <View className="p-2.5">
+                        <Text
+                          className="text-[14px] font-black text-text"
+                          numberOfLines={1}
+                        >
+                          {food.name || food.c_name || "Chef Food"}
+                        </Text>
+                        <Text
+                          className="mt-0.5 text-[12px] text-textSecondary"
+                          numberOfLines={1}
+                        >
+                          {food.category || food.category_type || "Home Food"}
+                        </Text>
+                        <View className="mt-2 flex-row items-center justify-between">
+                          <View>
+                            <Text className="text-[15px] font-black text-primary">
+                              ₹{Math.round(discountedPrice)}
+                            </Text>
+                            {hasOffer && mrp > 0 && (
+                              <Text className="text-[11px] text-textSecondary line-through">
+                                ₹{Math.round(mrp)}
+                              </Text>
+                            )}
+                          </View>
+                          <Pressable className="rounded-full bg-primary px-3 py-1.5">
+                            <Text className="text-[11px] font-black text-white">
+                              Add
+                            </Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })}
+            </ScrollView>
+          )}
         </View>
       </ScrollView>
     </View>
