@@ -1,4 +1,3 @@
-import AppHeader from "@/components/AppHeader";
 import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,7 +15,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import api from "../api";
+import api from "./api";
 
 const getStatusStyle = (status?: string) => {
   const normalized = String(status || "").toLowerCase();
@@ -51,11 +50,10 @@ const getStatusStyle = (status?: string) => {
 
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
   const { addToCart } = useStore();
-
-  const router = useRouter();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -204,7 +202,7 @@ export default function OrdersScreen() {
             break;
           }
         } catch {
-          // try next endpoint candidate
+          // try next url
         }
       }
 
@@ -415,13 +413,19 @@ export default function OrdersScreen() {
   };
 
   return (
-    <View
-      className="flex-1 bg-background"
-      style={{
-        paddingTop: insets.top,
-      }}
-    >
-      <AppHeader title="Orders" />
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      <View className="flex-row items-center border-b border-borderLight bg-white px-[18px] py-3">
+        <Pressable
+          accessibilityLabel="Go back"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray"
+          hitSlop={8}
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={22} color="#1F2937" />
+        </Pressable>
+        <Text className="text-[22px] font-bold text-text">My Orders</Text>
+      </View>
+
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="small" color="#FF8C42" />
@@ -531,6 +535,19 @@ export default function OrdersScreen() {
 
                   {hasAssignedDeliveryPartner(order) ? (
                     <View className="rounded-[22px] border border-[#CFE2FF] bg-[#F1F7FF] p-5">
+                      <View className="mb-3 flex-row items-center justify-between">
+                        <Text className="text-[12px] font-bold text-[#1558D6]">
+                          Delivery Partner Assigned
+                        </Text>
+                        <View className="rounded-full bg-[#DCEAFF] px-3 py-1">
+                          <Text className="text-[11px] font-bold text-[#1558D6]">
+                            ASSIGNED
+                          </Text>
+                        </View>
+                      </View>
+                      <Text className="text-[13px] font-bold uppercase tracking-[3px] text-[#2872F0]">
+                        Delivery Partner
+                      </Text>
                       <View className="mt-3 flex-row items-center justify-between">
                         <View className="flex-1">
                           <Text className="text-[16px] font-bold text-text">
@@ -597,7 +614,11 @@ export default function OrdersScreen() {
                 </View>
               ) : null}
               <Pressable onPress={() => setShowPopup(false)}>
-                <Text className="text-[18px] font-bold text-text">Close</Text>
+                <MaterialCommunityIcons
+                  name="close"
+                  size={24}
+                  color="#374151"
+                />
               </Pressable>
             </View>
 

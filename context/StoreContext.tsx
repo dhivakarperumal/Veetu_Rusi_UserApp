@@ -23,6 +23,7 @@ export interface Product {
   mrp?: number | string;
   offer?: number | string;
   variants?: {
+  variants?: {
     colorName?: string;
     selectedSizes?: string[];
     weight?: string;

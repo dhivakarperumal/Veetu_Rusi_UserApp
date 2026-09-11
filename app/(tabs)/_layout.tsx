@@ -94,7 +94,7 @@ export default function TabLayout() {
           title: "More",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "menu" : "menu-outline"}
+              name={focused ? "grid" : "grid-outline"}
               size={24}
               color={color}
             />
