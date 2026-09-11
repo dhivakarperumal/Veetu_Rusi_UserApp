@@ -298,26 +298,10 @@ export default function HomeScreen() {
 
       const allItems = [...foodsFromApi, ...productsFromApi];
 
-      const filtered = allItems.filter((item: Record<string, any>) => {
-        if ((item.status || "").toLowerCase() !== "active") return false;
+      const homeChefMap = new Map<string, Record<string, any>>();
+      allItems.forEach((item: Record<string, any>) => {
+        if ((item.status || "").toLowerCase() !== "active") return;
 
-        if (!hasLocation || !item.latitude || !item.longitude) return true;
-
-        const distance = parseFloat(
-          calculateDistance(
-            Number(user.latitude),
-            Number(user.longitude),
-            Number(item.latitude),
-            Number(item.longitude),
-          ) || "0",
-        );
-
-        const radius = parseFloat(item.delivery_radius || 0);
-        return distance <= radius;
-      });
-
-      const chefMap = new Map<string, Record<string, any>>();
-      filtered.forEach((item: Record<string, any>) => {
         const rawChefName =
           item.chef_name ||
           item.homeChefName ||
@@ -329,9 +313,9 @@ export default function HomeScreen() {
           "Home Chef";
 
         const chefName = String(rawChefName).trim();
-        if (!chefName || chefMap.has(chefName)) return;
+        if (!chefName || homeChefMap.has(chefName)) return;
 
-        chefMap.set(chefName, {
+        homeChefMap.set(chefName, {
           id:
             item.chef_id ||
             item.home_chef_id ||
@@ -358,8 +342,27 @@ export default function HomeScreen() {
         });
       });
 
+      setHomeChefs(Array.from(homeChefMap.values()));
+
+      const filtered = allItems.filter((item: Record<string, any>) => {
+        if ((item.status || "").toLowerCase() !== "active") return false;
+
+        if (!hasLocation || !item.latitude || !item.longitude) return true;
+
+        const distance = parseFloat(
+          calculateDistance(
+            Number(user.latitude),
+            Number(user.longitude),
+            Number(item.latitude),
+            Number(item.longitude),
+          ) || "0",
+        );
+
+        const radius = parseFloat(item.delivery_radius || 0);
+        return distance <= radius;
+      });
+
       setFoods(filtered);
-      setHomeChefs(Array.from(chefMap.values()).slice(0, 3));
     } catch (error) {
       console.error("Error fetching chef foods:", error);
       setFoodsError("Unable to load items.");
