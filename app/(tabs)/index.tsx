@@ -45,6 +45,51 @@ const safeParse = (data: unknown) => {
   }
 };
 
+const getFirstImageUrl = (value: unknown): string | null => {
+  if (!value) return null;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    const parsed = safeParse(trimmed);
+    if (parsed.length > 0) {
+      return getFirstImageUrl(parsed);
+    }
+
+    return trimmed.split(/\s+/)[0] || null;
+  }
+
+  if (Array.isArray(value)) {
+    const firstString = value.find((item) => typeof item === "string");
+    if (typeof firstString === "string" && firstString.trim()) {
+      return firstString.trim().split(/\s+/)[0] || null;
+    }
+
+    const objectImage = value.find((item) => typeof item === "object" && item !== null) as
+      | { url?: string; image?: string; uri?: string }
+      | undefined;
+
+    if (objectImage?.url) return objectImage.url.trim();
+    if (objectImage?.image) return objectImage.image.trim();
+    if (objectImage?.uri) return objectImage.uri.trim();
+
+    return null;
+  }
+
+  if (typeof value === "object") {
+    const imageValue = value as { url?: string; image?: string; uri?: string };
+    return imageValue.url?.trim() || imageValue.image?.trim() || imageValue.uri?.trim() || null;
+  }
+
+  return null;
+};
+
+const getCategoryImageUrl = (category: CategoryItem) => {
+  const raw = category.image ?? category.images ?? category.image_url ?? category.photo;
+  return getFirstImageUrl(raw) || null;
+};
+
 const getIconByCategory = (label: string) => {
   const lower = String(label).toLowerCase();
   if (lower.includes("snack")) return "restaurant";
@@ -244,27 +289,38 @@ export default function HomeScreen() {
               <ActivityIndicator color={colors.primary} />
             </View>
           ) : categories.length > 0 ? (
-            categories.slice(0, 8).map((c, index) => (
-              <Pressable
-                key={c.name || c.c_name || String(index)}
-                className="mb-3 h-[72px] w-[24%] items-center justify-center"
-              >
-                <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
-                  <Ionicons
-                    name={
-                      getIconByCategory(
-                        c.name || c.c_name || "Food",
-                      ) as keyof typeof Ionicons.glyphMap
-                    }
-                    size={22}
-                    color={index % 2 === 0 ? colors.primary : colors.secondary}
-                  />
-                </View>
-                <Text className="mt-2 text-center text-[11px] font-semibold text-text">
-                  {c.name || c.c_name || "Food"}
-                </Text>
-              </Pressable>
-            ))
+            categories.slice(0, 8).map((c, index) => {
+              const categoryImage = getCategoryImageUrl(c);
+              const categoryName = c.name || c.c_name || "Food";
+
+              return (
+                <Pressable
+                  key={categoryName || String(index)}
+                  className="mb-3 h-[72px] w-[24%] items-center justify-center"
+                >
+                  <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
+                    {categoryImage ? (
+                      <Image
+                        source={{ uri: categoryImage }}
+                        className="h-11 w-11 rounded-full"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Ionicons
+                        name={
+                          getIconByCategory(categoryName) as keyof typeof Ionicons.glyphMap
+                        }
+                        size={22}
+                        color={index % 2 === 0 ? colors.primary : colors.secondary}
+                      />
+                    )}
+                  </View>
+                  <Text className="mt-2 text-center text-[11px] font-semibold text-text">
+                    {categoryName}
+                  </Text>
+                </Pressable>
+              );
+            })
           ) : (
             staticCategories.map((c, index) => (
               <Pressable
