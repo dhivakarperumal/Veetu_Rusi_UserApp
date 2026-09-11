@@ -53,7 +53,7 @@ export default function OrdersScreen() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
-  const { addToCart } = useStore();
+  const { addToFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -257,7 +257,7 @@ export default function OrdersScreen() {
         product?.mrp ??
         0;
 
-      addToCart(
+      addToFoodCart(
         {
           ...product,
           id: String(productId),

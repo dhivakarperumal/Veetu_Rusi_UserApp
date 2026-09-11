@@ -1,7 +1,7 @@
 import api from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
-import { useLocation, UserLocation } from "@/context/LocationContext";
+import { useLocation } from "@/context/LocationContext";
 import { useStore } from "@/context/StoreContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -229,7 +229,6 @@ export default function HomeScreen() {
     setReviewsError(null);
 
     try {
-      const hasLocation = Boolean(user?.latitude && user?.longitude);
       const [foodsRes, productsRes, reviewsRes] = await Promise.all([
         api.get("/chef-foods"),
         api.get("/products", {
@@ -297,31 +296,29 @@ export default function HomeScreen() {
 
       setHomeChefs(Array.from(homeChefMap.values()));
 
-        // Filter products according to the fetched location
-        const filtered = allItems.filter((item: Record<string, any>) => {
-          return isProductDeliverable(item, activeLoc);
-        });
+      // Filter products according to the fetched location
+      const filtered = allItems.filter((item: Record<string, any>) => {
+        return isProductDeliverable(item, location);
+      });
 
-        setFoods(filtered);
-        setReviews(
+      setFoods(filtered);
+      setReviews(
         reviewItems.filter(
           (item: Record<string, any>) => item?.comment || item?.rating,
         ),
       );
     } catch (error) {
-        console.error("Error fetching chef foods:", error);
-        setFoodsError("Unable to load items.");
-        setFoods([]);
-        setHomeChefs([]);
+      console.error("Error fetching chef foods:", error);
+      setFoodsError("Unable to load items.");
+      setFoods([]);
+      setHomeChefs([]);
       setReviews([]);
       setReviewsError("Unable to load reviews.");
     } finally {
-        setFoodsLoading(false);
-        setReviewsLoading(false);
+      setFoodsLoading(false);
+      setReviewsLoading(false);
     }
-    },
-    [location, isProductDeliverable],
-  );
+  }, [location, isProductDeliverable]);
 
   // Initial load
   useEffect(() => {
@@ -342,7 +339,7 @@ export default function HomeScreen() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([fetchCategories(true), fetchFoods(location)]);
+      await Promise.all([fetchCategories(true), fetchFoods()]);
     } finally {
       setRefreshing(false);
     }
@@ -351,7 +348,7 @@ export default function HomeScreen() {
   // Change Location: Explicitly fetches current GPS location and updates products
   const handleChangeLocation = () => {
     fetchLocation((newLoc) => {
-      fetchFoods(newLoc);
+      fetchFoods();
     });
   };
 
@@ -392,12 +389,12 @@ export default function HomeScreen() {
               Delivering to
             </Text>
             <Text className="text-[14px] font-bold text-text" numberOfLines={1}>
-              {user?.location_name ||
-                (user?.area && user?.district
-                  ? `${user.area}, ${user.district}`
-                  : user?.area ||
-                    user?.district ||
-                    user?.pincode ||
+              {location?.locationName ||
+                (location?.area && location?.district
+                  ? `${location.area}, ${location.district}`
+                  : location?.area ||
+                    location?.district ||
+                    location?.pincode ||
                     "Set your location")}
             </Text>
           </View>
@@ -434,24 +431,6 @@ export default function HomeScreen() {
           )}
         </Pressable>
       </View>
-          <Ionicons
-            name="chevron-down"
-            size={16}
-            color={colors.textSecondary}
-          />
-        </View>
-        {fetchingLocation ? (
-          <ActivityIndicator
-            size="small"
-            color={colors.primary}
-            className="ml-2"
-          />
-        ) : (
-          <View className="ml-2 rounded-full bg-primary/10 px-3 py-1">
-            <Text className="text-[12px] font-bold text-primary">Refresh</Text>
-          </View>
-        )}
-      </Pressable>
 
       <ScrollView
         className="flex-1 bg-[#f8f8f7]"
@@ -760,12 +739,15 @@ export default function HomeScreen() {
               </Text>
               {hasLocation && (
                 <Text className="text-[12px] font-semibold text-textSecondary">
-                  Deliverable to {location?.area || location?.city || "your area"}
+                  Deliverable to{" "}
+                  {location?.area || location?.city || "your area"}
                 </Text>
               )}
             </View>
             <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">See all</Text>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
             </Pressable>
           </View>
 
@@ -828,8 +810,6 @@ export default function HomeScreen() {
 
                 const productId = food.id || food._id;
 
-                const productId = food.id || food._id;
-
                 return (
                   <Pressable
                     key={productId || food.name || i}
@@ -841,10 +821,7 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-4 w-[210px] rounded-[18px] border border-border bg-white p-2"
-                  <View
-                    key={food.id || food.name || i}
-                    className="mr-4 w-[200px] rounded-[18px] border border-border bg-white overflow-hidden"
+                    className="mr-4 w-[210px] overflow-hidden rounded-[18px] border border-border bg-white"
                   >
                     <View className="relative">
                       <Image
@@ -867,11 +844,6 @@ export default function HomeScreen() {
                         </View>
                       )}
                     </View>
-                    <View className="px-2 py-3">
-                      <Text
-                        className="text-[18px] font-black text-text"
-                        numberOfLines={1}
-                      >
                     <View className="p-3">
                       <Text
                         className="text-[15px] font-black text-text"
@@ -889,10 +861,6 @@ export default function HomeScreen() {
                           {food.rating ?? "4.8"} ({food.orders ?? "1.2K"})
                         </Text>
                       </View>
-                      <Text
-                        className="mt-2 text-[13px] font-semibold text-textSecondary"
-                        numberOfLines={1}
-                      >
                       <Text
                         className="mt-0.5 text-[12px] font-medium text-textSecondary"
                         numberOfLines={1}
@@ -987,7 +955,9 @@ export default function HomeScreen() {
               Customer Reviews
             </Text>
             <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">See all</Text>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
             </Pressable>
           </View>
 
@@ -1050,8 +1020,6 @@ export default function HomeScreen() {
         </View>
 
         {/* Section 5: Best Offers for You (Filtered by fetched location) */}
-        <View className="mt-4 px-4 pb-8">
-        {/* Best Offers for You — real data filtered by offer > 0 */}
         <View className="mt-4 px-4 pb-6">
           <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-[26px] font-black text-text">
@@ -1065,7 +1033,9 @@ export default function HomeScreen() {
                 })
               }
             >
-              <Text className="text-[14px] font-bold text-primary">See all</Text>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
             </Pressable>
           </View>
 

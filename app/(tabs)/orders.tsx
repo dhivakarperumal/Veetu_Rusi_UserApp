@@ -53,7 +53,7 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
-  const { addToCart } = useStore();
+  const { addToFoodCart } = useStore();
 
   const router = useRouter();
 
@@ -259,7 +259,7 @@ export default function OrdersScreen() {
         product?.mrp ??
         0;
 
-      addToCart(
+      addToFoodCart(
         {
           ...product,
           id: String(productId),

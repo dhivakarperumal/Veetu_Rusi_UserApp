@@ -23,7 +23,6 @@ export interface Product {
   mrp?: number | string;
   offer?: number | string;
   variants?: {
-  variants?: {
     colorName?: string;
     selectedSizes?: string[];
     weight?: string;
@@ -167,8 +166,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       size: string | null = null,
       qty = 1,
     ): Promise<boolean> => {
-      const productId =
-        product.product_id ?? product.id ?? product._id ?? "";
+      const productId = product.product_id ?? product.id ?? product._id ?? "";
       const selectedVariant = variant || product.variants?.[0] || null;
       const selectedSize =
         size ??
@@ -313,7 +311,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             );
           }
         } catch (apiErr) {
-          console.warn("Backend /user-food call error (saved locally):", apiErr);
+          console.warn(
+            "Backend /user-food call error (saved locally):",
+            apiErr,
+          );
         }
       }
 
@@ -323,27 +324,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   // Remove from food cart
-  const removeFromFoodCart = useCallback(
-    async (id: string) => {
-      setUserFoodCart((prev) => {
-        const updated = prev.filter(
-          (it) => it.id !== id && it.product_id !== id,
-        );
-        AsyncStorage.setItem(
-          FOOD_CART_STORAGE_KEY,
-          JSON.stringify(updated),
-        ).catch(console.error);
-        return updated;
-      });
+  const removeFromFoodCart = useCallback(async (id: string) => {
+    setUserFoodCart((prev) => {
+      const updated = prev.filter((it) => it.id !== id && it.product_id !== id);
+      AsyncStorage.setItem(
+        FOOD_CART_STORAGE_KEY,
+        JSON.stringify(updated),
+      ).catch(console.error);
+      return updated;
+    });
 
-      try {
-        await api.delete(`/user-food/${id}`);
-      } catch (e) {
-        console.warn("Delete /user-food failed:", e);
-      }
-    },
-    [],
-  );
+    try {
+      await api.delete(`/user-food/${id}`);
+    } catch (e) {
+      console.warn("Delete /user-food failed:", e);
+    }
+  }, []);
 
   // Update food cart quantity
   const updateFoodCartQuantity = useCallback(
