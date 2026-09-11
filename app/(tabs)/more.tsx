@@ -38,11 +38,17 @@ export default function MoreScreen() {
   }, [user]);
 
   const menuItems = [
-    { label: "Profile Settings", icon: "account-circle-outline" },
-    { label: "Notifications", icon: "bell-outline" },
-    { label: "Order History", icon: "history" },
-    { label: "Settings", icon: "cog-outline" },
-    { label: "About", icon: "information-outline" },
+    { label: "My Orders", icon: "clipboard-text-outline", route: "/orders" },
+    { label: "My Addresses", icon: "map-marker-outline", route: "/addresses" },
+    { label: "My Coupons", icon: "ticket-percent-outline", route: "/coupons" },
+    { label: "My Wallet", icon: "wallet-outline", route: "/wallet" },
+    {
+      label: "Favourite Chefs",
+      icon: "heart-outline",
+      route: "/favorite-chefs",
+    },
+    { label: "Help & Support", icon: "lifebuoy", route: "/help-support" },
+    { label: "About Veetu Rusi", icon: "information-outline", route: "/about" },
   ];
 
   const handleLogout = async () => {
@@ -87,7 +93,10 @@ export default function MoreScreen() {
       >
         {/* User Profile Card */}
         {user && (
-          <View className="mx-5 mt-4 rounded-[26px] border border-borderLight bg-white p-4 shadow-sm shadow-black/10">
+          <TouchableOpacity
+            onPress={() => router.push("/profile")}
+            className="mx-5 mt-4 rounded-[26px] border border-borderLight bg-white p-4 shadow-sm shadow-black/10"
+          >
             <View className="flex-row items-center">
               <View className="mr-4 h-[58px] w-[58px] items-center justify-center rounded-full bg-primary">
                 <Text className="text-[22px] font-black text-white">
@@ -108,7 +117,7 @@ export default function MoreScreen() {
                 color={colors.textSecondary}
               />
             </View>
-          </View>
+          </TouchableOpacity>
         )}
 
         {/* Menu Card */}
@@ -116,6 +125,11 @@ export default function MoreScreen() {
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={item.label}
+              onPress={() => {
+                if (item.route) {
+                  router.push(item.route as any);
+                }
+              }}
               className={`flex-row items-center px-4 py-4 ${
                 index !== menuItems.length - 1
                   ? "border-b border-borderLight"
