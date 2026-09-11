@@ -52,6 +52,9 @@ function RootLayoutContent() {
       <Stack.Screen
         name="auth"
       />
+      <Stack.Screen
+        name="checkout"
+      />
     </Stack>
   );
 }

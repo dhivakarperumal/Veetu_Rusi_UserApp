@@ -14,10 +14,6 @@ export default function MoreScreen() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadUserProfile();
-  }, []);
-
   const loadUserProfile = async () => {
     try {
       const userProfile = await AsyncStorage.getItem("userProfile");
@@ -28,6 +24,11 @@ export default function MoreScreen() {
       console.error("Error loading profile:", error);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadUserProfile();
+  }, []);
 
   const initials = useMemo(() => {
     return (user?.username || user?.email || "User")
