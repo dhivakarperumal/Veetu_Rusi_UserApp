@@ -1,9 +1,10 @@
 import { colors } from "@/config/colors";
-import { Product } from "@/context/StoreContext";
+import { useAuth } from "@/context/AuthContext";
+import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import QuickViewModal from "./QuickViewModal";
 
 interface ProductCardProps {
@@ -12,7 +13,12 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useStore();
   const [modalVisible, setModalVisible] = useState(false);
+
+  const productId = String(product.id || product._id || product.product_id || "");
+  const isWishlisted = isInWishlist(productId);
 
   const toNumber = (value: unknown, fallback = 0) => {
     if (value === null || value === undefined || value === "") return fallback;
@@ -109,6 +115,37 @@ export default function ProductCard({ product }: ProductCardProps) {
               </Text>
             </View>
           )}
+
+          {/* Wishlist Heart Button */}
+          <TouchableOpacity
+            className="absolute left-1.5 top-1.5 h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-sm"
+            onPress={async (e) => {
+              e.stopPropagation();
+              const uid = user?.id || user?.user_id;
+              if (!uid) {
+                Alert.alert(
+                  "Login Required",
+                  "Please login to add this dish to your wishlist.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Login",
+                      onPress: () => router.push("/auth/login"),
+                    },
+                  ],
+                );
+                return;
+              }
+              await toggleWishlist(product);
+            }}
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons
+              name={isWishlisted ? "heart" : "heart-outline"}
+              size={15}
+              color={isWishlisted ? colors.error : colors.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
 
         <View className="flex-1 justify-center px-3">

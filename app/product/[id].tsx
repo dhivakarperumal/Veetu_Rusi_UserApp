@@ -1,5 +1,6 @@
 import api from "@/app/api";
 import { colors } from "@/config/colors";
+import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -22,12 +23,16 @@ const { width } = Dimensions.get("window");
 export default function ProductDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { addToFoodCart } = useStore();
+  const { user } = useAuth();
+  const { addToFoodCart, toggleWishlist, isInWishlist } = useStore();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+
+  const productId = String(product?.id || product?._id || product?.product_id || id || "");
+  const isWishlisted = isInWishlist(productId);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -98,7 +103,32 @@ export default function ProductDetailScreen() {
         <Text className="mx-2 flex-1 text-center text-[17px] font-bold text-text" numberOfLines={1}>
           {product?.name || "Product Details"}
         </Text>
-        <View className="w-10" />
+        <TouchableOpacity
+          className="h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          onPress={async () => {
+            if (!product) return;
+            const uid = user?.id || user?.user_id;
+            if (!uid) {
+              Alert.alert(
+                "Login Required",
+                "Please login to add this dish to your wishlist.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Login", onPress: () => router.push("/auth/login") },
+                ],
+              );
+              return;
+            }
+            await toggleWishlist(product);
+          }}
+          hitSlop={8}
+        >
+          <MaterialCommunityIcons
+            name={isWishlisted ? "heart" : "heart-outline"}
+            size={22}
+            color={isWishlisted ? colors.error : colors.text}
+          />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -183,34 +213,59 @@ export default function ProductDetailScreen() {
       {/* Bottom bar */}
       {!loading && (
         <View
-          className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between border-t border-borderLight bg-white px-5 pt-3 shadow-lg shadow-black"
+          className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between border-t border-borderLight bg-white px-4 pt-3 shadow-lg shadow-black"
           style={{ paddingBottom: Math.max(insets.bottom, 16) }}
         >
-          <View>
+          <View className="mr-3">
             <Text className="text-xs text-textSecondary">Total Price</Text>
             <Text className="text-xl font-extrabold text-text">₹{(price * quantity).toFixed(0)}</Text>
           </View>
-          <TouchableOpacity
-            className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 shadow-md shadow-primary/30 active:opacity-90"
-            onPress={async () => {
-              if (!product) return;
-              await addToFoodCart(product, null, null, quantity);
-              Alert.alert(
-                "Added to Cart! 🛒",
-                `${quantity}x ${product.name || "item"} added to your food cart.`,
-                [
-                  { text: "Continue Shopping", style: "cancel" },
-                  {
-                    text: "View Cart",
-                    onPress: () => router.push("/(tabs)/cart"),
+
+          <View className="flex-row items-center gap-2">
+            <TouchableOpacity
+              className="flex-row items-center gap-1.5 rounded-xl border border-primary bg-white px-3.5 py-2.5 active:bg-primary/10"
+              onPress={async () => {
+                if (!product) return;
+                await addToFoodCart(product, null, null, quantity);
+                Alert.alert(
+                  "Added to Cart! 🛒",
+                  `${quantity}x ${product.name || "item"} added to your food cart.`,
+                  [
+                    { text: "Continue Shopping", style: "cancel" },
+                    {
+                      text: "View Cart",
+                      onPress: () => router.push("/(tabs)/cart"),
+                    },
+                  ],
+                );
+              }}
+            >
+              <MaterialCommunityIcons name="cart-plus" size={18} color={colors.primary} />
+              <Text className="text-[13px] font-bold text-primary">Cart</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-row items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 shadow-md shadow-primary/30 active:opacity-90"
+              onPress={() => {
+                if (!product) return;
+                const buyNowData = {
+                  product,
+                  variant: product.variants?.[0] || null,
+                  size: null,
+                  quantity,
+                };
+                router.push({
+                  pathname: "/checkout",
+                  params: {
+                    buyNowItem: JSON.stringify(buyNowData),
                   },
-                ],
-              );
-            }}
-          >
-            <MaterialCommunityIcons name="cart-plus" size={20} color={colors.white} />
-            <Text className="text-[15px] font-bold text-white">Add to Cart</Text>
-          </TouchableOpacity>
+                });
+              }}
+            >
+              <MaterialCommunityIcons name="lightning-bolt" size={18} color={colors.white} />
+              <Text className="text-[13px] font-bold text-white">Buy Now</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </SafeAreaView>

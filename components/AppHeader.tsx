@@ -1,5 +1,6 @@
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
+import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -14,6 +15,7 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const { wishlist } = useStore();
   const [localUser, setLocalUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -76,8 +78,27 @@ export default function AppHeader({ title }: AppHeaderProps) {
         <Text className="text-[22px] font-bold text-text">{title}</Text>
       </View>
 
-      {/* Right section: Notification & Profile */}
+      {/* Right section: Wishlist, Notification & Profile */}
       <View className="flex-row items-center gap-2.5">
+        <Pressable
+          className="relative h-9 w-9 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          onPress={() => router.push("/wishlist")}
+          hitSlop={8}
+        >
+          <MaterialCommunityIcons
+            name="heart-outline"
+            size={22}
+            color={colors.text}
+          />
+          {wishlist && wishlist.length > 0 && (
+            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primary px-1">
+              <Text className="text-[10px] font-black text-white">
+                {wishlist.length > 99 ? "99+" : wishlist.length}
+              </Text>
+            </View>
+          )}
+        </Pressable>
+
         <Pressable
           className="h-9 w-9 items-center justify-center rounded-full bg-gray"
           hitSlop={10}
@@ -126,6 +147,18 @@ export default function AppHeader({ title }: AppHeaderProps) {
               >
                 <Text className="text-[15px] font-semibold text-text">
                   Profile
+                </Text>
+              </Pressable>
+
+              <Pressable
+                className="px-3.5 py-3"
+                onPress={() => {
+                  setMenuOpen(false);
+                  router.push("/wishlist");
+                }}
+              >
+                <Text className="text-[15px] font-semibold text-text">
+                  My Wishlist
                 </Text>
               </Pressable>
 
