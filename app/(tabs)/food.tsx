@@ -2,18 +2,20 @@ import api from "@/app/api";
 import ProductCard from "@/components/ProductCard";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
+import { useLocation, UserLocation } from "@/context/LocationContext";
 import { useStore } from "@/context/StoreContext";
-import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -56,9 +58,21 @@ interface Category {
   [key: string]: any;
 }
 
-export default function FoodScreen({ defaultCategory = "" }) {
+export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?: string }) {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{
+    category?: string;
+    search?: string;
+    offer?: string;
+  }>();
   const { user } = useAuth();
+  const {
+    location,
+    hasLocation,
+    fetchingLocation,
+    fetchLocation,
+    isProductDeliverable,
+  } = useLocation();
   const {
     chefFoodsCache,
     setChefFoodsCache,
@@ -66,105 +80,10 @@ export default function FoodScreen({ defaultCategory = "" }) {
     setLastChefFoodsFetchTime,
   } = useStore();
 
-  // Parse delivery radius from various formats (e.g. "5 KM", "10km", 5, etc.)
-  const parseRadius = (val: unknown, fallback = 15): number => {
-    if (typeof val === "number" && !isNaN(val) && val > 0) return val;
-    if (!val) return fallback;
-    const match = String(val).match(/[\d.]+/);
-    if (match) {
-      const num = parseFloat(match[0]);
-      if (!isNaN(num) && num > 0) return num;
-    }
-    return fallback;
-  };
-
-  // Calculate distance between two coordinates in km
-  const calculateDistance = useCallback(
-    (lat1: any, lon1: any, lat2: any, lon2: any): string | null => {
-      const nLat1 = parseFloat(String(lat1 ?? ""));
-      const nLon1 = parseFloat(String(lon1 ?? ""));
-      const nLat2 = parseFloat(String(lat2 ?? ""));
-      const nLon2 = parseFloat(String(lon2 ?? ""));
-
-      if (isNaN(nLat1) || isNaN(nLon1) || isNaN(nLat2) || isNaN(nLon2))
-        return null;
-
-      const R = 6371; // Radius of earth in km
-      const dLat = ((nLat2 - nLat1) * Math.PI) / 180;
-      const dLon = ((nLon2 - nLon1) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((nLat1 * Math.PI) / 180) *
-          Math.cos((nLat2 * Math.PI) / 180) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return (R * c).toFixed(2);
-    },
-    [],
-  );
-
-  const isProductDeliverable = useCallback(
-    (product: Product, userLat?: number, userLon?: number) => {
-      if (product.status && product.status.toLowerCase() !== "active")
-        return false;
-      if (!userLat || !userLon) return true;
-
-      const prodLat = parseFloat(String(product.latitude ?? ""));
-      const prodLon = parseFloat(String(product.longitude ?? ""));
-
-      if (isNaN(prodLat) || isNaN(prodLon) || prodLat === 0 || prodLon === 0) {
-        return true;
-      }
-
-      const distStr = calculateDistance(userLat, userLon, prodLat, prodLon);
-      if (!distStr) return true;
-      const distance = parseFloat(distStr);
-
-      const radius = parseRadius(product.delivery_radius, 15);
-
-      // Check if distance is within radius with a 3km GPS accuracy tolerance
-      if (distance <= radius + 3) return true;
-
-      // Check matching area / city / district or pincode (e.g. Tirupathur)
-      const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const userArea = clean(
-        `${user?.area || ""} ${user?.district || ""} ${user?.location_name || ""}`,
-      );
-      const prodCity = clean(
-        `${product.city || ""} ${product.district || ""} ${product.area_name || ""}`,
-      );
-      const userPin = String(user?.pincode || "").trim();
-      const prodPin = String(product.pincode || "").trim();
-
-      if (userPin && prodPin && userPin === prodPin) return true;
-      if (
-        userArea &&
-        prodCity &&
-        (userArea.includes(prodCity) || prodCity.includes(userArea))
-      ) {
-        if (distance <= 35) return true;
-      }
-
-      return false;
-    },
-    [calculateDistance, user],
-  );
-
   // Products state
-  const [products, setProducts] = useState<Product[]>(() => {
-    const cache = Array.isArray(chefFoodsCache) ? chefFoodsCache : [];
-    return cache.filter((p) =>
-      isProductDeliverable(p, user?.latitude, user?.longitude),
-    );
-  });
-
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(() => {
-    const cache = Array.isArray(chefFoodsCache) ? chefFoodsCache : [];
-    return cache.filter((p) =>
-      isProductDeliverable(p, user?.latitude, user?.longitude),
-    );
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   // UI State
   const [loading, setLoading] = useState(
@@ -190,26 +109,21 @@ export default function FoodScreen({ defaultCategory = "" }) {
     Record<string, Category[]>
   >({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeLocation, setActiveLocation] = useState<{
-    latitude?: number;
-    longitude?: number;
-  }>({
-    latitude: user?.latitude,
-    longitude: user?.longitude,
-  });
 
-  const { fetchingLocation, fetchLocation } = useFetchLocation();
-  const hasLocation = Boolean(
-    (activeLocation.latitude ?? user?.latitude) &&
-    (activeLocation.longitude ?? user?.longitude),
-  );
-
+  // Sync route params when navigated from other screens
   useEffect(() => {
-    setActiveLocation({
-      latitude: user?.latitude,
-      longitude: user?.longitude,
-    });
-  }, [user?.latitude, user?.longitude]);
+    if (params.category) {
+      setSelectedCategory(params.category);
+      setShowFilters(true);
+    }
+    if (params.search) {
+      setSearch(params.search);
+    }
+    if (params.offer) {
+      setOfferFilter(Number(params.offer));
+      setShowFilters(true);
+    }
+  }, [params.category, params.search, params.offer]);
 
   // Fetch categories
   useEffect(() => {
@@ -248,14 +162,10 @@ export default function FoodScreen({ defaultCategory = "" }) {
   const fetchProducts = useCallback(
     async (
       forceRefresh = false,
-      locationOverride?: { latitude: number; longitude: number },
+      locationOverride?: UserLocation | null,
     ) => {
-      const activeLatitude =
-        locationOverride?.latitude ?? activeLocation.latitude ?? user?.latitude;
-      const activeLongitude =
-        locationOverride?.longitude ??
-        activeLocation.longitude ??
-        user?.longitude;
+      const activeLoc =
+        locationOverride !== undefined ? locationOverride : location;
       const isCacheValid =
         !forceRefresh &&
         lastChefFoodsFetchTime &&
@@ -263,7 +173,7 @@ export default function FoodScreen({ defaultCategory = "" }) {
 
       if (isCacheValid && chefFoodsCache?.length > 0) {
         const myProducts = chefFoodsCache.filter((product) =>
-          isProductDeliverable(product, activeLatitude, activeLongitude),
+          isProductDeliverable(product, activeLoc),
         );
 
         setProducts(myProducts);
@@ -297,7 +207,7 @@ export default function FoodScreen({ defaultCategory = "" }) {
         setLastChefFoodsFetchTime(Date.now());
 
         const myProducts = data.filter((product) =>
-          isProductDeliverable(product, activeLatitude, activeLongitude),
+          isProductDeliverable(product, activeLoc),
         );
 
         setProducts(myProducts);
@@ -311,9 +221,7 @@ export default function FoodScreen({ defaultCategory = "" }) {
       }
     },
     [
-      user,
-      activeLocation.latitude,
-      activeLocation.longitude,
+      location,
       chefFoodsCache,
       lastChefFoodsFetchTime,
       isProductDeliverable,
@@ -325,7 +233,17 @@ export default function FoodScreen({ defaultCategory = "" }) {
   // Initial fetch
   useEffect(() => {
     fetchProducts();
-  }, [user]);
+  }, [fetchProducts]);
+
+  // Pull to refresh without resetting location
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchProducts(true, location);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchProducts, location]);
 
   // Apply filters and sorting
   useEffect(() => {
@@ -584,9 +502,8 @@ export default function FoodScreen({ defaultCategory = "" }) {
             <TouchableOpacity
               className="mb-3 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3"
               onPress={() =>
-                fetchLocation((location) => {
-                  setActiveLocation(location);
-                  fetchProducts(true, location);
+                fetchLocation((newLoc) => {
+                  fetchProducts(true, newLoc);
                 })
               }
               disabled={fetchingLocation}
@@ -629,6 +546,14 @@ export default function FoodScreen({ defaultCategory = "" }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="p-3"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
         {/* Location Badge */}
         <View className="mb-3 flex-row items-center justify-between rounded-xl border border-borderLight bg-white p-3">
@@ -644,23 +569,26 @@ export default function FoodScreen({ defaultCategory = "" }) {
               <Text className="text-[11px] font-semibold text-textSecondary">
                 Delivery Location:
               </Text>
-              <Text className="text-[13px] font-semibold text-text">
-                {user?.area ||
-                  user?.district ||
-                  user?.location_name ||
-                  (user?.latitude && user?.longitude
-                    ? `${Number(user.latitude).toFixed(4)}, ${Number(user.longitude).toFixed(4)}`
-                    : "Current Location")}
+              <Text
+                className="text-[13px] font-semibold text-text"
+                numberOfLines={1}
+              >
+                {location?.locationName ||
+                  (location?.area && location?.district
+                    ? `${location.area}, ${location.district}`
+                    : location?.area ||
+                      location?.city ||
+                      location?.pincode ||
+                      "Current Location")}
               </Text>
             </View>
           </View>
 
           <TouchableOpacity
-            className="rounded-lg border border-borderLight px-3 py-2"
+            className="flex-row items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1.5 active:opacity-70"
             onPress={() =>
-              fetchLocation((location) => {
-                setActiveLocation(location);
-                fetchProducts(true, location);
+              fetchLocation((newLoc) => {
+                fetchProducts(true, newLoc);
               })
             }
             disabled={fetchingLocation}
@@ -668,11 +596,14 @@ export default function FoodScreen({ defaultCategory = "" }) {
             {fetchingLocation ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
-              <MaterialCommunityIcons
-                name="refresh"
-                size={16}
-                color={colors.primary}
-              />
+              <>
+                <MaterialCommunityIcons
+                  name="crosshairs-gps"
+                  size={14}
+                  color={colors.primary}
+                />
+                <Text className="text-xs font-bold text-primary">Change</Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
@@ -979,9 +910,8 @@ export default function FoodScreen({ defaultCategory = "" }) {
                 <TouchableOpacity
                   className="flex-row items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2"
                   onPress={() =>
-                    fetchLocation((location) => {
-                      setActiveLocation(location);
-                      fetchProducts(true, location);
+                    fetchLocation((newLoc) => {
+                      fetchProducts(true, newLoc);
                     })
                   }
                   disabled={fetchingLocation}
@@ -990,13 +920,13 @@ export default function FoodScreen({ defaultCategory = "" }) {
                     <ActivityIndicator size="small" color={colors.white} />
                   ) : (
                     <MaterialCommunityIcons
-                      name="refresh"
+                      name="crosshairs-gps"
                       size={14}
                       color={colors.white}
                     />
                   )}
                   <Text className="text-xs font-semibold text-white">
-                    Re-fetch Location
+                    Change Location
                   </Text>
                 </TouchableOpacity>
               </View>

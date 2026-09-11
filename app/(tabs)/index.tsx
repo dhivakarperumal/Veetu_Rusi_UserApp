@@ -1,15 +1,16 @@
 import api from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
-import { AuthContext } from "@/context/AuthContext";
+import { useLocation, UserLocation } from "@/context/LocationContext";
 import { useStore } from "@/context/StoreContext";
-import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -132,75 +133,6 @@ const getFoodImage = (item: Record<string, any>) => {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || item.c_name || "Chef Food")}&background=random&size=600`;
 };
 
-const getStatusClasses = (status: string) => {
-  switch ((status || "").toLowerCase()) {
-    case "active":
-      return "bg-emerald-100 text-emerald-700 border-emerald-200";
-    case "low stock":
-      return "bg-amber-100 text-amber-700 border-amber-200";
-    case "out of stock":
-      return "bg-rose-100 text-rose-700 border-rose-200";
-    default:
-      return "bg-slate-100 text-slate-700 border-slate-200";
-  }
-};
-
-const calculateDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-) => {
-  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
-
-  const R = 6371;
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLon = (lon2 - lon1) * (Math.PI / 180);
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) *
-      Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return (R * c).toFixed(2);
-};
-
-const popularKitchens = [
-  {
-    name: "Akshaya Kitchen",
-    type: "South Indian Meals",
-    rating: "4.8",
-    orders: "1.2K",
-    time: "25 mins",
-    tags: ["Hygienic", "Homemade"],
-    image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    name: "Malathi's Kitchen",
-    type: "Veg & Non-Veg Meals",
-    rating: "4.7",
-    orders: "980",
-    time: "30 mins",
-    tags: ["Traditional", "Fresh"],
-    image:
-      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    name: "Sangeetha Kitchen",
-    type: "South Indian | Tiffin",
-    rating: "4.9",
-    orders: "2.3K",
-    time: "20 mins",
-    tags: ["Tasty", "Affordable"],
-    image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
-  },
-];
-
 const foodTypes = [
   {
     name: "South Indian",
@@ -236,11 +168,15 @@ const foodTypes = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { categoriesCache, setCategoriesCache } = useStore();
-  const authContext = useContext(AuthContext);
-  const user = authContext?.user ?? null;
-
-  const { fetchingLocation, fetchLocation } = useFetchLocation();
+  const {
+    location,
+    hasLocation,
+    fetchingLocation,
+    fetchLocation,
+    isProductDeliverable,
+  } = useLocation();
 
   const [categories, setCategories] = useState<CategoryItem[]>(
     categoriesCache || [],
@@ -251,137 +187,232 @@ export default function HomeScreen() {
   );
   const [foodsLoading, setFoodsLoading] = useState(false);
   const [foodsError, setFoodsError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      if (categoriesCache && categoriesCache.length > 0) {
-        setCategories(categoriesCache);
+  const fetchCategories = useCallback(
+    async (force = false) => {
+      try {
+        if (!force && categoriesCache && categoriesCache.length > 0) {
+          setCategories(categoriesCache);
+          setLoading(false);
+          return;
+        }
+
+        const res = await api.get("/home-chef-categories");
+        const data = Array.isArray(res.data) ? res.data : [];
+        const mapped = data.map((cat: CategoryItem) => ({
+          ...cat,
+          name: cat.c_name || cat.name || "",
+          images: safeParse(cat.image || cat.images),
+        }));
+        setCategories(mapped);
+        setCategoriesCache(mapped);
+      } catch (error) {
+        console.error("Error fetching home chef categories:", error);
+        if (!categories.length) setCategories([]);
+      } finally {
         setLoading(false);
-        return;
       }
+    },
+    [categoriesCache, categories.length, setCategoriesCache],
+  );
 
-      const res = await api.get("/home-chef-categories");
-      const data = Array.isArray(res.data) ? res.data : [];
-      const mapped = data.map((cat: CategoryItem) => ({
-        ...cat,
-        name: cat.c_name || cat.name || "",
-        images: safeParse(cat.image || cat.images),
-      }));
-      setCategories(mapped);
-      setCategoriesCache(mapped);
-    } catch (error) {
-      console.error("Error fetching home chef categories:", error);
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [categoriesCache, setCategoriesCache]);
+  const fetchFoods = useCallback(
+    async (targetLoc?: UserLocation | null) => {
+      setFoodsLoading(true);
+      setFoodsError(null);
 
-  const fetchFoods = useCallback(async () => {
-    setFoodsLoading(true);
-    setFoodsError(null);
+      try {
+        const activeLoc = targetLoc !== undefined ? targetLoc : location;
+        const [foodsRes, productsRes] = await Promise.all([
+          api.get("/chef-foods").catch(() => ({ data: [] })),
+          api
+            .get("/products", {
+              params: { source: "chef_products" },
+            })
+            .catch(() => ({ data: [] })),
+        ]);
 
-    try {
-      const hasLocation = Boolean(user?.latitude && user?.longitude);
-      const [foodsRes, productsRes] = await Promise.all([
-        api.get("/chef-foods"),
-        api.get("/products", {
-          params: { source: "chef_products" },
-        }),
-      ]);
+        const foodsFromApi = Array.isArray(foodsRes.data) ? foodsRes.data : [];
+        const productsFromApi = Array.isArray(productsRes.data)
+          ? productsRes.data
+          : [];
 
-      const foodsFromApi = Array.isArray(foodsRes.data) ? foodsRes.data : [];
-      const productsFromApi = Array.isArray(productsRes.data)
-        ? productsRes.data
-        : [];
+        const allItems = [...foodsFromApi, ...productsFromApi];
 
-      const allItems = [...foodsFromApi, ...productsFromApi];
+        // Filter products according to the fetched location
+        const filtered = allItems.filter((item: Record<string, any>) => {
+          return isProductDeliverable(item, activeLoc);
+        });
 
-      const filtered = allItems.filter((item: Record<string, any>) => {
-        if ((item.status || "").toLowerCase() !== "active") return false;
+        setFoods(filtered);
+      } catch (error) {
+        console.error("Error fetching chef foods:", error);
+        setFoodsError("Unable to load items.");
+        setFoods([]);
+      } finally {
+        setFoodsLoading(false);
+      }
+    },
+    [location, isProductDeliverable],
+  );
 
-        if (!hasLocation || !item.latitude || !item.longitude) return true;
-
-        const distance = parseFloat(
-          calculateDistance(
-            Number(user.latitude),
-            Number(user.longitude),
-            Number(item.latitude),
-            Number(item.longitude),
-          ) || "0",
-        );
-
-        const radius = parseFloat(item.delivery_radius || 0);
-        return distance <= radius;
-      });
-
-      setFoods(filtered);
-    } catch (error) {
-      console.error("Error fetching chef foods:", error);
-      setFoodsError("Unable to load items.");
-      setFoods([]);
-    } finally {
-      setFoodsLoading(false);
-    }
-  }, [user]);
-
+  // Initial load
   useEffect(() => {
-    fetchCategories();
-    fetchFoods();
+    let isMounted = true;
+    const loadData = async () => {
+      if (!isMounted) return;
+      await fetchCategories();
+      if (!isMounted) return;
+      await fetchFoods();
+    };
+    loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [fetchCategories, fetchFoods]);
+
+  // Pull to refresh: Refreshes data without changing/resetting location
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchCategories(true), fetchFoods(location)]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchCategories, fetchFoods, location]);
+
+  // Change Location: Explicitly fetches current GPS location and updates products
+  const handleChangeLocation = () => {
+    fetchLocation((newLoc) => {
+      fetchFoods(newLoc);
+    });
+  };
+
+  // Products with offers deliverable to the current location
+  const offerFoods = foods.filter((item) => {
+    const offer = Number(item.offer || 0);
+    const offerPrice = Number(item.offer_price || 0);
+    const mrp = Number(item.mrp || 0);
+    return offer > 0 || (offerPrice > 0 && offerPrice < mrp);
+  });
+
+  const displayLocation =
+    location?.locationName ||
+    (location?.area && location?.district
+      ? `${location.area}, ${location.district}`
+      : location?.area ||
+        location?.district ||
+        location?.city ||
+        location?.pincode ||
+        "Set your location");
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <AppHeader title="Veetu Rusi" />
 
-      {/* Location Bar - Home screen only */}
-      <Pressable
-        className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-2.5"
-        onPress={() => fetchLocation()}
-        disabled={fetchingLocation}
-      >
-        <View className="flex-row items-center flex-1">
-          <Ionicons name="location" size={18} color={colors.primary} />
-          <View className="ml-2 flex-1">
+      {/* Location Bar with explicit Change Location button */}
+      <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-2.5">
+        <Pressable
+          className="mr-2 flex-1 flex-row items-center"
+          onPress={handleChangeLocation}
+          disabled={fetchingLocation}
+        >
+          <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/15">
+            <Ionicons name="location" size={18} color={colors.primary} />
+          </View>
+          <View className="ml-2.5 flex-1">
             <Text className="text-[11px] font-semibold text-textSecondary">
               Delivering to
             </Text>
-            <Text className="text-[14px] font-bold text-text" numberOfLines={1}>
-              {user?.location_name ||
-                (user?.area && user?.district
-                  ? `${user.area}, ${user.district}`
-                  : user?.area || user?.district || user?.pincode || "Set your location")}
+            <Text
+              className="text-[14px] font-bold text-text"
+              numberOfLines={1}
+            >
+              {displayLocation}
             </Text>
           </View>
-          <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
-        </View>
-        {fetchingLocation ? (
-          <ActivityIndicator size="small" color={colors.primary} className="ml-2" />
-        ) : (
-          <View className="ml-2 rounded-full bg-primary/10 px-3 py-1">
-            <Text className="text-[12px] font-bold text-primary">
-              Refresh
-            </Text>
-          </View>
-        )}
-      </Pressable>
+        </Pressable>
+
+        <Pressable
+          className="flex-row items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 active:opacity-70"
+          onPress={handleChangeLocation}
+          disabled={fetchingLocation}
+        >
+          {fetchingLocation ? (
+            <>
+              <ActivityIndicator
+                size="small"
+                color={colors.primary}
+                className="mr-1.5"
+              />
+              <Text className="text-[12px] font-bold text-primary">
+                Fetching...
+              </Text>
+            </>
+          ) : (
+            <>
+              <Ionicons
+                name="locate"
+                size={14}
+                color={colors.primary}
+                className="mr-1"
+              />
+              <Text className="text-[12px] font-bold text-primary">
+                {hasLocation ? "Change Location" : "Fetch Location"}
+              </Text>
+            </>
+          )}
+        </Pressable>
+      </View>
 
       <ScrollView
         className="flex-1 bg-[#f8f8f7]"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
+        {/* Search Bar */}
         <View className="px-4 py-3">
           <View className="flex-row items-center rounded-xl border border-borderLight bg-white px-4 py-3">
             <Ionicons name="search-outline" size={22} color={colors.grayDark} />
             <TextInput
               placeholder="Search for meals, chefs, cuisines..."
               placeholderTextColor={colors.grayDark}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmitEditing={() => {
+                if (searchQuery.trim()) {
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { search: searchQuery.trim() },
+                  });
+                }
+              }}
               className="ml-2 flex-1 text-[14px]"
             />
-            <Ionicons name="filter" size={22} color={colors.grayDark} />
+            {searchQuery ? (
+              <Pressable onPress={() => setSearchQuery("")}>
+                <Ionicons
+                  name="close-circle"
+                  size={18}
+                  color={colors.grayDark}
+                />
+              </Pressable>
+            ) : (
+              <Ionicons name="filter" size={22} color={colors.grayDark} />
+            )}
           </View>
         </View>
 
+        {/* Hero Banner */}
         <View className="mx-4 overflow-hidden rounded-[22px] bg-[#253B1F]">
           <View className="min-h-[180px] justify-between px-5 py-5">
             <View className="w-[70%]">
@@ -393,7 +424,10 @@ export default function HomeScreen() {
               </Text>
             </View>
             <View className="mt-6 flex-row items-center justify-between">
-              <Pressable className="rounded-full bg-primary px-6 py-3">
+              <Pressable
+                className="rounded-full bg-primary px-6 py-3"
+                onPress={() => router.push("/(tabs)/food")}
+              >
                 <Text className="font-bold text-white">Order Now →</Text>
               </Pressable>
               <View className="items-center">
@@ -414,6 +448,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Categories Section */}
         <View className="mx-4 mt-4 flex-row flex-wrap items-center justify-between">
           {loading ? (
             <View className="mb-3 h-[72px] w-full items-center justify-center">
@@ -428,6 +463,12 @@ export default function HomeScreen() {
                 <Pressable
                   key={categoryName || String(index)}
                   className="mb-3 h-[72px] w-[24%] items-center justify-center"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(tabs)/food" as any,
+                      params: { category: categoryName },
+                    });
+                  }}
                 >
                   <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
                     {categoryImage ? (
@@ -450,7 +491,10 @@ export default function HomeScreen() {
                       />
                     )}
                   </View>
-                  <Text className="mt-2 text-center text-[11px] font-semibold text-text">
+                  <Text
+                    className="mt-2 text-center text-[11px] font-semibold text-text"
+                    numberOfLines={1}
+                  >
                     {categoryName}
                   </Text>
                 </Pressable>
@@ -461,6 +505,12 @@ export default function HomeScreen() {
               <Pressable
                 key={c.label}
                 className="mb-3 h-[72px] w-[24%] items-center justify-center"
+                onPress={() => {
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { category: c.label },
+                  });
+                }}
               >
                 <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
                   <Ionicons
@@ -469,7 +519,10 @@ export default function HomeScreen() {
                     color={index % 2 === 0 ? colors.primary : colors.secondary}
                   />
                 </View>
-                <Text className="mt-2 text-center text-[11px] font-semibold text-text">
+                <Text
+                  className="mt-2 text-center text-[11px] font-semibold text-text"
+                  numberOfLines={1}
+                >
                   {c.label}
                 </Text>
               </Pressable>
@@ -477,6 +530,7 @@ export default function HomeScreen() {
           )}
         </View>
 
+        {/* Promo Banner */}
         <View className="mx-4 mt-1 rounded-[20px] border border-primary/30 bg-gradient-to-r from-[#ffe6d5] to-[#fffaf7] px-4 py-4">
           <View className="flex-row items-center justify-between">
             <View className="w-[58%]">
@@ -503,12 +557,22 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Section 1: Popular Near You (Filtered by fetched location) */}
         <View className="mt-5 px-4">
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-[27px] font-black text-text">
-              Popular Near You
-            </Text>
-            <Text className="text-[14px] font-bold text-primary">See all</Text>
+            <View>
+              <Text className="text-[26px] font-black text-text">
+                Popular Near You
+              </Text>
+              {hasLocation && (
+                <Text className="text-[12px] font-semibold text-textSecondary">
+                  Deliverable to {location?.area || location?.city || "your area"}
+                </Text>
+              )}
+            </View>
+            <Pressable onPress={() => router.push("/(tabs)/food")}>
+              <Text className="text-[14px] font-bold text-primary">See all</Text>
+            </Pressable>
           </View>
 
           {foodsLoading ? (
@@ -518,6 +582,28 @@ export default function HomeScreen() {
           ) : foodsError ? (
             <View className="mb-4 rounded-2xl bg-white px-4 py-4">
               <Text className="font-semibold text-error">{foodsError}</Text>
+            </View>
+          ) : foods.length === 0 ? (
+            <View className="mb-4 items-center justify-center rounded-2xl border border-borderLight bg-white p-6">
+              <Ionicons
+                name="restaurant-outline"
+                size={36}
+                color={colors.grayDark}
+              />
+              <Text className="mt-2 text-[15px] font-bold text-text">
+                No food items deliverable to this area yet
+              </Text>
+              <Text className="mt-1 text-center text-[12px] text-textSecondary">
+                Try changing your location or view all items in the food menu.
+              </Text>
+              <Pressable
+                onPress={handleChangeLocation}
+                className="mt-3 rounded-full bg-primary px-4 py-2"
+              >
+                <Text className="text-xs font-bold text-white">
+                  Change Location
+                </Text>
+              </Pressable>
             </View>
           ) : (
             <ScrollView
@@ -535,9 +621,19 @@ export default function HomeScreen() {
                         (Number(food.mrp) * Number(food.offer)) / 100
                       : Number(food.mrp || 0);
 
+                const productId = food.id || food._id;
+
                 return (
-                  <View
-                    key={food.id || food.name || i}
+                  <Pressable
+                    key={productId || food.name || i}
+                    onPress={() => {
+                      if (productId) {
+                        router.push({
+                          pathname: "/product/[id]" as any,
+                          params: { id: String(productId) },
+                        });
+                      }
+                    }}
                     className="mr-4 w-[210px] rounded-[18px] border border-border bg-white p-2"
                   >
                     <View className="relative">
@@ -554,12 +650,17 @@ export default function HomeScreen() {
                       </View>
                       <View className="absolute left-2 top-2 rounded-full bg-white/90 px-3 py-1">
                         <Text className="text-[12px] font-bold text-text">
-                          {food.delivery_radius ?? "30 mins"}
+                          {food.delivery_radius
+                            ? `${food.delivery_radius}`
+                            : "30 mins"}
                         </Text>
                       </View>
                     </View>
                     <View className="px-2 py-3">
-                      <Text className="text-[18px] font-black text-text">
+                      <Text
+                        className="text-[18px] font-black text-text"
+                        numberOfLines={1}
+                      >
                         {food.name || food.c_name || "Chef Food"}
                       </Text>
                       <View className="mt-1 flex-row items-center">
@@ -572,7 +673,10 @@ export default function HomeScreen() {
                           {food.rating ?? "4.8"} ({food.orders ?? "1.2K"})
                         </Text>
                       </View>
-                      <Text className="mt-2 text-[13px] font-semibold text-textSecondary">
+                      <Text
+                        className="mt-2 text-[13px] font-semibold text-textSecondary"
+                        numberOfLines={1}
+                      >
                         {food.category || food.category_type || "Home Food"}
                       </Text>
                       <View className="mt-2 flex-row flex-wrap">
@@ -584,22 +688,29 @@ export default function HomeScreen() {
                         </Text>
                       </View>
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </ScrollView>
           )}
         </View>
 
+        {/* Section 2: What's on your mind? */}
         <View className="px-4">
           <Text className="text-[26px] font-black text-text">
             What’s on your mind?
           </Text>
           <View className="mt-3 flex-row flex-wrap">
-            {foodTypes.map((food, index) => (
+            {foodTypes.map((food) => (
               <Pressable
                 key={food.name}
                 className="mr-3 mb-3 w-[95px] items-center"
+                onPress={() => {
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { search: food.name },
+                  });
+                }}
               >
                 <Image
                   source={{ uri: food.image }}
@@ -613,6 +724,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Section 3: Why Choose Us? */}
         <View className="mt-4 px-4">
           <Text className="text-[26px] font-black text-text">
             Why Choose Us?
@@ -641,12 +753,15 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Section 4: Customer Reviews */}
         <View className="mt-4 px-4">
           <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-[26px] font-black text-text">
               Customer Reviews
             </Text>
-            <Text className="text-[14px] font-bold text-primary">See all</Text>
+            <Pressable onPress={() => router.push("/(tabs)/food")}>
+              <Text className="text-[14px] font-bold text-primary">See all</Text>
+            </Pressable>
           </View>
           <ScrollView
             horizontal
@@ -672,7 +787,7 @@ export default function HomeScreen() {
                   "Good portion size and delicious taste. Affordable too!",
                 stars: "★★★★☆",
               },
-            ].map((r, idx) => (
+            ].map((r) => (
               <View
                 key={r.name}
                 className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
@@ -698,55 +813,147 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        <View className="mt-4 px-4">
+        {/* Section 5: Best Offers for You (Filtered by fetched location) */}
+        <View className="mt-4 px-4 pb-8">
           <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-[26px] font-black text-text">
               Best Offers for You
             </Text>
-            <Text className="text-[14px] font-bold text-primary">See all</Text>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/food" as any,
+                  params: { offer: "10" },
+                })
+              }
+            >
+              <Text className="text-[14px] font-bold text-primary">See all</Text>
+            </Pressable>
           </View>
-          <View className="flex-row">
-            {[
-              {
-                title: "Combo Meals",
-                text: "Starting at ₹99",
-                button: "Order Now →",
-              },
-              {
-                title: "Lunch Box",
-                text: "Subscriptions 20% OFF",
-                button: "Subscribe →",
-              },
-              {
-                title: "Celebrate",
-                text: "with Homemade Cakes",
-                button: "Explore →",
-              },
-            ].map((offer, idx) => (
-              <View
-                key={offer.title}
-                className="mr-3 w-[160px] rounded-[16px] border border-border bg-white p-3"
-              >
-                <Image
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+
+          {offerFoods.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="flex-row"
+            >
+              {offerFoods.slice(0, 6).map((offerItem, idx) => {
+                const image = getFoodImage(offerItem);
+                const discount =
+                  Number(offerItem.offer || 0) > 0
+                    ? `${offerItem.offer}% OFF`
+                    : "Special Offer";
+                const price =
+                  offerItem.final_price ??
+                  offerItem.offer_price ??
+                  offerItem.mrp ??
+                  0;
+                const origPrice = Number(offerItem.mrp || 0);
+                const productId = offerItem.id || offerItem._id;
+
+                return (
+                  <Pressable
+                    key={productId || idx}
+                    onPress={() => {
+                      if (productId) {
+                        router.push({
+                          pathname: "/product/[id]" as any,
+                          params: { id: String(productId) },
+                        });
+                      }
+                    }}
+                    className="mr-3 w-[180px] rounded-[16px] border border-border bg-white p-3"
+                  >
+                    <View className="relative">
+                      <Image
+                        source={{ uri: image }}
+                        className="h-[100px] w-full rounded-[14px]"
+                        resizeMode="cover"
+                      />
+                      <View className="absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5">
+                        <Text className="text-[10px] font-bold text-white">
+                          {discount}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text
+                      className="mt-2 text-[15px] font-black text-text"
+                      numberOfLines={1}
+                    >
+                      {offerItem.name || offerItem.c_name || "Offer Item"}
+                    </Text>
+                    <View className="mt-1 flex-row items-baseline gap-1.5">
+                      <Text className="text-[14px] font-bold text-text">
+                        ₹{Math.round(Number(price))}
+                      </Text>
+                      {origPrice > Number(price) && (
+                        <Text className="text-[11px] text-textSecondary line-through">
+                          ₹{origPrice}
+                        </Text>
+                      )}
+                    </View>
+                    <View className="mt-3 rounded-full bg-primary px-3 py-1.5">
+                      <Text className="text-center text-[12px] font-bold text-white">
+                        Order Now →
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          ) : (
+            <View className="flex-row">
+              {[
+                {
+                  title: "Combo Meals",
+                  text: "Starting at ₹99",
+                  button: "Order Now →",
+                  category: "Combos",
+                },
+                {
+                  title: "Lunch Box",
+                  text: "Subscriptions 20% OFF",
+                  button: "Subscribe →",
+                  category: "Lunch Box",
+                },
+                {
+                  title: "Healthy Choice",
+                  text: "Fresh Homemade Diet",
+                  button: "Explore →",
+                  category: "Healthy",
+                },
+              ].map((offer) => (
+                <Pressable
+                  key={offer.title}
+                  className="mr-3 w-[160px] rounded-[16px] border border-border bg-white p-3"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(tabs)/food" as any,
+                      params: { category: offer.category },
+                    });
                   }}
-                  className="h-[90px] w-[120px] rounded-[14px]"
-                />
-                <Text className="mt-2 text-[16px] font-black text-text">
-                  {offer.title}
-                </Text>
-                <Text className="text-[13px] font-bold text-textSecondary">
-                  {offer.text}
-                </Text>
-                <Pressable className="mt-3 rounded-full bg-primary px-4 py-2">
-                  <Text className="text-center text-[12px] font-black text-white">
-                    {offer.button}
+                >
+                  <Image
+                    source={{
+                      uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+                    }}
+                    className="h-[90px] w-[120px] rounded-[14px]"
+                  />
+                  <Text className="mt-2 text-[16px] font-black text-text">
+                    {offer.title}
                   </Text>
+                  <Text className="text-[13px] font-bold text-textSecondary">
+                    {offer.text}
+                  </Text>
+                  <View className="mt-3 rounded-full bg-primary px-4 py-2">
+                    <Text className="text-center text-[12px] font-black text-white">
+                      {offer.button}
+                    </Text>
+                  </View>
                 </Pressable>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>

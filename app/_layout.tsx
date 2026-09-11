@@ -1,6 +1,7 @@
 import "../global.css";
 import { colors } from "@/config/colors";
 import { AuthProvider } from "@/context/AuthContext";
+import { LocationProvider } from "@/context/LocationContext";
 import { StoreProvider } from "@/context/StoreContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
@@ -59,7 +60,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <StoreProvider>
-        <RootLayoutContent />
+        <LocationProvider>
+          <RootLayoutContent />
+        </LocationProvider>
       </StoreProvider>
     </AuthProvider>
   );
