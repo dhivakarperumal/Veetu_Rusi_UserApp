@@ -1,10 +1,12 @@
 import api from "@/app/api";
 import { colors } from "@/config/colors";
+import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Image,
   SafeAreaView,
@@ -20,6 +22,7 @@ const { width } = Dimensions.get("window");
 export default function ProductDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { addToFoodCart } = useStore();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [product, setProduct] = useState<any>(null);
@@ -188,9 +191,21 @@ export default function ProductDetailScreen() {
             <Text className="text-xl font-extrabold text-text">₹{(price * quantity).toFixed(0)}</Text>
           </View>
           <TouchableOpacity
-            className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3"
-            onPress={() => {
-              router.push("/(tabs)/cart");
+            className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 shadow-md shadow-primary/30 active:opacity-90"
+            onPress={async () => {
+              if (!product) return;
+              await addToFoodCart(product, null, null, quantity);
+              Alert.alert(
+                "Added to Cart! 🛒",
+                `${quantity}x ${product.name || "item"} added to your food cart.`,
+                [
+                  { text: "Continue Shopping", style: "cancel" },
+                  {
+                    text: "View Cart",
+                    onPress: () => router.push("/(tabs)/cart"),
+                  },
+                ],
+              );
             }}
           >
             <MaterialCommunityIcons name="cart-plus" size={20} color={colors.white} />

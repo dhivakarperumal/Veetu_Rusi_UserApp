@@ -3,7 +3,7 @@ import ProductCard from "@/components/ProductCard";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, UserLocation } from "@/context/LocationContext";
-import { useStore } from "@/context/StoreContext";
+import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -18,38 +18,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  subcategory?: string;
-  status?: string;
-  final_price?: number | string;
-  offer_price?: number | string;
-  mrp?: number | string;
-  offer?: number | string;
-  variants?: {
-    colorName?: string;
-    selectedSizes?: string[];
-    weight?: string;
-    price?: number;
-    offer?: number;
-    final_price?: number;
-    stock?: number;
-    images?: string;
-  }[];
-  chef_name?: string;
-  delivery_radius?: number | string;
-  latitude?: number | string;
-  longitude?: number | string;
-  area_name?: string;
-  city?: string;
-  district?: string;
-  state?: string;
-  pincode?: string;
-  [key: string]: any;
-}
 
 interface Category {
   c_name: string;
@@ -112,6 +80,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
 
   // Sync route params when navigated from other screens
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (params.category) {
       setSelectedCategory(params.category);
       setShowFilters(true);
@@ -123,6 +92,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
       setOfferFilter(Number(params.offer));
       setShowFilters(true);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [params.category, params.search, params.offer]);
 
   // Fetch categories
@@ -232,6 +202,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
 
   // Initial fetch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts();
   }, [fetchProducts]);
 
@@ -337,6 +308,7 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
     if (sortOption === "offerLowHigh")
       updated.sort((a, b) => Number(a.offer || 0) - Number(b.offer || 0));
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilteredProducts([...updated]);
     setCurrentPage(1);
   }, [
@@ -389,65 +361,6 @@ export default function FoodScreen({ defaultCategory = "" }: { defaultCategory?:
           ),
         ];
 
-  const subCategories = [
-    ...new Set(
-      products
-        .filter((p) => {
-          if (!selectedCategory) return false;
-          const productCategory = p.category
-            ? p.category.trim().toLowerCase()
-            : "";
-          const normalizedSelectedCategory = decodeURIComponent(
-            selectedCategory,
-          )
-            .trim()
-            .toLowerCase();
-          return productCategory === normalizedSelectedCategory;
-        })
-        .map((p) => p.subcategory)
-        .filter(Boolean),
-    ),
-  ];
-
-  const colors_list = selectedCategory
-    ? [
-        ...new Set(
-          products
-            .filter((p) => {
-              const productCategory = p.category
-                ? p.category.trim().toLowerCase()
-                : "";
-              const normalizedSelectedCategory = decodeURIComponent(
-                selectedCategory,
-              )
-                .trim()
-                .toLowerCase();
-              return productCategory === normalizedSelectedCategory;
-            })
-            .flatMap((p) => p.variants?.map((v) => v.colorName)),
-        ),
-      ]
-    : [];
-
-  const sizes = selectedCategory
-    ? [
-        ...new Set(
-          products
-            .filter((p) => {
-              const productCategory = p.category
-                ? p.category.trim().toLowerCase()
-                : "";
-              const normalizedSelectedCategory = decodeURIComponent(
-                selectedCategory,
-              )
-                .trim()
-                .toLowerCase();
-              return productCategory === normalizedSelectedCategory;
-            })
-            .flatMap((p) => p.variants?.flatMap((v) => v.selectedSizes || [])),
-        ),
-      ]
-    : [];
 
   // Pagination
   const productsPerPage = 6;
