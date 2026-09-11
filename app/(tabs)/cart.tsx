@@ -8,7 +8,9 @@ export default function CartScreen() {
   const { cartItems } = useStore();
   const total = cartItems.reduce(
     (sum, item) =>
-      sum + Number(item.final_price ?? item.offer_price ?? item.mrp ?? 0) * item.quantity,
+      sum +
+      Number(item.final_price ?? item.offer_price ?? item.mrp ?? 0) *
+        item.quantity,
     0,
   );
 
@@ -46,7 +48,11 @@ export default function CartScreen() {
                 </Text>
               </View>
               <Text className="mt-2 text-[14px] text-textSecondary">
-                ₹{Number(item.final_price ?? item.offer_price ?? item.mrp ?? 0).toFixed(2)} each
+                ₹
+                {Number(
+                  item.final_price ?? item.offer_price ?? item.mrp ?? 0,
+                ).toFixed(2)}{" "}
+                each
               </Text>
             </View>
           ))}

@@ -301,6 +301,7 @@ export default function OrdersScreen() {
             );
           },
         },
+      
       ];
     }
 
@@ -317,17 +318,7 @@ export default function OrdersScreen() {
           }
         },
       },
-      {
-        label: "Reorder Delivery Partner",
-        icon: "truck-delivery",
-        variant: "outline",
-        action: () => {
-          Alert.alert(
-            "Delivery Partner",
-            "Your previous delivery partner can be reused for this order.",
-          );
-        },
-      },
+     
       {
         label: "Back to cart",
         icon: "cart-arrow-left",
