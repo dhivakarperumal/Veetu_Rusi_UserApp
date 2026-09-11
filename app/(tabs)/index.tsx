@@ -247,11 +247,14 @@ export default function HomeScreen() {
   );
   const [foods, setFoods] = useState<any[]>([]);
   const [homeChefs, setHomeChefs] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(
     !categoriesCache || categoriesCache.length === 0,
   );
   const [foodsLoading, setFoodsLoading] = useState(false);
   const [foodsError, setFoodsError] = useState<string | null>(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -281,20 +284,29 @@ export default function HomeScreen() {
   const fetchFoods = useCallback(async () => {
     setFoodsLoading(true);
     setFoodsError(null);
+    setReviewsLoading(true);
+    setReviewsError(null);
 
     try {
       const hasLocation = Boolean(user?.latitude && user?.longitude);
-      const [foodsRes, productsRes] = await Promise.all([
+      const [foodsRes, productsRes, reviewsRes] = await Promise.all([
         api.get("/chef-foods"),
         api.get("/products", {
           params: { source: "chef_products" },
         }),
+        api.get("/reviews").catch(() => ({ data: { reviews: [] } })),
       ]);
 
       const foodsFromApi = Array.isArray(foodsRes.data) ? foodsRes.data : [];
       const productsFromApi = Array.isArray(productsRes.data)
         ? productsRes.data
         : [];
+
+      const reviewItems = Array.isArray(reviewsRes?.data?.reviews)
+        ? reviewsRes.data.reviews
+        : Array.isArray(reviewsRes?.data)
+          ? reviewsRes.data
+          : [];
 
       const allItems = [...foodsFromApi, ...productsFromApi];
 
@@ -363,13 +375,21 @@ export default function HomeScreen() {
       });
 
       setFoods(filtered);
+      setReviews(
+        reviewItems.filter(
+          (item: Record<string, any>) => item?.comment || item?.rating,
+        ),
+      );
     } catch (error) {
       console.error("Error fetching chef foods:", error);
       setFoodsError("Unable to load items.");
       setFoods([]);
       setHomeChefs([]);
+      setReviews([]);
+      setReviewsError("Unable to load reviews.");
     } finally {
       setFoodsLoading(false);
+      setReviewsLoading(false);
     }
   }, [user]);
 
@@ -776,54 +796,63 @@ export default function HomeScreen() {
             </Text>
             <Text className="text-[14px] font-bold text-primary">See all</Text>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-3"
-          >
-            {[
-              {
-                name: "Priya S.",
-                comment:
-                  "Amazing homemade food! Tastes just like home. Highly recommended!",
-                stars: "★★★★☆",
-              },
-              {
-                name: "Karthik R.",
-                comment:
-                  "Fresh and hygienic food. Loved the variety. Will order again!",
-                stars: "★★★★☆",
-              },
-              {
-                name: "Divya M.",
-                comment:
-                  "Good portion size and delicious taste. Affordable too!",
-                stars: "★★★★☆",
-              },
-            ].map((r, idx) => (
-              <View
-                key={r.name}
-                className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
-              >
-                <View className="flex-row items-center">
-                  <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
-                    <Text className="font-black text-primary">
-                      {r.name.split(" ")[0].slice(0, 1)}
-                    </Text>
-                  </View>
-                  <Text className="ml-3 text-[16px] font-black text-text">
-                    {r.name}
-                  </Text>
-                </View>
-                <Text className="mt-2 text-[12px] font-black text-warning">
-                  {r.stars}
-                </Text>
-                <Text className="mt-2 text-[13px] font-medium text-textSecondary">
-                  {r.comment}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
+
+          {reviewsLoading ? (
+            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : reviewsError ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-error">{reviewsError}</Text>
+            </View>
+          ) : reviews.length === 0 ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-textSecondary">
+                No customer reviews yet.
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-3"
+            >
+              {reviews
+                .slice(0, 8)
+                .map((r: Record<string, any>, idx: number) => {
+                  const stars = Array.from({ length: 5 }, (_, i) =>
+                    i < Number(r.rating || 0) ? "★" : "☆",
+                  ).join("");
+                  const reviewer = String(
+                    r.user_name || r.user_email || "Verified Customer",
+                  );
+
+                  return (
+                    <View
+                      key={r.id || `${reviewer}-${idx}`}
+                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
+                          <Text className="font-black text-primary">
+                            {reviewer.split(" ")[0].slice(0, 1).toUpperCase()}
+                          </Text>
+                        </View>
+                        <Text className="ml-3 text-[16px] font-black text-text">
+                          {reviewer}
+                        </Text>
+                      </View>
+                      <Text className="mt-2 text-[12px] font-black text-warning">
+                        {stars}
+                      </Text>
+                      <Text className="mt-2 text-[13px] font-medium text-textSecondary">
+                        {r.comment || "Good food experience."}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </ScrollView>
+          )}
         </View>
 
         {/* Best Offers for You — real data filtered by offer > 0 */}
