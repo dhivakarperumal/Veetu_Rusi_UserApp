@@ -368,7 +368,7 @@ export default function FoodScreen({
         ];
 
   // Pagination
-  const productsPerPage = 6;
+  const productsPerPage = 10;
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
   const currentProducts = filteredProducts.slice(
@@ -538,9 +538,7 @@ export default function FoodScreen({
               size={20}
               color={colors.text}
             />
-            <Text className="text-[13px] font-semibold text-text">
-              Filters
-            </Text>
+            <Text className="text-[13px] font-semibold text-text">Filters</Text>
           </TouchableOpacity>
 
           <View className="h-10 flex-1 flex-row items-center gap-2 rounded-xl border border-borderLight bg-white px-2.5">
@@ -668,164 +666,170 @@ export default function FoodScreen({
             onRequestClose={() => setShowFilters(false)}
           >
             <View className="flex-1 justify-end bg-black/40">
-            <View className="max-h-[82%] rounded-t-[26px] bg-white p-4">
-              <View className="mb-4 flex-row items-center justify-between">
-                <Text className="text-sm font-bold text-text">Filters</Text>
-                <View className="flex-row items-center">
-                  <TouchableOpacity
-                    onPress={clearFilters}
-                    className="mr-3 rounded border border-error px-2 py-1"
-                  >
-                    <Text className="text-[11px] font-medium text-error">Clear</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowFilters(false)}>
-                    <MaterialCommunityIcons name="close" size={22} color={colors.text} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Price Filter */}
-              <View className="mb-3 border-b border-borderLight pb-3">
-                <Text className="mb-2 text-xs font-semibold text-text">
-                  Price
-                </Text>
-                <View className="mb-2 flex-row gap-2">
-                  <TextInput
-                    className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
-                    value={String(priceRange)}
-                    onChangeText={(val) => setPriceRange(Number(val))}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <Text className="text-xs text-textSecondary">
-                  Up to ₹{Number(priceRange).toLocaleString()}
-                </Text>
-              </View>
-
-              {/* Type Filter */}
-              <View className="mb-3 border-b border-borderLight pb-3">
-                <Text className="mb-2 text-xs font-semibold text-text">
-                  Type
-                </Text>
-                {["Food", "Products"].map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    className="flex-row items-center gap-2 py-1.5"
-                    onPress={() => {
-                      setSelectedType(type);
-                      if (selectedCategory) {
-                        const allowed = (groupedCategories[type] || []).map(
-                          (cat) => cat.name?.trim().toLowerCase(),
-                        );
-                        if (
-                          !allowed.includes(
-                            selectedCategory.trim().toLowerCase(),
-                          )
-                        ) {
-                          setSelectedCategory("");
-                          setSelectedSubCategory("");
-                        }
-                      }
-                    }}
-                  >
-                    <View
-                      className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                        selectedType === type
-                          ? "border-primary"
-                          : "border-borderLight"
-                      }`}
+              <View className="max-h-[82%] rounded-t-[26px] bg-white p-4">
+                <View className="mb-4 flex-row items-center justify-between">
+                  <Text className="text-sm font-bold text-text">Filters</Text>
+                  <View className="flex-row items-center">
+                    <TouchableOpacity
+                      onPress={clearFilters}
+                      className="mr-3 rounded border border-error px-2 py-1"
                     >
-                      {selectedType === type && (
-                        <View className="h-2 w-2 rounded-full bg-primary" />
-                      )}
-                    </View>
-                    <Text className="text-xs text-text">{type}</Text>
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity
-                  className="flex-row items-center gap-2 py-1.5"
-                  onPress={() => setSelectedType("")}
-                >
-                  <View
-                    className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                      selectedType === ""
-                        ? "border-primary"
-                        : "border-borderLight"
-                    }`}
-                  >
-                    {selectedType === "" && (
-                      <View className="h-2 w-2 rounded-full bg-primary" />
-                    )}
+                      <Text className="text-[11px] font-medium text-error">
+                        Clear
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setShowFilters(false)}>
+                      <MaterialCommunityIcons
+                        name="close"
+                        size={22}
+                        color={colors.text}
+                      />
+                    </TouchableOpacity>
                   </View>
-                  <Text className="text-xs text-text">All Types</Text>
-                </TouchableOpacity>
-              </View>
+                </View>
 
-              {/* Category Filter */}
-              {categories.length > 0 && (
+                {/* Price Filter */}
                 <View className="mb-3 border-b border-borderLight pb-3">
                   <Text className="mb-2 text-xs font-semibold text-text">
-                    Category
+                    Price
                   </Text>
-                  {categories.map((cat) => {
-                    const isCatSelected =
-                      cat?.trim().toLowerCase() ===
-                      decodeURIComponent(selectedCategory || "")
-                        .trim()
-                        .toLowerCase();
-                    return (
-                      <TouchableOpacity
-                        key={cat}
-                        className="flex-row items-center gap-2 py-1.5"
-                        onPress={() => setSelectedCategory(cat)}
-                      >
-                        <View
-                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                            isCatSelected
-                              ? "border-primary"
-                              : "border-borderLight"
-                          }`}
-                        >
-                          {isCatSelected && (
-                            <View className="h-2 w-2 rounded-full bg-primary" />
-                          )}
-                        </View>
-                        <Text className="text-xs text-text">{cat}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
+                  <View className="mb-2 flex-row gap-2">
+                    <TextInput
+                      className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
+                      value={String(priceRange)}
+                      onChangeText={(val) => setPriceRange(Number(val))}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <Text className="text-xs text-textSecondary">
+                    Up to ₹{Number(priceRange).toLocaleString()}
+                  </Text>
                 </View>
-              )}
 
-              {/* Offers Filter */}
-              <View className="mb-3 border-b border-borderLight pb-3">
-                <Text className="mb-2 text-xs font-semibold text-text">
-                  Offers
-                </Text>
-                {[10, 20, 30, 40, 50].map((offer) => (
+                {/* Type Filter */}
+                <View className="mb-3 border-b border-borderLight pb-3">
+                  <Text className="mb-2 text-xs font-semibold text-text">
+                    Type
+                  </Text>
+                  {["Food", "Products"].map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      className="flex-row items-center gap-2 py-1.5"
+                      onPress={() => {
+                        setSelectedType(type);
+                        if (selectedCategory) {
+                          const allowed = (groupedCategories[type] || []).map(
+                            (cat) => cat.name?.trim().toLowerCase(),
+                          );
+                          if (
+                            !allowed.includes(
+                              selectedCategory.trim().toLowerCase(),
+                            )
+                          ) {
+                            setSelectedCategory("");
+                            setSelectedSubCategory("");
+                          }
+                        }
+                      }}
+                    >
+                      <View
+                        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                          selectedType === type
+                            ? "border-primary"
+                            : "border-borderLight"
+                        }`}
+                      >
+                        {selectedType === type && (
+                          <View className="h-2 w-2 rounded-full bg-primary" />
+                        )}
+                      </View>
+                      <Text className="text-xs text-text">{type}</Text>
+                    </TouchableOpacity>
+                  ))}
                   <TouchableOpacity
-                    key={offer}
                     className="flex-row items-center gap-2 py-1.5"
-                    onPress={() => setOfferFilter(offer)}
+                    onPress={() => setSelectedType("")}
                   >
                     <View
                       className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                        offerFilter === offer
+                        selectedType === ""
                           ? "border-primary"
                           : "border-borderLight"
                       }`}
                     >
-                      {offerFilter === offer && (
+                      {selectedType === "" && (
                         <View className="h-2 w-2 rounded-full bg-primary" />
                       )}
                     </View>
-                    <Text className="text-xs text-text">
-                      {offer}% and above
-                    </Text>
+                    <Text className="text-xs text-text">All Types</Text>
                   </TouchableOpacity>
-                ))}
+                </View>
+
+                {/* Category Filter */}
+                {categories.length > 0 && (
+                  <View className="mb-3 border-b border-borderLight pb-3">
+                    <Text className="mb-2 text-xs font-semibold text-text">
+                      Category
+                    </Text>
+                    {categories.map((cat) => {
+                      const isCatSelected =
+                        cat?.trim().toLowerCase() ===
+                        decodeURIComponent(selectedCategory || "")
+                          .trim()
+                          .toLowerCase();
+                      return (
+                        <TouchableOpacity
+                          key={cat}
+                          className="flex-row items-center gap-2 py-1.5"
+                          onPress={() => setSelectedCategory(cat)}
+                        >
+                          <View
+                            className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                              isCatSelected
+                                ? "border-primary"
+                                : "border-borderLight"
+                            }`}
+                          >
+                            {isCatSelected && (
+                              <View className="h-2 w-2 rounded-full bg-primary" />
+                            )}
+                          </View>
+                          <Text className="text-xs text-text">{cat}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {/* Offers Filter */}
+                <View className="mb-3 border-b border-borderLight pb-3">
+                  <Text className="mb-2 text-xs font-semibold text-text">
+                    Offers
+                  </Text>
+                  {[10, 20, 30, 40, 50].map((offer) => (
+                    <TouchableOpacity
+                      key={offer}
+                      className="flex-row items-center gap-2 py-1.5"
+                      onPress={() => setOfferFilter(offer)}
+                    >
+                      <View
+                        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                          offerFilter === offer
+                            ? "border-primary"
+                            : "border-borderLight"
+                        }`}
+                      >
+                        {offerFilter === offer && (
+                          <View className="h-2 w-2 rounded-full bg-primary" />
+                        )}
+                      </View>
+                      <Text className="text-xs text-text">
+                        {offer}% and above
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-            </View>
             </View>
           </Modal>
 
