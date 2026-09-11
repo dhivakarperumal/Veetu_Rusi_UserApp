@@ -1,6 +1,6 @@
-import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     Text,
     TextInput,
@@ -96,7 +97,17 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <AppHeader title="Profile" />
+      <View className="flex-row items-center border-b border-borderLight bg-white px-[18px] py-3">
+        <Pressable
+          accessibilityLabel="Go back"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray"
+          hitSlop={8}
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={22} color="#1F2937" />
+        </Pressable>
+        <Text className="text-[22px] font-bold text-text">Profile</Text>
+      </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

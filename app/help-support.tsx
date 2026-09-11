@@ -1,10 +1,10 @@
-import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     Alert,
+    Pressable,
     ScrollView,
     Text,
     TextInput,
@@ -56,7 +56,17 @@ export default function HelpSupportScreen() {
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <AppHeader title="Help & Support" />
+      <View className="flex-row items-center border-b border-borderLight bg-white px-[18px] py-3">
+        <Pressable
+          accessibilityLabel="Go back"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray"
+          hitSlop={8}
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={22} color="#1F2937" />
+        </Pressable>
+        <Text className="text-[22px] font-bold text-text">Help & Support</Text>
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -125,15 +135,6 @@ export default function HelpSupportScreen() {
             <Text className="text-[14px] font-black text-white">
               {loading ? "Submitting..." : "Submit Request"}
             </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="mx-5 mt-4 flex-row justify-center">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="rounded-[14px] border border-border px-6 py-3"
-          >
-            <Text className="text-[14px] font-black text-text">Back</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
