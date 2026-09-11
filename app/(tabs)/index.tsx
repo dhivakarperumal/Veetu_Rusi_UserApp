@@ -3,6 +3,7 @@ import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
+import { useFetchLocation } from "@/hooks/useFetchLocation";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useContext, useEffect, useState } from "react";
 import {
@@ -239,6 +240,8 @@ export default function HomeScreen() {
   const authContext = useContext(AuthContext);
   const user = authContext?.user ?? null;
 
+  const { fetchingLocation, fetchLocation } = useFetchLocation();
+
   const [categories, setCategories] = useState<CategoryItem[]>(
     categoriesCache || [],
   );
@@ -330,6 +333,38 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <AppHeader title="Veetu Rusi" />
+
+      {/* Location Bar - Home screen only */}
+      <Pressable
+        className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-2.5"
+        onPress={() => fetchLocation()}
+        disabled={fetchingLocation}
+      >
+        <View className="flex-row items-center flex-1">
+          <Ionicons name="location" size={18} color={colors.primary} />
+          <View className="ml-2 flex-1">
+            <Text className="text-[11px] font-semibold text-textSecondary">
+              Delivering to
+            </Text>
+            <Text className="text-[14px] font-bold text-text" numberOfLines={1}>
+              {user?.location_name ||
+                (user?.area && user?.district
+                  ? `${user.area}, ${user.district}`
+                  : user?.area || user?.district || user?.pincode || "Set your location")}
+            </Text>
+          </View>
+          <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
+        </View>
+        {fetchingLocation ? (
+          <ActivityIndicator size="small" color={colors.primary} className="ml-2" />
+        ) : (
+          <View className="ml-2 rounded-full bg-primary/10 px-3 py-1">
+            <Text className="text-[12px] font-bold text-primary">
+              Refresh
+            </Text>
+          </View>
+        )}
+      </Pressable>
 
       <ScrollView
         className="flex-1 bg-[#f8f8f7]"
