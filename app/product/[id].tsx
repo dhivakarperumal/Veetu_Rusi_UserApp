@@ -10,13 +10,12 @@ import {
   Alert,
   Dimensions,
   Image,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -91,7 +90,7 @@ export default function ProductDetailScreen() {
   const imageUrl = getImageUrl();
 
   return (
-    <SafeAreaView className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-borderLight px-4 py-3">
         <TouchableOpacity

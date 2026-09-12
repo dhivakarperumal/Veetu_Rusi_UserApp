@@ -9,15 +9,13 @@ import {
   FlatList,
   Image,
   RefreshControl,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WishlistScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const {
     wishlist,
@@ -275,8 +273,8 @@ export default function WishlistScreen() {
 
   return (
     <SafeAreaView
+      edges={["top"]}
       className="flex-1 bg-background"
-      style={{ paddingTop: insets.top }}
     >
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-3">

@@ -13,14 +13,13 @@ import {
   Image,
   Modal,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Category {
   c_name: string;
@@ -34,7 +33,6 @@ export default function FoodScreen({
 }: {
   defaultCategory?: string;
 }) {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams<{
     category?: string;
@@ -380,8 +378,8 @@ export default function FoodScreen({
   if (loading) {
     return (
       <SafeAreaView
+        edges={["top"]}
         className="flex-1 bg-background"
-        style={{ paddingTop: insets.top }}
       >
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
@@ -395,8 +393,8 @@ export default function FoodScreen({
   if (!loading && !hasLocation) {
     return (
       <SafeAreaView
+        edges={["top"]}
         className="flex-1 bg-background"
-        style={{ paddingTop: insets.top }}
       >
         <ScrollView contentContainerClassName="grow items-center justify-center px-3">
           <View className="items-center rounded-2xl border border-borderLight bg-white p-5">
@@ -458,8 +456,8 @@ export default function FoodScreen({
 
   return (
     <SafeAreaView
+      edges={["top"]}
       className="flex-1 bg-background"
-      style={{ paddingTop: insets.top }}
     >
       <AppHeader title="Food" />
       <ScrollView
