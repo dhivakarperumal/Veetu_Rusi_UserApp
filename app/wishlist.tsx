@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function WishlistScreen() {
   const router = useRouter();
   const {
+    userFoodCart,
     wishlist,
     loadingWishlist,
     fetchWishlist,
@@ -30,6 +31,10 @@ export default function WishlistScreen() {
   const [addingCartId, setAddingCartId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
+  const cartCount = userFoodCart.reduce(
+    (total, item) => total + (Number(item.quantity) || 1),
+    0,
+  );
 
   const filteredWishlist = wishlist.filter((item) => {
     const query = search.trim().toLowerCase();
@@ -358,7 +363,7 @@ export default function WishlistScreen() {
         </View>
 
         <TouchableOpacity
-          className="h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          className="relative h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
           onPress={() => router.push("/(tabs)/cart")}
           hitSlop={8}
         >
@@ -367,6 +372,13 @@ export default function WishlistScreen() {
             size={22}
             color={colors.text}
           />
+          {cartCount > 0 && (
+            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primary px-1">
+              <Text className="text-[10px] font-black text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 

@@ -33,6 +33,7 @@ export default function ProductDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedWeight, setSelectedWeight] = useState("");
 
   const productId = String(
     product?.id || product?._id || product?.product_id || id || "",
@@ -59,10 +60,38 @@ export default function ProductDetailScreen() {
     fetchProductDetails();
   }, [id]);
 
-  const price = Number(
-    product?.final_price ?? product?.offer_price ?? product?.mrp ?? 0,
+  const weightOptions = Array.from(
+    new Set(
+      [
+        ...(Array.isArray(product?.weights) ? product.weights : []),
+        ...(Array.isArray(product?.variants)
+          ? product.variants.map((variant: any) => variant?.weight)
+          : []),
+        product?.weight,
+      ]
+        .map((weight) => String(weight || "").trim())
+        .filter(Boolean),
+    ),
   );
-  const originalPrice = Number(product?.mrp ?? 0);
+  const activeWeight = selectedWeight || weightOptions[0] || "";
+  const selectedVariant =
+    (Array.isArray(product?.variants)
+      ? product.variants.find(
+          (variant: any) => String(variant?.weight || "") === activeWeight,
+        )
+      : null) || product?.variants?.[0] || null;
+  const price = Number(
+    selectedVariant?.offerPrice ??
+      selectedVariant?.offer_price ??
+      selectedVariant?.price ??
+      product?.final_price ??
+      product?.offer_price ??
+      product?.mrp ??
+      0,
+  );
+  const originalPrice = Number(
+    selectedVariant?.mrp ?? selectedVariant?.price ?? product?.mrp ?? 0,
+  );
   const discount = Number(product?.offer ?? 0);
   const rating = Number(product?.rating ?? product?.average_rating ?? 4.5);
   const chefName =
@@ -268,6 +297,41 @@ export default function ProductDetailScreen() {
               </View>
             )}
 
+            {weightOptions.length > 0 && (
+              <View className="mb-3">
+                <Text className="mb-2 text-sm font-bold text-text">
+                  Weight Options
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="gap-2"
+                >
+                  {weightOptions.map((weight) => (
+                    <TouchableOpacity
+                      key={weight}
+                      onPress={() => setSelectedWeight(weight)}
+                      className={`rounded-lg border px-3 py-2 ${
+                        activeWeight === weight
+                          ? "border-primary bg-primary"
+                          : "border-borderLight bg-white"
+                      }`}
+                    >
+                      <Text
+                        className={`text-xs font-bold ${
+                          activeWeight === weight
+                            ? "text-white"
+                            : "text-text"
+                        }`}
+                      >
+                        {weight}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
             <View className="my-3 flex-row items-center justify-between">
               <View className="flex-row items-baseline gap-2">
                 <Text className="text-2xl font-extrabold text-text">
@@ -352,7 +416,12 @@ export default function ProductDetailScreen() {
               className="flex-row items-center gap-1.5 rounded-xl border border-primary bg-white px-3.5 py-2.5 active:bg-primary/10"
               onPress={async () => {
                 if (!product) return;
-                await addToFoodCart(product, null, null, quantity);
+                await addToFoodCart(
+                  product,
+                  selectedVariant,
+                  activeWeight || null,
+                  quantity,
+                );
                 Alert.alert(
                   "Added to Cart! 🛒",
                   `${quantity}x ${product.name || "item"} added to your food cart.`,
@@ -380,8 +449,8 @@ export default function ProductDetailScreen() {
                 if (!product) return;
                 const buyNowData = {
                   product,
-                  variant: product.variants?.[0] || null,
-                  size: null,
+                  variant: selectedVariant,
+                  size: activeWeight || null,
                   quantity,
                 };
                 router.push({
