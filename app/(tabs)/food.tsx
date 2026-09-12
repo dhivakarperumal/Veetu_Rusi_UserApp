@@ -377,10 +377,7 @@ export default function FoodScreen({
   // Loading screen
   if (loading) {
     return (
-      <SafeAreaView
-        edges={["top"]}
-        className="flex-1 bg-background"
-      >
+      <SafeAreaView edges={["top"]} className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
           <Text className="mt-3 text-sm text-text">Loading products...</Text>
@@ -392,10 +389,7 @@ export default function FoodScreen({
   // No location screen
   if (!loading && !hasLocation) {
     return (
-      <SafeAreaView
-        edges={["top"]}
-        className="flex-1 bg-background"
-      >
+      <SafeAreaView edges={["top"]} className="flex-1 bg-background">
         <ScrollView contentContainerClassName="grow items-center justify-center px-3">
           <View className="items-center rounded-2xl border border-borderLight bg-white p-5">
             <View className="mb-4 h-[60px] w-[60px] items-center justify-center rounded-full bg-primary/20">
@@ -455,10 +449,7 @@ export default function FoodScreen({
   }
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background"
-    >
+    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <AppHeader title="Food" />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -694,144 +685,144 @@ export default function FoodScreen({
                 >
                   {/* Price Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                  <Text className="mb-2 text-xs font-semibold text-text">
-                    Price
-                  </Text>
-                  <View className="mb-2 flex-row gap-2">
-                    <TextInput
-                      className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
-                      value={String(priceRange)}
-                      onChangeText={(val) => setPriceRange(Number(val))}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                  <Text className="text-xs text-textSecondary">
-                    Up to ₹{Number(priceRange).toLocaleString()}
-                  </Text>
+                    <Text className="mb-2 text-xs font-semibold text-text">
+                      Price
+                    </Text>
+                    <View className="mb-2 flex-row gap-2">
+                      <TextInput
+                        className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
+                        value={String(priceRange)}
+                        onChangeText={(val) => setPriceRange(Number(val))}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                    <Text className="text-xs text-textSecondary">
+                      Up to ₹{Number(priceRange).toLocaleString()}
+                    </Text>
                   </View>
 
                   {/* Type Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                  <Text className="mb-2 text-xs font-semibold text-text">
-                    Type
-                  </Text>
-                  {["Food", "Products"].map((type) => (
-                    <TouchableOpacity
-                      key={type}
-                      className="flex-row items-center gap-2 py-1.5"
-                      onPress={() => {
-                        setSelectedType(type);
-                        if (selectedCategory) {
-                          const allowed = (groupedCategories[type] || []).map(
-                            (cat) => cat.name?.trim().toLowerCase(),
-                          );
-                          if (
-                            !allowed.includes(
-                              selectedCategory.trim().toLowerCase(),
-                            )
-                          ) {
-                            setSelectedCategory("");
-                            setSelectedSubCategory("");
+                    <Text className="mb-2 text-xs font-semibold text-text">
+                      Type
+                    </Text>
+                    {["Food", "Products"].map((type) => (
+                      <TouchableOpacity
+                        key={type}
+                        className="flex-row items-center gap-2 py-1.5"
+                        onPress={() => {
+                          setSelectedType(type);
+                          if (selectedCategory) {
+                            const allowed = (groupedCategories[type] || []).map(
+                              (cat) => cat.name?.trim().toLowerCase(),
+                            );
+                            if (
+                              !allowed.includes(
+                                selectedCategory.trim().toLowerCase(),
+                              )
+                            ) {
+                              setSelectedCategory("");
+                              setSelectedSubCategory("");
+                            }
                           }
-                        }
-                      }}
+                        }}
+                      >
+                        <View
+                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                            selectedType === type
+                              ? "border-primary"
+                              : "border-borderLight"
+                          }`}
+                        >
+                          {selectedType === type && (
+                            <View className="h-2 w-2 rounded-full bg-primary" />
+                          )}
+                        </View>
+                        <Text className="text-xs text-text">{type}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    <TouchableOpacity
+                      className="flex-row items-center gap-2 py-1.5"
+                      onPress={() => setSelectedType("")}
                     >
                       <View
                         className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                          selectedType === type
+                          selectedType === ""
                             ? "border-primary"
                             : "border-borderLight"
                         }`}
                       >
-                        {selectedType === type && (
+                        {selectedType === "" && (
                           <View className="h-2 w-2 rounded-full bg-primary" />
                         )}
                       </View>
-                      <Text className="text-xs text-text">{type}</Text>
+                      <Text className="text-xs text-text">All Types</Text>
                     </TouchableOpacity>
-                  ))}
-                  <TouchableOpacity
-                    className="flex-row items-center gap-2 py-1.5"
-                    onPress={() => setSelectedType("")}
-                  >
-                    <View
-                      className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                        selectedType === ""
-                          ? "border-primary"
-                          : "border-borderLight"
-                      }`}
-                    >
-                      {selectedType === "" && (
-                        <View className="h-2 w-2 rounded-full bg-primary" />
-                      )}
-                    </View>
-                    <Text className="text-xs text-text">All Types</Text>
-                  </TouchableOpacity>
                   </View>
 
                   {/* Category Filter */}
                   {categories.length > 0 && (
-                  <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-xs font-semibold text-text">
-                      Category
-                    </Text>
-                    {categories.map((cat) => {
-                      const isCatSelected =
-                        cat?.trim().toLowerCase() ===
-                        decodeURIComponent(selectedCategory || "")
-                          .trim()
-                          .toLowerCase();
-                      return (
-                        <TouchableOpacity
-                          key={cat}
-                          className="flex-row items-center gap-2 py-1.5"
-                          onPress={() => setSelectedCategory(cat)}
-                        >
-                          <View
-                            className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                              isCatSelected
-                                ? "border-primary"
-                                : "border-borderLight"
-                            }`}
+                    <View className="mb-3 border-b border-borderLight pb-3">
+                      <Text className="mb-2 text-xs font-semibold text-text">
+                        Category
+                      </Text>
+                      {categories.map((cat) => {
+                        const isCatSelected =
+                          cat?.trim().toLowerCase() ===
+                          decodeURIComponent(selectedCategory || "")
+                            .trim()
+                            .toLowerCase();
+                        return (
+                          <TouchableOpacity
+                            key={cat}
+                            className="flex-row items-center gap-2 py-1.5"
+                            onPress={() => setSelectedCategory(cat)}
                           >
-                            {isCatSelected && (
-                              <View className="h-2 w-2 rounded-full bg-primary" />
-                            )}
-                          </View>
-                          <Text className="text-xs text-text">{cat}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+                            <View
+                              className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                                isCatSelected
+                                  ? "border-primary"
+                                  : "border-borderLight"
+                              }`}
+                            >
+                              {isCatSelected && (
+                                <View className="h-2 w-2 rounded-full bg-primary" />
+                              )}
+                            </View>
+                            <Text className="text-xs text-text">{cat}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
                   )}
 
                   {/* Offers Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                  <Text className="mb-2 text-xs font-semibold text-text">
-                    Offers
-                  </Text>
-                  {[10, 20, 30, 40, 50].map((offer) => (
-                    <TouchableOpacity
-                      key={offer}
-                      className="flex-row items-center gap-2 py-1.5"
-                      onPress={() => setOfferFilter(offer)}
-                    >
-                      <View
-                        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                          offerFilter === offer
-                            ? "border-primary"
-                            : "border-borderLight"
-                        }`}
+                    <Text className="mb-2 text-xs font-semibold text-text">
+                      Offers
+                    </Text>
+                    {[10, 20, 30, 40, 50].map((offer) => (
+                      <TouchableOpacity
+                        key={offer}
+                        className="flex-row items-center gap-2 py-1.5"
+                        onPress={() => setOfferFilter(offer)}
                       >
-                        {offerFilter === offer && (
-                          <View className="h-2 w-2 rounded-full bg-primary" />
-                        )}
-                      </View>
-                      <Text className="text-xs text-text">
-                        {offer}% and above
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                        <View
+                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                            offerFilter === offer
+                              ? "border-primary"
+                              : "border-borderLight"
+                          }`}
+                        >
+                          {offerFilter === offer && (
+                            <View className="h-2 w-2 rounded-full bg-primary" />
+                          )}
+                        </View>
+                        <Text className="text-xs text-text">
+                          {offer}% and above
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
                 </ScrollView>
               </View>

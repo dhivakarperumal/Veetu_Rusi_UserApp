@@ -2,16 +2,16 @@ import { colors } from "@/config/colors";
 import { useStore, WishlistItem } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  RefreshControl,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    RefreshControl,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -130,9 +130,15 @@ export default function WishlistScreen() {
       imageUrl = item.image.trim().split(/\s+/)[0];
     } else if (item.product?.image) {
       imageUrl = String(item.product.image).trim().split(/\s+/)[0];
-    } else if (Array.isArray(item.product?.images) && item.product.images.length > 0) {
+    } else if (
+      Array.isArray(item.product?.images) &&
+      item.product.images.length > 0
+    ) {
       const first = item.product.images[0];
-      imageUrl = typeof first === "string" ? first.trim().split(/\s+/)[0] : first?.url || "";
+      imageUrl =
+        typeof first === "string"
+          ? first.trim().split(/\s+/)[0]
+          : first?.url || "";
     }
 
     return (
@@ -272,10 +278,7 @@ export default function WishlistScreen() {
   };
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      className="flex-1 bg-background"
-    >
+    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-3">
         <TouchableOpacity
@@ -334,8 +337,8 @@ export default function WishlistScreen() {
             Your Wishlist is Empty
           </Text>
           <Text className="mt-2 text-center text-[13px] leading-relaxed text-textSecondary">
-            Explore delicious authentic home dishes and tap the heart icon to save
-            your favorites here!
+            Explore delicious authentic home dishes and tap the heart icon to
+            save your favorites here!
           </Text>
 
           <TouchableOpacity
