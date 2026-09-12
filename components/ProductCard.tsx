@@ -208,9 +208,7 @@ export default function ProductCard({
         {/* Plus '+' button triggers QuickViewModal */}
         <TouchableOpacity
           className={`${
-            horizontal
-              ? "ml-2 h-9 w-9"
-              : "absolute bottom-3 right-3 h-9 w-9"
+            horizontal ? "ml-2 h-9 w-9" : "absolute bottom-3 right-3 h-9 w-9"
           } items-center justify-center rounded-full border-2 border-primary bg-white active:bg-primary/10`}
           onPress={(event) => {
             event.stopPropagation();

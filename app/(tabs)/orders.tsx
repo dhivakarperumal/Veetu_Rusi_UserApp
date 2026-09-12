@@ -10,20 +10,23 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    KeyboardAvoidingView,
-    Linking,
-    Modal,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Linking,
+  Modal,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const CANCEL_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
 
@@ -47,7 +50,7 @@ const getChefNames = (items: any[], fallbackName?: string) => {
     ...new Set(
       items
         .map((item) => item.chef_name || item.chef || item.created_by_name)
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
   if (!names.length) return fallbackName || "Home Chef";
@@ -140,15 +143,19 @@ function CustomerCancelBar({
     s === "picked up"
       ? "Already Picked Up"
       : s === "out for delivery"
-      ? "Out for Delivery"
-      : remaining !== null && remaining <= 0
-      ? "Cancellation window expired (2hr limit)"
-      : null;
+        ? "Out for Delivery"
+        : remaining !== null && remaining <= 0
+          ? "Cancellation window expired (2hr limit)"
+          : null;
 
   if (ineligibleReason) {
     return (
       <View className="mx-4 mb-3 flex-row items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-2.5">
-        <MaterialCommunityIcons name="close-circle-outline" size={16} color="#DC2626" />
+        <MaterialCommunityIcons
+          name="close-circle-outline"
+          size={16}
+          color="#DC2626"
+        />
         <View className="flex-1 flex-row flex-wrap">
           <Text className="text-[11px] font-bold text-red-600">
             Cancellation Not Available
@@ -164,7 +171,11 @@ function CustomerCancelBar({
   return (
     <View className="mx-4 mb-3 flex-row items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 p-2.5">
       <View className="flex-row items-center gap-1.5">
-        <MaterialCommunityIcons name="clock-outline" size={16} color="#D97706" />
+        <MaterialCommunityIcons
+          name="clock-outline"
+          size={16}
+          color="#D97706"
+        />
         <Text className="text-[11px] text-amber-900">
           Cancel window:{" "}
           <Text className="font-mono font-bold text-amber-700">
@@ -268,8 +279,12 @@ export default function OrdersScreen() {
       const is401 =
         err?.status === 401 ||
         err?.response?.status === 401 ||
-        String(err?.message || "").toLowerCase().includes("token expired") ||
-        String(err?.message || "").toLowerCase().includes("unauthorized");
+        String(err?.message || "")
+          .toLowerCase()
+          .includes("token expired") ||
+        String(err?.message || "")
+          .toLowerCase()
+          .includes("unauthorized");
 
       if (is401) {
         setSessionExpired(true);
@@ -288,7 +303,7 @@ export default function OrdersScreen() {
               text: "Cancel",
               style: "cancel",
             },
-          ]
+          ],
         );
       }
     } finally {
@@ -363,8 +378,7 @@ export default function OrdersScreen() {
           quantity: item.quantity || 1,
           chef_user_id: item.chef_user_id || item.created_by || "",
           chef_id: item.chef_id || "",
-          chef_name:
-            item.chef_name || item.chef || item.created_by_name || "",
+          chef_name: item.chef_name || item.chef || item.created_by_name || "",
           chef_phone: item.chef_phone || "",
           chef_email: item.chef_email || "",
           franchise_id: item.franchise_id || "",
@@ -389,7 +403,7 @@ export default function OrdersScreen() {
             text: "Go to Cart",
             onPress: () => router.push("/(tabs)/cart"),
           },
-        ]
+        ],
       );
     } catch (err) {
       console.error(err);
@@ -403,7 +417,10 @@ export default function OrdersScreen() {
   const executeCancelOrder = async () => {
     if (!cancelOrder) return;
     if (!cancellationReason.trim()) {
-      Alert.alert("Reason Required", "Please provide a reason for cancellation.");
+      Alert.alert(
+        "Reason Required",
+        "Please provide a reason for cancellation.",
+      );
       return;
     }
     setCancelSubmitting(true);
@@ -414,9 +431,13 @@ export default function OrdersScreen() {
       setOrders((prev) =>
         prev.map((o) =>
           o.id === cancelOrder.id
-            ? { ...o, status: "Cancelled", cancellation_reason: cancellationReason }
-            : o
-        )
+            ? {
+                ...o,
+                status: "Cancelled",
+                cancellation_reason: cancellationReason,
+              }
+            : o,
+        ),
       );
       if (selectedOrder?.id === cancelOrder.id) {
         setSelectedOrder((prev: any) => ({
@@ -427,10 +448,16 @@ export default function OrdersScreen() {
       }
       setCancelOrder(null);
       setCancellationReason("");
-      Alert.alert("Order Cancelled", "Your order has been cancelled successfully.");
+      Alert.alert(
+        "Order Cancelled",
+        "Your order has been cancelled successfully.",
+      );
     } catch (err: any) {
       console.error(err);
-      Alert.alert("Cancellation Failed", err?.message || "Failed to cancel order.");
+      Alert.alert(
+        "Cancellation Failed",
+        err?.message || "Failed to cancel order.",
+      );
     } finally {
       setCancelSubmitting(false);
     }
@@ -444,7 +471,10 @@ export default function OrdersScreen() {
       const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
       Linking.openURL(url);
     } else {
-      Alert.alert("Live Tracking", "Live GPS tracking location is not available yet for this delivery.");
+      Alert.alert(
+        "Live Tracking",
+        "Live GPS tracking location is not available yet for this delivery.",
+      );
     }
   };
 
@@ -466,7 +496,7 @@ export default function OrdersScreen() {
     setReviewSubmitting(true);
     try {
       const selectedItem = reviewOrder?.items?.find(
-        (item: any) => (item.product_id || item.id) === reviewProductId
+        (item: any) => (item.product_id || item.id) === reviewProductId,
       );
 
       const homeChefId =
@@ -544,7 +574,10 @@ export default function OrdersScreen() {
         updated_by: userId,
       });
 
-      Alert.alert("Thank You! ⭐", "Your review has been submitted successfully.");
+      Alert.alert(
+        "Thank You! ⭐",
+        "Your review has been submitted successfully.",
+      );
       setShowReviewModal(false);
       setReviewOrder(null);
     } catch (err: any) {
@@ -604,7 +637,10 @@ export default function OrdersScreen() {
         deliveryReviewOrder?.franchise_admin_name || "";
 
       formData.append("user_id", String(userId || ""));
-      formData.append("user_name", String(user?.name || user?.username || "Customer"));
+      formData.append(
+        "user_name",
+        String(user?.name || user?.username || "Customer"),
+      );
       formData.append("user_email", String(user?.email || ""));
       formData.append("rating", String(deliveryRating));
       formData.append("comment", deliveryComment || "");
@@ -633,7 +669,10 @@ export default function OrdersScreen() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      Alert.alert("Review Submitted! 🛵", "Thank you for reviewing your delivery partner.");
+      Alert.alert(
+        "Review Submitted! 🛵",
+        "Thank you for reviewing your delivery partner.",
+      );
       setShowDeliveryReviewModal(false);
       setDeliveryReviewOrder(null);
     } catch (err: any) {
@@ -662,15 +701,14 @@ export default function OrdersScreen() {
 
   if (!effectiveUser || sessionExpired) {
     return (
-      <View
-        className="flex-1 bg-[#F8F9FA]"
-        style={{ paddingTop: insets.top }}
-      >
+      <SafeAreaView edges={["top"]} className="flex-1 bg-background">
         <AppHeader title="My Orders" />
         <View className="flex-1 items-center justify-center px-6">
           <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary/10">
             <MaterialCommunityIcons
-              name={sessionExpired ? "clock-alert-outline" : "account-lock-outline"}
+              name={
+                sessionExpired ? "clock-alert-outline" : "account-lock-outline"
+              }
               size={48}
               color={colors.primary}
             />
@@ -697,21 +735,20 @@ export default function OrdersScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View
-      className="flex-1 bg-[#F8F9FA]"
-      style={{ paddingTop: insets.top }}
-    >
+    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <AppHeader title="My Food Orders" />
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="mt-3 text-xs text-textSecondary">Loading orders...</Text>
+          <Text className="mt-3 text-xs text-textSecondary">
+            Loading orders...
+          </Text>
         </View>
       ) : (
         <ScrollView
@@ -730,16 +767,25 @@ export default function OrdersScreen() {
         >
           {orders.length === 0 ? (
             <View className="mt-16 items-center justify-center rounded-3xl border border-dashed border-borderLight bg-white p-10 text-center shadow-sm">
-              <MaterialCommunityIcons name="receipt" size={54} color={colors.grayDark} />
-              <Text className="mt-4 text-lg font-black text-text">No Food Orders Yet</Text>
+              <MaterialCommunityIcons
+                name="receipt"
+                size={54}
+                color={colors.grayDark}
+              />
+              <Text className="mt-4 text-lg font-black text-text">
+                No Food Orders Yet
+              </Text>
               <Text className="mt-1.5 text-center text-xs text-textSecondary">
-                Explore delicious homemade food prepared by authentic home chefs!
+                Explore delicious homemade food prepared by authentic home
+                chefs!
               </Text>
               <TouchableOpacity
                 onPress={() => router.push("/(tabs)/food")}
                 className="mt-6 rounded-2xl bg-primary px-6 py-3 shadow-md shadow-primary/30"
               >
-                <Text className="text-xs font-bold text-white">Browse Home Chefs</Text>
+                <Text className="text-xs font-bold text-white">
+                  Browse Home Chefs
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -749,12 +795,12 @@ export default function OrdersScreen() {
                 const itemsCount =
                   order.items?.reduce(
                     (sum: number, it: any) => sum + (Number(it.quantity) || 1),
-                    0
+                    0,
                   ) || 0;
                 const totalAmount = parseFloat(
                   order.final_total != null
                     ? order.final_total
-                    : order.total_amount || 0
+                    : order.total_amount || 0,
                 );
                 const isDelivered =
                   order.status === "Delivered" || order.status === "Completed";
@@ -780,9 +826,15 @@ export default function OrdersScreen() {
                           {formatDateTime(order.ordered_at)}
                         </Text>
                       </View>
-                      <View className={`rounded-full px-3 py-1 ${statusTheme.bg}`}>
-                        <Text className={`text-[11px] font-bold ${statusTheme.text}`}>
-                          {order.status === "Pending" ? "New Order" : order.status || "New Order"}
+                      <View
+                        className={`rounded-full px-3 py-1 ${statusTheme.bg}`}
+                      >
+                        <Text
+                          className={`text-[11px] font-bold ${statusTheme.text}`}
+                        >
+                          {order.status === "Pending"
+                            ? "New Order"
+                            : order.status || "New Order"}
                         </Text>
                       </View>
                     </View>
@@ -795,11 +847,16 @@ export default function OrdersScreen() {
                           <Text className="text-[10px] uppercase font-bold text-textSecondary">
                             Delivery Slot
                           </Text>
-                          <Text className="mt-1 text-xs font-bold text-text" numberOfLines={1}>
+                          <Text
+                            className="mt-1 text-xs font-bold text-text"
+                            numberOfLines={1}
+                          >
                             {order.delivery_date || "-"}
                           </Text>
                           <Text className="text-[11px] text-textSecondary">
-                            {order.delivery_time ? `at ${order.delivery_time}` : ""}
+                            {order.delivery_time
+                              ? `at ${order.delivery_time}`
+                              : ""}
                           </Text>
                         </View>
 
@@ -807,7 +864,10 @@ export default function OrdersScreen() {
                           <Text className="text-[10px] uppercase font-bold text-textSecondary">
                             Home Chef
                           </Text>
-                          <Text className="mt-1 text-xs font-bold text-primary" numberOfLines={1}>
+                          <Text
+                            className="mt-1 text-xs font-bold text-primary"
+                            numberOfLines={1}
+                          >
                             {getChefNames(order.items, order.chef_name)}
                           </Text>
                           <Text className="text-[11px] text-textSecondary">
@@ -818,15 +878,18 @@ export default function OrdersScreen() {
 
                       {/* Items Preview */}
                       <View className="mb-3">
-                        {order.items?.slice(0, 2).map((item: any, idx: number) => (
-                          <Text
-                            key={idx}
-                            className="text-xs text-textSecondary"
-                            numberOfLines={1}
-                          >
-                            • {item.name || item.product_name} (×{item.quantity || 1})
-                          </Text>
-                        ))}
+                        {order.items
+                          ?.slice(0, 2)
+                          .map((item: any, idx: number) => (
+                            <Text
+                              key={idx}
+                              className="text-xs text-textSecondary"
+                              numberOfLines={1}
+                            >
+                              • {item.name || item.product_name} (×
+                              {item.quantity || 1})
+                            </Text>
+                          ))}
                         {order.items?.length > 2 && (
                           <Text className="mt-0.5 text-[11px] font-semibold text-primary">
                             +{order.items.length - 2} more items
@@ -873,8 +936,14 @@ export default function OrdersScreen() {
                               onPress={() => handleTrack(order)}
                               className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5"
                             >
-                              <MaterialCommunityIcons name="map-marker-outline" size={14} color="#FFF" />
-                              <Text className="text-[11px] font-bold text-white">Track</Text>
+                              <MaterialCommunityIcons
+                                name="map-marker-outline"
+                                size={14}
+                                color="#FFF"
+                              />
+                              <Text className="text-[11px] font-bold text-white">
+                                Track
+                              </Text>
                             </TouchableOpacity>
                           )}
                         </View>
@@ -896,8 +965,14 @@ export default function OrdersScreen() {
                         onPress={() => openOrder(order)}
                         className="flex-row items-center gap-1 rounded-xl bg-primary px-3.5 py-2 active:opacity-90"
                       >
-                        <MaterialCommunityIcons name="file-document-outline" size={14} color="#FFF" />
-                        <Text className="text-xs font-bold text-white">View Details</Text>
+                        <MaterialCommunityIcons
+                          name="file-document-outline"
+                          size={14}
+                          color="#FFF"
+                        />
+                        <Text className="text-xs font-bold text-white">
+                          View Details
+                        </Text>
                       </TouchableOpacity>
 
                       {isDelivered && (
@@ -906,8 +981,14 @@ export default function OrdersScreen() {
                             onPress={() => openReviewModal(order)}
                             className="flex-row items-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2"
                           >
-                            <MaterialCommunityIcons name="star-outline" size={14} color="#059669" />
-                            <Text className="text-xs font-bold text-emerald-700">Review Food</Text>
+                            <MaterialCommunityIcons
+                              name="star-outline"
+                              size={14}
+                              color="#059669"
+                            />
+                            <Text className="text-xs font-bold text-emerald-700">
+                              Review Food
+                            </Text>
                           </TouchableOpacity>
 
                           {Boolean(order.delivery_partner_name) && (
@@ -915,8 +996,14 @@ export default function OrdersScreen() {
                               onPress={() => openDeliveryReviewModal(order)}
                               className="flex-row items-center gap-1 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2"
                             >
-                              <MaterialCommunityIcons name="moped" size={14} color="#2563EB" />
-                              <Text className="text-xs font-bold text-blue-700">Review Partner</Text>
+                              <MaterialCommunityIcons
+                                name="moped"
+                                size={14}
+                                color="#2563EB"
+                              />
+                              <Text className="text-xs font-bold text-blue-700">
+                                Review Partner
+                              </Text>
                             </TouchableOpacity>
                           )}
 
@@ -924,8 +1011,14 @@ export default function OrdersScreen() {
                             onPress={() => handleReorder(order)}
                             className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-2"
                           >
-                            <MaterialCommunityIcons name="refresh" size={14} color="#FFF" />
-                            <Text className="text-xs font-bold text-white">Reorder</Text>
+                            <MaterialCommunityIcons
+                              name="refresh"
+                              size={14}
+                              color="#FFF"
+                            />
+                            <Text className="text-xs font-bold text-white">
+                              Reorder
+                            </Text>
                           </TouchableOpacity>
                         </>
                       )}
@@ -951,7 +1044,9 @@ export default function OrdersScreen() {
               {/* Modal Header */}
               <View className="mb-4 flex-row items-center justify-between border-b border-borderLight pb-3">
                 <View>
-                  <Text className="text-lg font-black text-text">Order Details</Text>
+                  <Text className="text-lg font-black text-text">
+                    Order Details
+                  </Text>
                   <Text className="text-xs text-textSecondary">
                     Order #{selectedOrder.order_id || selectedOrder.id}
                   </Text>
@@ -964,17 +1059,25 @@ export default function OrdersScreen() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={false} className="max-h-[500px]">
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                className="max-h-[500px]"
+              >
                 {/* Delivery Information */}
                 <View className="mb-4 rounded-2xl bg-[#F9FAFB] p-3.5">
                   <Text className="text-[10px] font-black uppercase text-textSecondary">
                     Delivery Address
                   </Text>
                   <Text className="mt-1 text-sm font-bold text-text">
-                    {selectedOrder.customer_name || selectedOrder.ordered_by_name || selectedOrder.name}
+                    {selectedOrder.customer_name ||
+                      selectedOrder.ordered_by_name ||
+                      selectedOrder.name}
                   </Text>
                   <Text className="text-xs text-textSecondary">
-                    📞 {selectedOrder.customer_phone || selectedOrder.ordered_by_phone || selectedOrder.phone}
+                    📞{" "}
+                    {selectedOrder.customer_phone ||
+                      selectedOrder.ordered_by_phone ||
+                      selectedOrder.phone}
                   </Text>
                   <Text className="mt-1 text-xs leading-relaxed text-textSecondary">
                     {[
@@ -1006,19 +1109,31 @@ export default function OrdersScreen() {
                       >
                         <View className="h-12 w-12 overflow-hidden rounded-xl bg-gray">
                           {img ? (
-                            <Image source={{ uri: img }} className="h-full w-full" resizeMode="cover" />
+                            <Image
+                              source={{ uri: img }}
+                              className="h-full w-full"
+                              resizeMode="cover"
+                            />
                           ) : (
                             <View className="h-full w-full items-center justify-center bg-grayLight">
-                              <MaterialCommunityIcons name="food" size={20} color={colors.textSecondary} />
+                              <MaterialCommunityIcons
+                                name="food"
+                                size={20}
+                                color={colors.textSecondary}
+                              />
                             </View>
                           )}
                         </View>
                         <View className="flex-1">
-                          <Text className="text-xs font-bold text-text" numberOfLines={1}>
+                          <Text
+                            className="text-xs font-bold text-text"
+                            numberOfLines={1}
+                          >
                             {it.name || it.product_name}
                           </Text>
                           <Text className="text-[11px] text-textSecondary">
-                            Qty {it.quantity || 1} × ₹{parseFloat(it.price || 0).toFixed(0)}
+                            Qty {it.quantity || 1} × ₹
+                            {parseFloat(it.price || 0).toFixed(0)}
                           </Text>
                         </View>
                         <Text className="text-xs font-black text-text">
@@ -1035,35 +1150,53 @@ export default function OrdersScreen() {
                     Bill Summary
                   </Text>
                   <View className="mb-1.5 flex-row justify-between">
-                    <Text className="text-xs text-textSecondary">Order Date</Text>
+                    <Text className="text-xs text-textSecondary">
+                      Order Date
+                    </Text>
                     <Text className="text-xs font-semibold text-text">
                       {formatDateTime(selectedOrder.ordered_at)}
                     </Text>
                   </View>
                   <View className="mb-1.5 flex-row justify-between">
-                    <Text className="text-xs text-textSecondary">Delivery Slot</Text>
+                    <Text className="text-xs text-textSecondary">
+                      Delivery Slot
+                    </Text>
                     <Text className="text-xs font-semibold text-text">
-                      {selectedOrder.delivery_date} {selectedOrder.delivery_time ? `(${selectedOrder.delivery_time})` : ""}
+                      {selectedOrder.delivery_date}{" "}
+                      {selectedOrder.delivery_time
+                        ? `(${selectedOrder.delivery_time})`
+                        : ""}
                     </Text>
                   </View>
                   <View className="mb-1.5 flex-row justify-between">
-                    <Text className="text-xs text-textSecondary">Payment Method</Text>
+                    <Text className="text-xs text-textSecondary">
+                      Payment Method
+                    </Text>
                     <Text className="text-xs font-semibold text-text">
                       {selectedOrder.payment_method || "Cash on Delivery"}
                     </Text>
                   </View>
                   {parseFloat(selectedOrder.discount_amount || 0) > 0 && (
                     <View className="mb-1.5 flex-row justify-between">
-                      <Text className="text-xs font-semibold text-emerald-600">Discount</Text>
+                      <Text className="text-xs font-semibold text-emerald-600">
+                        Discount
+                      </Text>
                       <Text className="text-xs font-bold text-emerald-600">
                         -₹{parseFloat(selectedOrder.discount_amount).toFixed(0)}
                       </Text>
                     </View>
                   )}
                   <View className="mt-2 flex-row justify-between border-t border-borderLight pt-2">
-                    <Text className="text-sm font-black text-text">Grand Total</Text>
+                    <Text className="text-sm font-black text-text">
+                      Grand Total
+                    </Text>
                     <Text className="text-base font-black text-primary">
-                      ₹{parseFloat(selectedOrder.final_total ?? selectedOrder.total_amount ?? 0).toFixed(0)}
+                      ₹
+                      {parseFloat(
+                        selectedOrder.final_total ??
+                          selectedOrder.total_amount ??
+                          0,
+                      ).toFixed(0)}
                     </Text>
                   </View>
                 </View>
@@ -1073,22 +1206,26 @@ export default function OrdersScreen() {
                   <Text className="mb-2 text-xs font-black uppercase text-textSecondary">
                     Chef Information
                   </Text>
-                  {getChefGroups(selectedOrder.items).map((chef: any, idx: number) => (
-                    <View
-                      key={idx}
-                      className="mb-2 rounded-2xl bg-[#F9FAFB] p-3 border border-borderLight"
-                    >
-                      <View className="flex-row items-center justify-between">
-                        <Text className="text-xs font-black text-text">{chef.name}</Text>
-                        <Text className="text-xs font-bold text-primary">
-                          ₹{chef.total_amount.toFixed(0)}
+                  {getChefGroups(selectedOrder.items).map(
+                    (chef: any, idx: number) => (
+                      <View
+                        key={idx}
+                        className="mb-2 rounded-2xl bg-[#F9FAFB] p-3 border border-borderLight"
+                      >
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-xs font-black text-text">
+                            {chef.name}
+                          </Text>
+                          <Text className="text-xs font-bold text-primary">
+                            ₹{chef.total_amount.toFixed(0)}
+                          </Text>
+                        </View>
+                        <Text className="mt-1 text-[11px] text-textSecondary">
+                          Dishes: {chef.total_quantity} • 📞 {chef.phone}
                         </Text>
                       </View>
-                      <Text className="mt-1 text-[11px] text-textSecondary">
-                        Dishes: {chef.total_quantity} • 📞 {chef.phone}
-                      </Text>
-                    </View>
-                  ))}
+                    ),
+                  )}
                 </View>
 
                 {/* Delivery Partner */}
@@ -1108,8 +1245,14 @@ export default function OrdersScreen() {
                         onPress={() => handleTrack(selectedOrder)}
                         className="mt-3 flex-row items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2"
                       >
-                        <MaterialCommunityIcons name="map-marker-outline" size={16} color="#FFF" />
-                        <Text className="text-xs font-bold text-white">Track Live Location</Text>
+                        <MaterialCommunityIcons
+                          name="map-marker-outline"
+                          size={16}
+                          color="#FFF"
+                        />
+                        <Text className="text-xs font-bold text-white">
+                          Track Live Location
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -1134,7 +1277,9 @@ export default function OrdersScreen() {
           >
             <View className="w-full rounded-3xl bg-white p-5 shadow-2xl">
               <View className="mb-3 flex-row items-center justify-between">
-                <Text className="text-lg font-black text-text">Cancel Food Order</Text>
+                <Text className="text-lg font-black text-text">
+                  Cancel Food Order
+                </Text>
                 <TouchableOpacity
                   onPress={() => setCancelOrder(null)}
                   className="h-8 w-8 items-center justify-center rounded-full bg-gray"
@@ -1144,7 +1289,9 @@ export default function OrdersScreen() {
               </View>
 
               <Text className="text-xs text-textSecondary">
-                Are you sure you want to cancel order #{cancelOrder.order_id || cancelOrder.id}? Please state the reason:
+                Are you sure you want to cancel order #
+                {cancelOrder.order_id || cancelOrder.id}? Please state the
+                reason:
               </Text>
 
               <TextInput
@@ -1162,7 +1309,9 @@ export default function OrdersScreen() {
                   onPress={() => setCancelOrder(null)}
                   className="rounded-xl border border-borderLight px-4 py-2.5"
                 >
-                  <Text className="text-xs font-bold text-text">Keep Order</Text>
+                  <Text className="text-xs font-bold text-text">
+                    Keep Order
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -1197,7 +1346,9 @@ export default function OrdersScreen() {
           >
             <View className="max-h-[85%] rounded-t-[32px] bg-white p-5 shadow-2xl">
               <View className="mb-3 flex-row items-center justify-between">
-                <Text className="text-lg font-black text-text">Review Food Quality</Text>
+                <Text className="text-lg font-black text-text">
+                  Review Food Quality
+                </Text>
                 <TouchableOpacity
                   onPress={() => setShowReviewModal(false)}
                   className="h-8 w-8 items-center justify-center rounded-full bg-gray"
@@ -1211,7 +1362,11 @@ export default function OrdersScreen() {
                 <Text className="mb-1.5 text-xs font-bold text-textSecondary">
                   Select Item to Review:
                 </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 flex-row gap-2">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="mb-3 flex-row gap-2"
+                >
                   {reviewOrder.items?.map((it: any, idx: number) => {
                     const itemId = it.product_id || it.id || String(idx);
                     const isSelected = reviewProductId === itemId;
@@ -1252,7 +1407,9 @@ export default function OrdersScreen() {
                     >
                       <Text
                         className={`text-base font-black ${
-                          reviewRating >= star ? "text-white" : "text-textSecondary"
+                          reviewRating >= star
+                            ? "text-white"
+                            : "text-textSecondary"
                         }`}
                       >
                         ★
@@ -1307,7 +1464,9 @@ export default function OrdersScreen() {
           >
             <View className="max-h-[85%] rounded-t-[32px] bg-white p-5 shadow-2xl">
               <View className="mb-3 flex-row items-center justify-between">
-                <Text className="text-lg font-black text-text">Review Delivery Partner</Text>
+                <Text className="text-lg font-black text-text">
+                  Review Delivery Partner
+                </Text>
                 <TouchableOpacity
                   onPress={() => setShowDeliveryReviewModal(false)}
                   className="h-8 w-8 items-center justify-center rounded-full bg-gray"
@@ -1345,7 +1504,9 @@ export default function OrdersScreen() {
                     >
                       <Text
                         className={`text-base font-black ${
-                          deliveryRating >= star ? "text-white" : "text-textSecondary"
+                          deliveryRating >= star
+                            ? "text-white"
+                            : "text-textSecondary"
                         }`}
                       >
                         ★
@@ -1374,7 +1535,11 @@ export default function OrdersScreen() {
                 </Text>
                 {deliveryImage ? (
                   <View className="relative mb-3 h-28 w-28 overflow-hidden rounded-2xl border border-borderLight">
-                    <Image source={{ uri: deliveryImage.uri }} className="h-full w-full" resizeMode="cover" />
+                    <Image
+                      source={{ uri: deliveryImage.uri }}
+                      className="h-full w-full"
+                      resizeMode="cover"
+                    />
                     <TouchableOpacity
                       onPress={() => setDeliveryImage(null)}
                       className="absolute right-1 top-1 h-6 w-6 items-center justify-center rounded-full bg-red-600"
@@ -1387,8 +1552,14 @@ export default function OrdersScreen() {
                     onPress={pickDeliveryImage}
                     className="mb-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-3 bg-[#F9FAFB]"
                   >
-                    <MaterialCommunityIcons name="camera-plus-outline" size={20} color={colors.primary} />
-                    <Text className="text-xs font-bold text-primary">Upload Photo</Text>
+                    <MaterialCommunityIcons
+                      name="camera-plus-outline"
+                      size={20}
+                      color={colors.primary}
+                    />
+                    <Text className="text-xs font-bold text-primary">
+                      Upload Photo
+                    </Text>
                   </TouchableOpacity>
                 )}
 
@@ -1401,7 +1572,9 @@ export default function OrdersScreen() {
                     <ActivityIndicator size="small" color="#FFF" />
                   )}
                   <Text className="text-sm font-bold text-white">
-                    {deliverySubmitting ? "Submitting..." : "Submit Delivery Review"}
+                    {deliverySubmitting
+                      ? "Submitting..."
+                      : "Submit Delivery Review"}
                   </Text>
                 </TouchableOpacity>
               </ScrollView>
@@ -1409,6 +1582,6 @@ export default function OrdersScreen() {
           </KeyboardAvoidingView>
         </Modal>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

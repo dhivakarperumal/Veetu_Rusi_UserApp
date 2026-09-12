@@ -5,17 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CartScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
   const {
@@ -54,7 +47,7 @@ export default function CartScreen() {
         [
           { text: "Cancel", style: "cancel" },
           { text: "Login", onPress: () => router.push("/auth/login") },
-        ]
+        ],
       );
       return;
     }
@@ -62,13 +55,8 @@ export default function CartScreen() {
   };
 
   return (
-    <View
-      className="flex-1 bg-[#f8f8f7]"
-      style={{
-        paddingTop: insets.top,
-      }}
-    >
-      <AppHeader title="Food Cart" />
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <AppHeader title="Cart" />
 
       {userFoodCart.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -83,7 +71,8 @@ export default function CartScreen() {
             Your Cart is Empty
           </Text>
           <Text className="mt-2 text-center text-[13px] text-textSecondary px-6">
-            Looks like you haven&apos;t added any fresh, homemade food to your cart yet.
+            Looks like you haven&apos;t added any fresh, homemade food to your
+            cart yet.
           </Text>
           <TouchableOpacity
             className="mt-6 flex-row items-center gap-2 rounded-full bg-primary px-8 py-3.5 shadow-md shadow-primary/30 active:opacity-90"
@@ -301,6 +290,6 @@ export default function CartScreen() {
           </TouchableOpacity>
         </ScrollView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

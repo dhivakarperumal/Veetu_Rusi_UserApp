@@ -515,20 +515,8 @@ export default function FoodScreen({
         </View>
 
         {/* Toolbar */}
-        <View className="mb-3 gap-2.5">
-          <TouchableOpacity
-            className="flex-row items-center gap-1.5 self-start rounded-xl bg-gray px-3 py-2"
-            onPress={() => setShowFilters(true)}
-          >
-            <MaterialCommunityIcons
-              name="filter"
-              size={20}
-              color={colors.text}
-            />
-            <Text className="text-[13px] font-semibold text-text">Filters</Text>
-          </TouchableOpacity>
-
-          <View className="h-10 flex-1 flex-row items-center gap-2 rounded-xl border border-borderLight bg-white px-2.5">
+        <View className="mb-3 flex-row items-center gap-2.5">
+          <View className="h-[52px] flex-1 flex-row items-center gap-2 rounded-xl border border-borderLight bg-white px-2.5">
             <MaterialCommunityIcons
               name="magnify"
               size={18}
@@ -551,6 +539,18 @@ export default function FoodScreen({
               </TouchableOpacity>
             ) : null}
           </View>
+
+          <TouchableOpacity
+            className="h-[52px] flex-row items-center gap-1.5 rounded-xl bg-gray px-3"
+            onPress={() => setShowFilters(true)}
+          >
+            <MaterialCommunityIcons
+              name="filter"
+              size={20}
+              color={colors.text}
+            />
+            <Text className="text-[13px] font-semibold text-text">Filters</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Sort Options */}
