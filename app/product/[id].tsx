@@ -13,7 +13,7 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import {
     SafeAreaView,
@@ -104,22 +104,24 @@ export default function ProductDetailScreen() {
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-borderLight px-4 py-3">
-        <TouchableOpacity
-          className="h-10 w-10 items-center justify-center rounded-full bg-gray"
-          onPress={() => router.back()}
-        >
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={24}
-            color={colors.text}
-          />
-        </TouchableOpacity>
-        <Text
-          className="mx-2 flex-1 text-center text-[17px] font-bold text-text"
-          numberOfLines={1}
-        >
-          {product?.name || "Product Details"}
-        </Text>
+        <View className="flex-1 flex-row items-center">
+          <TouchableOpacity
+            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-gray"
+            onPress={() => router.back()}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+          <Text
+            className="flex-1 text-[17px] font-bold text-text"
+            numberOfLines={1}
+          >
+            {product?.name || "Product Details"}
+          </Text>
+        </View>
         <TouchableOpacity
           className="h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
           onPress={async () => {
