@@ -32,6 +32,7 @@ export default function ProductDetailScreen() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const productId = String(
     product?.id || product?._id || product?.product_id || id || "",
@@ -47,6 +48,7 @@ export default function ProductDetailScreen() {
           return await api.get(`/chef-foods/${id}`);
         });
         setProduct(res.data?.data || res.data);
+        setSelectedImageIndex(0);
       } catch (e) {
         console.log("Error loading product detail:", e);
       } finally {
@@ -99,6 +101,33 @@ export default function ProductDetailScreen() {
   };
 
   const imageUrl = getImageUrl();
+  const galleryImages = Array.from(
+    new Set(
+      [
+        product?.image,
+        ...(Array.isArray(product?.images) ? product.images : []),
+        ...(typeof product?.images === "string"
+          ? product.images.split(/\s+/)
+          : []),
+        ...(Array.isArray(product?.variants)
+          ? product.variants.flatMap((variant: any) =>
+              Array.isArray(variant?.images)
+                ? variant.images
+                : [variant?.images],
+            )
+          : []),
+        imageUrl,
+      ]
+        .map((image: any) =>
+          typeof image === "string"
+            ? image.trim()
+            : image?.url || image?.image || "",
+        )
+        .filter(Boolean),
+    ),
+  );
+  const selectedImageUrl =
+    galleryImages[selectedImageIndex] || galleryImages[0] || imageUrl;
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -164,12 +193,12 @@ export default function ProductDetailScreen() {
         >
           {/* Product Image */}
           <View
-            className="relative w-full bg-gray"
+            className="relative w-full overflow-hidden rounded-t-2xl bg-gray"
             style={{ height: width * 0.75 }}
           >
-            {imageUrl ? (
+            {selectedImageUrl ? (
               <Image
-                source={{ uri: imageUrl }}
+                source={{ uri: selectedImageUrl }}
                 className="h-full w-full"
                 resizeMode="cover"
               />
@@ -193,6 +222,32 @@ export default function ProductDetailScreen() {
               </View>
             )}
           </View>
+
+          {galleryImages.length > 1 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-2 px-4 py-3"
+            >
+              {galleryImages.map((galleryImage, index) => (
+                <TouchableOpacity
+                  key={`${galleryImage}-${index}`}
+                  onPress={() => setSelectedImageIndex(index)}
+                  className={`h-16 w-16 overflow-hidden rounded-lg border-2 ${
+                    selectedImageIndex === index
+                      ? "border-primary"
+                      : "border-borderLight"
+                  }`}
+                >
+                  <Image
+                    source={{ uri: galleryImage }}
+                    className="h-full w-full"
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
 
           {/* Details Section */}
           <View className="p-4">
