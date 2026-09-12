@@ -45,30 +45,15 @@ export function normalizeUserAddress(
   };
 }
 
-function getProfileData(response: any) {
-  return response?.data?.user || response?.data?.data || response?.data || {};
-}
-
-function profileToAddress(userId: string | number, profile: any): UserAddress | null {
-  const streetAddress = profile?.street_address || profile?.address || "";
-  const city = profile?.city || profile?.area || "";
-  const hasAddress = streetAddress || city || profile?.district || profile?.pincode || profile?.zip_code;
-  if (!hasAddress) return null;
-
-  return {
-    id: String(profile?.address_id || `profile_${userId}`),
-    user_id: String(userId),
-    customer_name: profile?.customer_name || profile?.name || profile?.username || "",
-    customer_email: profile?.customer_email || profile?.email || "",
-    customer_phone: profile?.customer_phone || profile?.phone || profile?.mobile || "",
-    street_address: streetAddress,
-    city,
-    district: profile?.district || "",
-    state: profile?.state || "",
-    country: profile?.country || "India",
-    zip_code: profile?.zip_code || profile?.pincode || "",
-    created_at: profile?.address_created_at || profile?.updated_at,
-  };
+function addressRows(response: any): UserAddress[] {
+  const data = Array.isArray(response?.data)
+    ? response.data
+    : response?.data?.data;
+  return Array.isArray(data)
+    ? data.map((address, index) =>
+        normalizeUserAddress(address.user_id || "", address, index),
+      )
+    : [];
 }
 
 export async function readRemoteUserAddress(
@@ -76,12 +61,26 @@ export async function readRemoteUserAddress(
 ): Promise<UserAddress | null> {
   if (!userId) return null;
   try {
-    const profile = getProfileData(await api.get("/auth/profile"));
-    const address = profileToAddress(userId, profile);
-    return address ? normalizeUserAddress(userId, address) : null;
+    const addresses = await readRemoteUserAddresses(userId);
+    return addresses[0] || null;
   } catch (err) {
     console.warn("Failed to read remote user address:", err);
     return null;
+  }
+}
+
+export async function readRemoteUserAddresses(
+  userId: string | number,
+): Promise<UserAddress[]> {
+  if (!userId) return [];
+  try {
+    const response = await api.get("/addresses");
+    return addressRows(response).filter(
+      (address) => String(address.user_id) === String(userId),
+    );
+  } catch (err) {
+    console.warn("Failed to read remote user addresses:", err);
+    throw err;
   }
 }
 
@@ -91,53 +90,26 @@ export async function saveRemoteUserAddress(
 ): Promise<UserAddress | null> {
   if (!userId) return null;
   try {
-    const profileResponse = await api.get("/auth/profile");
-    const profile = getProfileData(profileResponse);
-    const customerName = address.customer_name || profile.name || profile.username || "";
-    const customerEmail = address.customer_email || profile.email || "";
-    const customerPhone = address.customer_phone || profile.phone || profile.mobile || "";
-    const city = address.city || "";
-    const streetAddress = address.street_address || "";
-    const zipCode = address.zip_code || "";
-
-    const response = await api.put("/auth/profile", {
-      ...profile,
-      name: customerName,
-      username: profile.username || customerName,
-      email: customerEmail,
-      phone: customerPhone,
-      mobile: customerPhone,
-      address: streetAddress,
-      street_address: streetAddress,
-      area: city,
-      city,
-      district: address.district || "",
-      state: address.state || "",
-      country: address.country || "India",
-      pincode: zipCode,
-      zip_code: zipCode,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      customer_phone: customerPhone,
-    });
-    const responseAddress = profileToAddress(userId, getProfileData(response));
-    return responseAddress ? normalizeUserAddress(userId, responseAddress) : {
-      id: String(address.id || `profile_${userId}`),
-      user_id: String(userId),
-      customer_name: address.customer_name || "",
-      customer_email: address.customer_email || "",
-      customer_phone: address.customer_phone || "",
-      street_address: address.street_address || "",
-      city: address.city || "",
-      district: address.district || "",
-      state: address.state || "",
-      country: address.country || "India",
-      zip_code: address.zip_code || "",
-    };
+    const payload = { ...address, user_id: String(userId) };
+    const response = address.id
+      ? await api.put(`/addresses/${address.id}`, payload)
+      : await api.post("/addresses", payload);
+    const rows = addressRows(response).filter(
+      (item) => String(item.user_id) === String(userId),
+    );
+    return rows[0] || normalizeUserAddress(userId, payload);
   } catch (err) {
     console.warn("Failed to save remote user address:", err);
-    return null;
+    throw err;
   }
+}
+
+export async function removeRemoteUserAddress(
+  userId: string | number,
+  addressId: string,
+) {
+  if (!userId || !addressId) return;
+  await api.delete(`/addresses/${addressId}`);
 }
 
 export async function readUserAddresses(userId: string | number): Promise<UserAddress[]> {

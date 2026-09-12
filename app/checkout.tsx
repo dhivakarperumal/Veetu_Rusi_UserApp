@@ -3,7 +3,7 @@ import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { CartItem, useStore } from "@/context/StoreContext";
 import {
-    readRemoteUserAddress,
+    readRemoteUserAddresses,
     readUserAddresses,
     saveRemoteUserAddress,
     upsertUserAddress,
@@ -168,7 +168,7 @@ export default function CheckoutScreen() {
   const [localUser, setLocalUser] = useState<any>(null);
 
   const effectiveUser = user || localUser;
-  const userId = effectiveUser?.id || effectiveUser?.user_id;
+  const userId = effectiveUser?.user_id || effectiveUser?.id;
 
   // Checkout items list
   const checkoutItems = useMemo(() => {
@@ -265,11 +265,9 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     if (userId) {
-      Promise.all([readUserAddresses(userId), readRemoteUserAddress(userId)]).then(
-        ([localAddresses, remoteAddress]) => {
-          const list = remoteAddress
-            ? [remoteAddress, ...localAddresses.filter((item) => item.id !== remoteAddress.id)]
-            : localAddresses;
+      Promise.all([readUserAddresses(userId), readRemoteUserAddresses(userId)]).then(
+        ([localAddresses, remoteAddresses]) => {
+          const list = remoteAddresses.length > 0 ? remoteAddresses : localAddresses;
           setSavedAddresses(list);
           if (list.length > 0) {
           // Pre-fill with the first saved address if fields are empty

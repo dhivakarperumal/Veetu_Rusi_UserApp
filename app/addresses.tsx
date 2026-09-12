@@ -1,15 +1,14 @@
-import api from "@/app/api";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import {
-    normalizeUserAddress,
-    readRemoteUserAddress,
+    readRemoteUserAddresses,
     readUserAddresses,
+    removeRemoteUserAddress,
     removeUserAddress,
     saveRemoteUserAddress,
     saveUserAddresses,
     upsertUserAddress,
-    UserAddress,
+    UserAddress
 } from "@/utils/addressStorage";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -127,7 +126,7 @@ export default function Address() {
     checkLocalUser();
   }, []);
 
-  // Fetch addresses: read local storage and merge with order addresses from backend
+  // The authenticated /addresses endpoint is the source of truth.
   const fetchAddresses = React.useCallback(async () => {
     if (!userId) {
       setAddresses([]);
@@ -136,77 +135,9 @@ export default function Address() {
 
     try {
       setLoading(true);
-      const storageAddresses = await readUserAddresses(userId);
-      const remoteAddress = await readRemoteUserAddress(userId);
-
-      // Fetch user orders from both /orders and /user-food-orders/my-orders
-      let userOrders: any[] = [];
-      try {
-        const res = await api.get("/orders");
-        const raw = Array.isArray(res.data) ? res.data : res.data?.data || [];
-        const mapped = raw
-          .filter((order: any) => String(order.user_id) === String(userId))
-          .map((order: any) => ({
-            id: String(order.id || `order_${Date.now()}`),
-            user_id: String(order.user_id),
-            customer_name: order.customer_name || order.ordered_by_name || "",
-            customer_email: order.customer_email || order.ordered_by_email || "",
-            customer_phone: order.customer_phone || order.ordered_by_phone || "",
-            street_address: order.street_address || "",
-            city: order.city || "",
-            district: order.district || "",
-            state: order.state || "",
-            country: order.country || "India",
-            zip_code: order.zip_code || "",
-          }));
-        userOrders.push(...mapped);
-      } catch {
-        // Fallback to food orders
-        try {
-          const res2 = await api.get("/user-food-orders/my-orders");
-          const raw2 = Array.isArray(res2.data) ? res2.data : res2.data?.data || [];
-          const mapped2 = raw2
-            .filter((order: any) => String(order.user_id) === String(userId))
-            .map((order: any) => ({
-              id: String(order.id || `order_${Date.now()}`),
-              user_id: String(order.user_id),
-              customer_name: order.customer_name || order.ordered_by_name || "",
-              customer_email: order.customer_email || order.ordered_by_email || "",
-              customer_phone: order.customer_phone || order.ordered_by_phone || "",
-              street_address: order.street_address || "",
-              city: order.city || "",
-              district: order.district || "",
-              state: order.state || "",
-              country: order.country || "India",
-              zip_code: order.zip_code || "",
-            }));
-          userOrders.push(...mapped2);
-        } catch {}
-      }
-
-      // Filter valid addresses (must have street or city)
-      const validOrders = userOrders.filter(
-        (a) => Boolean(a.street_address?.trim()) || Boolean(a.city?.trim())
-      );
-
-      // Merge and deduplicate by comparing key fields
-      const mergedAddresses = [
-        ...(remoteAddress ? [remoteAddress] : []),
-        ...storageAddresses,
-        ...validOrders,
-      ].filter(
-        (address, index, array) => {
-          const match = array.findIndex((item) => {
-            const first = `${address.customer_name || ""}|${address.customer_email || ""}|${address.customer_phone || ""}|${address.street_address || ""}|${address.city || ""}|${address.district || ""}|${address.state || ""}|${address.country || ""}|${address.zip_code || ""}`.toLowerCase();
-            const second = `${item.customer_name || ""}|${item.customer_email || ""}|${item.customer_phone || ""}|${item.street_address || ""}|${item.city || ""}|${item.district || ""}|${item.state || ""}|${item.country || ""}|${item.zip_code || ""}`.toLowerCase();
-            return first === second;
-          });
-          return match === index;
-        }
-      ).map((address, index) => normalizeUserAddress(userId, address, index));
-
-      await saveUserAddresses(userId, mergedAddresses);
-      setAddresses(mergedAddresses);
+      const remoteAddresses = await readRemoteUserAddresses(userId);
+      await saveUserAddresses(userId, remoteAddresses);
+      setAddresses(remoteAddresses);
     } catch (error) {
       console.error("fetchAddresses error:", error);
       const fallback = await readUserAddresses(userId);
@@ -379,12 +310,12 @@ export default function Address() {
         ...form,
         user_id: String(userId),
       });
-      const nextAddresses = await upsertUserAddress(userId, {
+      await upsertUserAddress(userId, {
         ...form,
         id: remoteAddress?.id,
         user_id: String(userId),
       });
-      setAddresses(nextAddresses);
+      await fetchAddresses();
       Alert.alert("Success 🎉", "Address saved successfully!");
       resetForm();
     } catch (error) {
@@ -407,24 +338,12 @@ export default function Address() {
     if (!userId || !editingId) return;
 
     try {
-      const updatedAddresses = addresses.map((address) =>
-        String(address.id) === String(editingId)
-          ? ({
-              ...address,
-              ...form,
-              id: editingId,
-              user_id: String(userId),
-            } as UserAddress)
-          : address
-      );
-
-      setAddresses(updatedAddresses);
       await saveRemoteUserAddress(userId, {
         ...form,
         id: editingId,
         user_id: String(userId),
       });
-      await saveUserAddresses(userId, updatedAddresses);
+      await fetchAddresses();
       Alert.alert("Success 🎉", "Address updated successfully!");
       resetForm();
     } catch (error) {
@@ -446,20 +365,7 @@ export default function Address() {
           onPress: async () => {
             if (!userId) return;
             try {
-              const addressToDelete = addresses.find(
-                (address) => String(address.id) === String(id),
-              );
-              if (String(id) === `profile_${userId}`) {
-                await saveRemoteUserAddress(userId, {
-                  ...addressToDelete,
-                  street_address: "",
-                  city: "",
-                  district: "",
-                  state: "",
-                  country: "India",
-                  zip_code: "",
-                });
-              }
+              await removeRemoteUserAddress(userId, id);
               const nextAddresses = await removeUserAddress(userId, id);
               setAddresses(nextAddresses);
               if (editingId === id) {
