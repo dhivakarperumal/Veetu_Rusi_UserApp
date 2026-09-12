@@ -598,11 +598,11 @@ export default function HomeScreen() {
                           });
                         }}
                       >
-                        <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
+                        <View className="h-18 w-18 items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm">
                           {category.image ? (
                             <Image
                               source={{ uri: category.image }}
-                              className="h-11 w-11 rounded-full"
+                              className="h-16 w-16 rounded-full border border-primary/20"
                               resizeMode="cover"
                             />
                           ) : (
@@ -1069,16 +1069,23 @@ export default function HomeScreen() {
                         {offerItem.name || offerItem.c_name || "Offer Item"}
                       </Text>
                       <View className="mt-1 flex-row items-center">
-                        <Ionicons name="star" size={14} color={colors.warning} />
+                        <Ionicons
+                          name="star"
+                          size={14}
+                          color={colors.warning}
+                        />
                         <Text className="ml-1 text-[12px] font-bold text-text">
-                          {offerItem.rating ?? "4.8"} ({offerItem.orders ?? "1.2K"})
+                          {offerItem.rating ?? "4.8"} (
+                          {offerItem.orders ?? "1.2K"})
                         </Text>
                       </View>
                       <Text
                         className="mt-0.5 text-[12px] font-medium text-textSecondary"
                         numberOfLines={1}
                       >
-                        {offerItem.category || offerItem.category_type || "Sea Food"}
+                        {offerItem.category ||
+                          offerItem.category_type ||
+                          "Sea Food"}
                       </Text>
                       <View className="mt-2 flex-row items-center justify-between">
                         <View>
@@ -1139,24 +1146,40 @@ export default function HomeScreen() {
                     className="h-[112px] w-full"
                   />
                   <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-1">
-                    <Text className="text-[10px] font-bold text-white">OFFER</Text>
+                    <Text className="text-[10px] font-bold text-white">
+                      OFFER
+                    </Text>
                   </View>
                   <View className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-white shadow-sm">
-                    <Ionicons name="heart-outline" size={17} color={colors.primary} />
+                    <Ionicons
+                      name="heart-outline"
+                      size={17}
+                      color={colors.primary}
+                    />
                   </View>
                   <View className="p-2.5">
-                    <Text className="text-[15px] font-black text-text" numberOfLines={1}>
+                    <Text
+                      className="text-[15px] font-black text-text"
+                      numberOfLines={1}
+                    >
                       {offer.title}
                     </Text>
                     <View className="mt-1 flex-row items-center">
                       <Ionicons name="star" size={14} color={colors.warning} />
-                      <Text className="ml-1 text-[12px] font-bold text-text">4.8 (1.2K)</Text>
+                      <Text className="ml-1 text-[12px] font-bold text-text">
+                        4.8 (1.2K)
+                      </Text>
                     </View>
-                    <Text className="mt-0.5 text-[12px] font-medium text-textSecondary" numberOfLines={1}>
+                    <Text
+                      className="mt-0.5 text-[12px] font-medium text-textSecondary"
+                      numberOfLines={1}
+                    >
                       {offer.category}
                     </Text>
                     <View className="mt-2 flex-row items-center justify-between">
-                      <Text className="text-[16px] font-black text-primary">{offer.text}</Text>
+                      <Text className="text-[16px] font-black text-primary">
+                        {offer.text}
+                      </Text>
                       <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
                         <Ionicons name="add" size={19} color="white" />
                       </Pressable>
