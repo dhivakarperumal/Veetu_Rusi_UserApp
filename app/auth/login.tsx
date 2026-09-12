@@ -1,18 +1,19 @@
-import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../api";
@@ -75,165 +76,105 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#fff7e8]" edges={["top"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView
-          contentContainerClassName="grow"
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View className="bg-white px-5 pb-7 pt-10">
-            <Text className="mb-2 text-3xl font-bold text-secondary">
-              Welcome Back
-            </Text>
-            <Text className="text-base font-medium text-textSecondary">
-              Log in to your account to continue
-            </Text>
+          <View style={styles.hero}>
+            <ImageBackground
+              source={require("../../assets/images/login banner.png")}
+              resizeMode="stretch"
+              style={StyleSheet.absoluteFill}
+            />
           </View>
 
-          {/* Logo/Brand Section */}
-          <View className="items-center px-5 py-5">
-            <View className="mb-2.5 h-20 w-20 items-center justify-center rounded-full bg-primary">
-              <Text className="text-4xl font-bold text-white">
-                VR
-              </Text>
-            </View>
-            <Text className="text-2xl font-bold text-secondary">
-              Veetu Rusi
-            </Text>
-          </View>
-
-          {/* Form Section */}
-          <View className="px-5 pb-7">
-            {/* Email Field */}
-            <View className="mb-4">
-              <Text className="mb-2 ml-1 text-sm font-semibold text-secondary">
-                Email Address
-              </Text>
-              <View className="flex-row items-center rounded-2xl border border-border bg-gray px-4">
+          <View style={styles.card}>
+            <Text style={styles.title}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>Login to continue to Veetu Rusi</Text>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>Email or Phone Number</Text>
+              <View style={styles.input}>
                 <MaterialCommunityIcons
-                  name="email-outline"
-                  size={20}
-                  color={colors.textSecondary}
-                  className="mr-2"
+                  name="account"
+                  size={24}
+                  color="#858b91"
                 />
                 <TextInput
-                  placeholder="e.g. awesome@user.com"
-                  placeholderTextColor={colors.textSecondary}
+                  placeholder="Email or Phone Number"
+                  placeholderTextColor="#a0a4aa"
                   value={form.identifier}
                   onChangeText={(value) => handleChange("identifier", value)}
-                  className="flex-1 py-3.5 text-base text-text"
+                  style={styles.inputText}
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
               </View>
             </View>
-
-            {/* Password Field */}
-            <View className="mb-5">
-              <View className="mb-2 ml-1 flex-row items-center justify-between">
-                <Text className="text-sm font-semibold text-secondary">
-                  Password
-                </Text>
-                <Link href="/auth/forgot-password" asChild>
-                  <TouchableOpacity>
-                    <Text className="text-xs font-semibold text-primary">
-                      Forgot password?
-                    </Text>
-                  </TouchableOpacity>
-                </Link>
-              </View>
-              <View className="flex-row items-center rounded-2xl border border-border bg-gray px-4">
-                <MaterialCommunityIcons
-                  name="lock-outline"
-                  size={20}
-                  color={colors.textSecondary}
-                  className="mr-2"
-                />
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <View style={styles.input}>
+                <MaterialCommunityIcons name="lock" size={23} color="#858b91" />
                 <TextInput
-                  placeholder="Enter your password"
-                  placeholderTextColor={colors.textSecondary}
+                  placeholder="Password"
+                  placeholderTextColor="#a0a4aa"
                   value={form.password}
                   onChangeText={(value) => handleChange("password", value)}
                   secureTextEntry={!showPassword}
-                  className="flex-1 py-3.5 text-base text-text"
+                  style={styles.inputText}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
+                  hitSlop={10}
                 >
                   <MaterialCommunityIcons
-                    name={showPassword ? "eye-off-outline" : "eye-outline"}
-                    size={20}
-                    color={colors.textSecondary}
+                    name={showPassword ? "eye-off-outline" : "eye-off"}
+                    size={24}
+                    color="#858b91"
                   />
                 </TouchableOpacity>
               </View>
             </View>
-
-            {/* Login Button */}
+            <Link href="/auth/forgot-password" asChild>
+              <TouchableOpacity style={styles.forgotButton}>
+                <Text style={styles.forgotText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </Link>
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={loading}
-              className={`mb-6 items-center rounded-2xl bg-primary py-3.5 ${loading ? "opacity-60" : "opacity-100"}`}
+              style={[styles.loginButton, loading && styles.disabled]}
             >
               {loading ? (
-                <ActivityIndicator color={colors.white} size="small" />
+                <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-base font-bold text-white">
-                  Log In
-                </Text>
+                <>
+                  <Text style={styles.loginText}>Login Now</Text>
+                </>
               )}
             </TouchableOpacity>
-
-            {/* Divider */}
-            <View className="my-6 flex-row items-center">
-              <View className="h-[1px] flex-1 bg-border" />
-              <Text className="px-3 text-xs font-semibold text-textSecondary">
-                OR CONTINUE WITH
-              </Text>
-              <View className="h-[1px] flex-1 bg-border" />
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.orText}>OR</Text>
+              <View style={styles.dividerLine} />
             </View>
 
-            {/* Social Login */}
-            <View className="mb-6 flex-row justify-around">
-              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
-                <MaterialCommunityIcons
-                  name="facebook"
-                  size={24}
-                  color="#1877F2"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
-                <MaterialCommunityIcons
-                  name="google"
-                  size={24}
-                  color="#EA4335"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity className="h-[50px] w-[50px] items-center justify-center rounded-xl border border-border bg-gray">
-                <MaterialCommunityIcons
-                  name="apple"
-                  size={24}
-                  color={colors.secondary}
-                />
-              </TouchableOpacity>
-            </View>
-
-            {/* Sign Up Link */}
-            <View className="flex-row justify-center">
-              <Text className="text-[15px] font-medium text-textSecondary">
-                {"Don't have an account? "}
+            <View style={styles.createRow}>
+              <Text style={styles.createPrompt}>
+                Don&apos;t have an account?
               </Text>
               <Link href="/auth/register" asChild>
-                <TouchableOpacity>
-                  <Text className="text-[15px] font-bold text-primary">
-                    Sign up
-                  </Text>
+                <TouchableOpacity style={styles.createLinkButton}>
+                  <Text style={styles.createLink}>Create Account</Text>
                 </TouchableOpacity>
               </Link>
+            </View>
+            <View style={styles.newUserMessage}>
+              <Text style={styles.newUserText}>Welcome! New users</Text>
             </View>
           </View>
         </ScrollView>
@@ -241,3 +182,136 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: { flexGrow: 1, paddingBottom: 22, backgroundColor: "#fff7e8" },
+  hero: { height: 300, position: "relative" },
+
+  card: {
+    backgroundColor: "rgba(255, 255, 255, 0.97)",
+    borderRadius: 28,
+    borderColor: "rgba(190, 130, 55, 0.14)",
+    borderWidth: 1,
+    marginHorizontal: 10,
+    marginTop: -60,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+    shadowColor: "#b47729",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 14,
+    elevation: 7,
+  },
+  title: {
+    color: "#17202b",
+    fontSize: 28,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  subtitle: {
+    color: "#737a82",
+    fontSize: 16,
+    marginTop: 5,
+    marginBottom: 13,
+    textAlign: "center",
+  },
+  fieldGroup: { marginBottom: 9 },
+  fieldLabel: {
+    color: "#27313b",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 5,
+  },
+  input: {
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderColor: "#d5d8dc",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    height: 52,
+    paddingHorizontal: 17,
+  },
+  inputText: {
+    color: "#17202b",
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 13,
+  },
+  forgotButton: { alignSelf: "flex-end", marginBottom: 13, marginTop: -1 },
+  forgotText: { color: "#fb5b0b", fontSize: 15, fontWeight: "500" },
+  loginButton: {
+    alignItems: "center",
+    backgroundColor: "#ff650d",
+    borderColor: "#ff7b2c",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    height: 54,
+    justifyContent: "center",
+    shadowColor: "#d94b00",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  disabled: { opacity: 0.65 },
+  loginText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  divider: { alignItems: "center", flexDirection: "row", marginVertical: 12 },
+  dividerLine: { backgroundColor: "#d9dadd", flex: 1, height: 1 },
+  orText: { color: "#858b91", fontSize: 15, marginHorizontal: 16 },
+  socialRow: { flexDirection: "row", gap: 14 },
+  socialButton: {
+    alignItems: "center",
+    borderColor: "#d9dadd",
+    borderRadius: 16,
+    borderWidth: 1,
+    flex: 1,
+    flexDirection: "row",
+    height: 48,
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
+  socialText: {
+    color: "#17202b",
+    fontSize: 12,
+    fontWeight: "500",
+    marginLeft: 10,
+  },
+  createRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 14,
+  },
+  createPrompt: { color: "#737a82", fontSize: 14 },
+  createLinkButton: {
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  createLink: {
+    color: "#f15b23",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 9,
+    textDecorationLine: "underline",
+  },
+  createHint: {
+    color: "#9b9fa4",
+    fontSize: 10,
+    marginLeft: 9,
+    marginTop: 1,
+  },
+  newUserMessage: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  newUserText: {
+    color: "#737a82",
+    fontSize: 13,
+    textAlign: "center",
+  },
+});

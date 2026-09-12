@@ -771,7 +771,7 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-4 w-[210px] overflow-hidden rounded-[18px] border border-border bg-white"
+                    className="mr-3 w-[154px] overflow-hidden rounded-[18px] border border-border bg-white"
                   >
                     <View className="relative">
                       <Image
