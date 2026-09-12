@@ -224,25 +224,31 @@ export default function MoreScreen() {
           <TouchableOpacity
             onPress={handleLogout}
             disabled={loading}
-            className={`flex-row items-center justify-center px-4 py-4 ${
+            className={`flex-row items-center px-4 py-4 ${
               loading ? "opacity-60" : "opacity-100"
             }`}
           >
-            <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-red-50">
+            <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-red-50">
               <MaterialCommunityIcons
                 name="logout"
                 size={23}
                 color={colors.error}
               />
             </View>
-            <Text className="text-[16px] font-bold text-error">
+            <Text className="flex-1  text-[16px] font-bold text-error">
               Logout
             </Text>
             {loading ? (
-              <Text className="ml-2 text-[13px] font-semibold text-textSecondary">
+              <Text className="text-[13px] font-semibold text-textSecondary">
                 Loading...
               </Text>
-            ) : null}
+            ) : (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={23}
+                color={colors.textSecondary}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
