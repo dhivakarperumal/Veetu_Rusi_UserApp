@@ -42,13 +42,6 @@ export default function MoreScreen() {
     { label: "My Orders", icon: "clipboard-text-outline", route: "/orders" },
     { label: "My Wishlist", icon: "heart-outline", route: "/wishlist" },
     { label: "My Addresses", icon: "map-marker-outline", route: "/addresses" },
-    { label: "My Coupons", icon: "ticket-percent-outline", route: "/coupons" },
-    { label: "My Wallet", icon: "wallet-outline", route: "/wallet" },
-    {
-      label: "Favourite Chefs",
-      icon: "account-heart-outline",
-      route: "/favorite-chefs",
-    },
     { label: "Help & Support", icon: "lifebuoy", route: "/help-support" },
     { label: "About Veetu Rusi", icon: "information-outline", route: "/about" },
   ];
