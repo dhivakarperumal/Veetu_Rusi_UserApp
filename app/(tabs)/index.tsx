@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
   ImageBackground,
+  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -199,6 +200,7 @@ export default function HomeScreen() {
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
   useEffect(() => {
     const autoplay = setInterval(() => {
@@ -389,6 +391,23 @@ export default function HomeScreen() {
         location?.pincode ||
         "Set your location");
 
+  const visibleCategories =
+    categories.length > 0
+      ? categories.slice(0, 8).map((category, index) => ({
+          key: category.name || category.c_name || String(index),
+          name: category.name || category.c_name || "Food",
+          image: getCategoryImageUrl(category),
+          icon: getIconByCategory(category.name || category.c_name || "Food"),
+          index,
+        }))
+      : staticCategories.map((category, index) => ({
+          key: category.label,
+          name: category.label,
+          image: "",
+          icon: category.icon,
+          index,
+        }));
+
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <AppHeader title="Veetu Rusi" />
@@ -491,7 +510,13 @@ export default function HomeScreen() {
                 />
               </Pressable>
             ) : (
-              <Ionicons name="filter" size={22} color={colors.grayDark} />
+              <Pressable
+                accessibilityLabel="Open filters"
+                hitSlop={8}
+                onPress={() => setFilterSheetVisible(true)}
+              >
+                <Ionicons name="filter" size={22} color={colors.grayDark} />
+              </Pressable>
             )}
           </View>
         </View>
@@ -546,86 +571,67 @@ export default function HomeScreen() {
         </View>
 
         {/* Categories Section */}
-        <View className="mx-4 mt-4 flex-row flex-wrap items-center justify-between">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mx-4 mt-4"
+          contentContainerStyle={{ paddingRight: 16 }}
+        >
           {loading ? (
-            <View className="mb-3 h-[72px] w-full items-center justify-center">
+            <View className="h-[148px] w-full items-center justify-center">
               <ActivityIndicator color={colors.primary} />
             </View>
-          ) : categories.length > 0 ? (
-            categories.slice(0, 8).map((c, index) => {
-              const categoryImage = getCategoryImageUrl(c);
-              const categoryName = c.name || c.c_name || "Food";
-
-              return (
-                <Pressable
-                  key={categoryName || String(index)}
-                  className="mb-3 h-[72px] w-[24%] items-center justify-center"
-                  onPress={() => {
-                    router.push({
-                      pathname: "/(tabs)/food" as any,
-                      params: { category: categoryName },
-                    });
-                  }}
-                >
-                  <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
-                    {categoryImage ? (
-                      <Image
-                        source={{ uri: categoryImage }}
-                        className="h-11 w-11 rounded-full"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Ionicons
-                        name={
-                          getIconByCategory(
-                            categoryName,
-                          ) as keyof typeof Ionicons.glyphMap
-                        }
-                        size={22}
-                        color={
-                          index % 2 === 0 ? colors.primary : colors.secondary
-                        }
-                      />
-                    )}
-                  </View>
-                  <Text
-                    className="mt-2 text-center text-[11px] font-semibold text-text"
-                    numberOfLines={1}
-                  >
-                    {categoryName}
-                  </Text>
-                </Pressable>
-              );
-            })
           ) : (
-            staticCategories.map((c, index) => (
-              <Pressable
-                key={c.label}
-                className="mb-3 h-[72px] w-[24%] items-center justify-center"
-                onPress={() => {
-                  router.push({
-                    pathname: "/(tabs)/food" as any,
-                    params: { category: c.label },
-                  });
-                }}
-              >
-                <View className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
-                  <Ionicons
-                    name={c.icon as keyof typeof Ionicons.glyphMap}
-                    size={22}
-                    color={index % 2 === 0 ? colors.primary : colors.secondary}
-                  />
+            Array.from({ length: Math.ceil(visibleCategories.length / 2) }).map(
+              (_, columnIndex) => (
+                <View key={`category-column-${columnIndex}`} className="mr-3">
+                  {visibleCategories
+                    .slice(columnIndex * 2, columnIndex * 2 + 2)
+                    .map((category) => (
+                      <Pressable
+                        key={category.key}
+                        className="mb-2 h-[82px] w-[96px] items-center justify-center"
+                        onPress={() => {
+                          router.push({
+                            pathname: "/(tabs)/food" as any,
+                            params: { category: category.name },
+                          });
+                        }}
+                      >
+                        <View className="h-18 w-18 items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm">
+                          {category.image ? (
+                            <Image
+                              source={{ uri: category.image }}
+                              className="h-16 w-16 rounded-full border border-primary/20"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <Ionicons
+                              name={
+                                category.icon as keyof typeof Ionicons.glyphMap
+                              }
+                              size={22}
+                              color={
+                                category.index % 2 === 0
+                                  ? colors.primary
+                                  : colors.secondary
+                              }
+                            />
+                          )}
+                        </View>
+                        <Text
+                          className="mt-2 text-center text-[11px] font-semibold text-text"
+                          numberOfLines={1}
+                        >
+                          {category.name}
+                        </Text>
+                      </Pressable>
+                    ))}
                 </View>
-                <Text
-                  className="mt-2 text-center text-[11px] font-semibold text-text"
-                  numberOfLines={1}
-                >
-                  {c.label}
-                </Text>
-              </Pressable>
-            ))
+              ),
+            )
           )}
-        </View>
+        </ScrollView>
 
         {homeChefs.length > 0 && (
           <View className="mt-5 px-4">
@@ -779,15 +785,15 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-3 w-[154px] overflow-hidden rounded-[18px] border border-border bg-white"
+                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[130px] w-full"
+                        className="h-[86px] w-full rounded-[12px]"
                         resizeMode="cover"
                       />
-                      <Pressable className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
+                      <Pressable className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm">
                         <Ionicons
                           name="heart-outline"
                           size={18}
@@ -802,7 +808,7 @@ export default function HomeScreen() {
                         </View>
                       )}
                     </View>
-                    <View className="p-3">
+                    <View>
                       <Text
                         className="text-[15px] font-black text-text"
                         numberOfLines={1}
@@ -867,7 +873,7 @@ export default function HomeScreen() {
               >
                 <Image
                   source={{ uri: food.image }}
-                  className="h-[88px] w-[88px] rounded-[16px]"
+                  className="h-[88px] w-[88px] rounded-[16px] border border-primary/20 bg-white p-1 shadow-sm"
                 />
                 <Text className="mt-2 text-[13px] font-bold text-text">
                   {food.name}
@@ -1034,40 +1040,68 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
+                    className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[86px] w-full rounded-[12px]"
+                        className="h-[112px] w-full"
                         resizeMode="cover"
                       />
-                      <View className="absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5">
+                      <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-1">
                         <Text className="text-[10px] font-bold text-white">
                           {discount}
                         </Text>
                       </View>
+                      <Pressable className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-white shadow-sm">
+                        <Ionicons
+                          name="heart-outline"
+                          size={17}
+                          color={colors.primary}
+                        />
+                      </Pressable>
                     </View>
-                    <Text
-                      className="mt-2 text-[15px] font-black text-text"
-                      numberOfLines={1}
-                    >
-                      {offerItem.name || offerItem.c_name || "Offer Item"}
-                    </Text>
-                    <View className="mt-1 flex-row items-baseline gap-1.5">
-                      <Text className="text-[14px] font-bold text-text">
-                        ₹{Math.round(Number(price))}
+                    <View className="p-2.5">
+                      <Text
+                        className="text-[15px] font-black text-text"
+                        numberOfLines={1}
+                      >
+                        {offerItem.name || offerItem.c_name || "Offer Item"}
                       </Text>
-                      {origPrice > Number(price) && (
-                        <Text className="text-[11px] text-textSecondary line-through">
-                          ₹{origPrice}
+                      <View className="mt-1 flex-row items-center">
+                        <Ionicons
+                          name="star"
+                          size={14}
+                          color={colors.warning}
+                        />
+                        <Text className="ml-1 text-[12px] font-bold text-text">
+                          {offerItem.rating ?? "4.8"} (
+                          {offerItem.orders ?? "1.2K"})
                         </Text>
-                      )}
-                    </View>
-                    <View className="mt-3 rounded-full bg-primary px-3 py-1.5">
-                      <Text className="text-center text-[12px] font-bold text-white">
-                        Order Now →
+                      </View>
+                      <Text
+                        className="mt-0.5 text-[12px] font-medium text-textSecondary"
+                        numberOfLines={1}
+                      >
+                        {offerItem.category ||
+                          offerItem.category_type ||
+                          "Sea Food"}
                       </Text>
+                      <View className="mt-2 flex-row items-center justify-between">
+                        <View>
+                          <Text className="text-[16px] font-black text-primary">
+                            ₹{Math.round(Number(price))}
+                          </Text>
+                          {origPrice > Number(price) && (
+                            <Text className="text-[11px] text-textSecondary line-through">
+                              ₹{origPrice}
+                            </Text>
+                          )}
+                        </View>
+                        <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
+                          <Ionicons name="add" size={19} color="white" />
+                        </Pressable>
+                      </View>
                     </View>
                   </Pressable>
                 );
@@ -1097,7 +1131,7 @@ export default function HomeScreen() {
               ].map((offer) => (
                 <Pressable
                   key={offer.title}
-                  className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
+                  className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   onPress={() => {
                     router.push({
                       pathname: "/(tabs)/food" as any,
@@ -1109,18 +1143,47 @@ export default function HomeScreen() {
                     source={{
                       uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
                     }}
-                    className="h-[86px] w-full rounded-[12px]"
+                    className="h-[112px] w-full"
                   />
-                  <Text className="mt-2 text-[16px] font-black text-text">
-                    {offer.title}
-                  </Text>
-                  <Text className="text-[13px] font-bold text-textSecondary">
-                    {offer.text}
-                  </Text>
-                  <View className="mt-3 rounded-full bg-primary px-4 py-2">
-                    <Text className="text-center text-[12px] font-black text-white">
-                      {offer.button}
+                  <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-1">
+                    <Text className="text-[10px] font-bold text-white">
+                      OFFER
                     </Text>
+                  </View>
+                  <View className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-white shadow-sm">
+                    <Ionicons
+                      name="heart-outline"
+                      size={17}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <View className="p-2.5">
+                    <Text
+                      className="text-[15px] font-black text-text"
+                      numberOfLines={1}
+                    >
+                      {offer.title}
+                    </Text>
+                    <View className="mt-1 flex-row items-center">
+                      <Ionicons name="star" size={14} color={colors.warning} />
+                      <Text className="ml-1 text-[12px] font-bold text-text">
+                        4.8 (1.2K)
+                      </Text>
+                    </View>
+                    <Text
+                      className="mt-0.5 text-[12px] font-medium text-textSecondary"
+                      numberOfLines={1}
+                    >
+                      {offer.category}
+                    </Text>
+                    <View className="mt-2 flex-row items-center justify-between">
+                      <Text className="text-[16px] font-black text-primary">
+                        {offer.text}
+                      </Text>
+                      <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
+                        <Ionicons name="add" size={19} color="white" />
+                      </Pressable>
+                    </View>
                   </View>
                 </Pressable>
               ))}
@@ -1128,6 +1191,91 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={filterSheetVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterSheetVisible(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="rounded-t-[28px] bg-white px-5 pb-8 pt-4">
+            <View className="mb-4 flex-row items-center justify-between">
+              <View>
+                <Text className="text-[20px] font-black text-text">
+                  Filter Food
+                </Text>
+                <Text className="mt-1 text-[12px] text-textSecondary">
+                  Choose a category to explore
+                </Text>
+              </View>
+              <Pressable
+                accessibilityLabel="Close filters"
+                hitSlop={10}
+                onPress={() => setFilterSheetVisible(false)}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={26}
+                  color={colors.grayDark}
+                />
+              </Pressable>
+            </View>
+
+            <View className="flex-row flex-wrap justify-between">
+              {[
+                { label: "All Food", icon: "restaurant-outline", params: {} },
+                {
+                  label: "Meals",
+                  icon: "fast-food-outline",
+                  params: { category: "Meals" },
+                },
+                {
+                  label: "Tiffin",
+                  icon: "cafe-outline",
+                  params: { category: "Tiffin" },
+                },
+                {
+                  label: "Snacks",
+                  icon: "ice-cream-outline",
+                  params: { category: "Snacks" },
+                },
+                {
+                  label: "Healthy",
+                  icon: "leaf-outline",
+                  params: { category: "Healthy" },
+                },
+                {
+                  label: "Offers",
+                  icon: "pricetag-outline",
+                  params: { offer: "10" },
+                },
+              ].map((filter) => (
+                <Pressable
+                  key={filter.label}
+                  className="mb-3 w-[31%] items-center rounded-2xl border border-borderLight bg-[#fffaf5] px-2 py-3 active:bg-primary/10"
+                  onPress={() => {
+                    setFilterSheetVisible(false);
+                    router.push({
+                      pathname: "/(tabs)/food" as any,
+                      params: filter.params,
+                    });
+                  }}
+                >
+                  <Ionicons
+                    name={filter.icon as keyof typeof Ionicons.glyphMap}
+                    size={24}
+                    color={colors.primary}
+                  />
+                  <Text className="mt-2 text-center text-[12px] font-bold text-text">
+                    {filter.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
