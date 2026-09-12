@@ -574,7 +574,9 @@ export default function HomeScreen() {
 
         {/* Categories Section */}
         <View className="mx-4 mt-5 mb-1">
-          <Text className="text-[26px] font-black text-text">Categories</Text>
+          <Text className="mt-2 mb-2 text-[18px] font-black text-text">
+            Categories
+          </Text>
         </View>
         <ScrollView
           horizontal
@@ -641,7 +643,7 @@ export default function HomeScreen() {
         {homeChefs.length > 0 && (
           <View className="mt-5 px-4">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-[27px] font-black text-text">
+              <Text className="mt-2 mb-2 text-[18px] font-black text-text">
                 Top Home Chefs
               </Text>
               <Text className="text-[14px] font-bold text-primary">
@@ -703,7 +705,7 @@ export default function HomeScreen() {
         <View className="mt-5 px-4">
           <View className="mb-3 flex-row items-center justify-between">
             <View>
-              <Text className="text-[26px] font-black text-text">
+              <Text className="mt-2 mb-2 text-[18px] font-black text-text">
                 Popular Near You
               </Text>
               {hasLocation && (
@@ -862,7 +864,7 @@ export default function HomeScreen() {
 
         {/* Section 2: What's on your mind? */}
         <View className="px-4">
-          <Text className="text-[26px] font-black text-text">
+          <Text className="mt-2 mb-2 text-[18px] font-black text-text">
             What’s on your mind?
           </Text>
           <View className="mt-3 flex-row flex-wrap justify-between">
@@ -891,7 +893,7 @@ export default function HomeScreen() {
 
         {/* Section 3: Why Choose Us? */}
         <View className="mt-4 px-4">
-          <Text className="text-[26px] font-black text-text">
+          <Text className="mt-2 mb-2 text-[18px] font-black text-text">
             Why Choose Us?
           </Text>
           <View className="mt-3 flex-row flex-wrap justify-between">
@@ -927,7 +929,7 @@ export default function HomeScreen() {
         {/* Section 4: Customer Reviews */}
         <View className="mt-4 px-4">
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-[26px] font-black text-text">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
               Customer Reviews
             </Text>
             <Pressable onPress={() => router.push("/(tabs)/food")}>
@@ -998,7 +1000,7 @@ export default function HomeScreen() {
         {/* Section 5: Best Offers for You (Filtered by fetched location) */}
         <View className="mt-4 px-4 pb-6">
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-[26px] font-black text-text">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
               Best Offers for You
             </Text>
             <Pressable
