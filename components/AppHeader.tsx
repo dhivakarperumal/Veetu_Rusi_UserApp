@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Modal, Pressable, Text, View } from "react-native";
+import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title: string;
@@ -90,15 +90,17 @@ export default function AppHeader({ title }: AppHeaderProps) {
           onPress={() => setSidebarOpen(true)}
           hitSlop={8}
         >
-          <View className="items-center gap-1.5">
-            <View className="h-1.5 w-7 rounded-full bg-text" />
-            <View className="h-1.5 w-5 rounded-full bg-text" />
-            <View className="h-1.5 w-7 rounded-full bg-text" />
+          <View className="items-center gap-1">
+            <View className="h-1 w-5 rounded-full bg-text" />
+            <View className="h-1 w-3.5 rounded-full bg-text" />
+            <View className="h-1 w-5 rounded-full bg-text" />
           </View>
         </Pressable>
-        <View className="mr-2.5 h-[34px] w-[34px] items-center justify-center rounded-full bg-primary">
-          <Text className="text-[18px] font-bold text-white">V</Text>
-        </View>
+        <Image
+          source={require("../assets/images/logo.png")}
+          resizeMode="contain"
+          className="mr-2.5 h-[34px] w-[34px] rounded-full"
+        />
         <Text className="text-[22px] font-bold text-text">{title}</Text>
       </View>
 
@@ -226,9 +228,11 @@ export default function AppHeader({ title }: AppHeaderProps) {
           >
             <View className="mb-7 flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className="mr-3 h-11 w-11 items-center justify-center rounded-full bg-primary">
-                  <Text className="text-xl font-black text-white">V</Text>
-                </View>
+                <Image
+                  source={require("../assets/images/logo.png")}
+                  resizeMode="contain"
+                  className="mr-3 h-11 w-11 rounded-full"
+                />
                 <View>
                   <Text className="text-lg font-black text-text">
                     Veetu Rusi
