@@ -1,18 +1,18 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Alert,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 interface QuickViewModalProps {

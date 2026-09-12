@@ -1,4 +1,5 @@
 import api from "@/app/api";
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
@@ -7,13 +8,12 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Dimensions,
     Image,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import {
     SafeAreaView,

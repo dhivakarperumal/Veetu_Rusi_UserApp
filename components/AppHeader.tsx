@@ -1,3 +1,4 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
@@ -5,7 +6,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title: string;

@@ -1,15 +1,15 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
     Pressable,
     ScrollView,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

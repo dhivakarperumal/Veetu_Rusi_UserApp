@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/app/api";
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { CartItem, useStore } from "@/context/StoreContext";
@@ -16,7 +17,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     KeyboardAvoidingView,
     Modal,
@@ -25,7 +25,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

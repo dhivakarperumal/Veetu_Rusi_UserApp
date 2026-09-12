@@ -1,16 +1,16 @@
 import api from "@/app/api";
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { AuthContext } from "@/context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
-import { Alert } from "react-native";
 
 export const LOCATION_STORAGE_KEY = "@veetu_rusi_user_location";
 
