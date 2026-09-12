@@ -7,15 +7,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -486,7 +486,7 @@ export default function HomeScreen() {
             className="h-full w-full"
           />
           <Pressable
-            className="absolute bottom-3 left-3 flex-row items-center rounded-full bg-primary px-4 py-2.5 shadow-sm shadow-black active:opacity-80"
+            className="absolute bottom-5 left-3 flex-row items-center rounded-full bg-primary px-4 py-2.5 shadow-sm shadow-black active:opacity-80"
             onPress={() => router.push("/(tabs)/food")}
           >
             <Text className="text-[13px] font-black text-white">Order Now</Text>
@@ -636,31 +636,11 @@ export default function HomeScreen() {
         )}
 
         {/* Promo Banner */}
-        <View className="mx-4 mt-1 rounded-[20px] border border-primary/30 bg-gradient-to-r from-[#ffe6d5] to-[#fffaf7] px-4 py-4">
-          <View className="flex-row items-center justify-between">
-            <View className="w-[58%]">
-              <Text className="text-[28px] font-black text-text">
-                Flat 20% OFF
-              </Text>
-              <Text className="mt-1 text-[16px] font-semibold text-textSecondary">
-                On First Order
-              </Text>
-              <View className="mt-4 rounded-xl border border-primary bg-white px-4 py-2">
-                <Text className="font-bold text-primary">
-                  Use Code HOMEMADE20
-                </Text>
-              </View>
-            </View>
-            <View className="h-24 w-24 items-center justify-center rounded-full border-[3px] border-primary bg-white">
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
-                }}
-                className="h-20 w-20 rounded-full"
-              />
-            </View>
-          </View>
-        </View>
+        <ImageBackground
+          source={require("../../assets/images/offer banner.png")}
+          resizeMode="cover"
+          className="mx-4 mt-1 h-[190px] overflow-hidden rounded-[20px]"
+        />
 
         {/* Section 1: Popular Near You (Filtered by fetched location) */}
         <View className="mt-5 px-4">
@@ -827,11 +807,11 @@ export default function HomeScreen() {
           <Text className="text-[26px] font-black text-text">
             What’s on your mind?
           </Text>
-          <View className="mt-3 flex-row flex-wrap">
+          <View className="mt-3 flex-row flex-wrap justify-between">
             {foodTypes.map((food) => (
               <Pressable
                 key={food.name}
-                className="mr-3 mb-3 w-[95px] items-center"
+                className="mb-3 w-[31%] items-center"
                 onPress={() => {
                   router.push({
                     pathname: "/(tabs)/food" as any,
@@ -841,7 +821,7 @@ export default function HomeScreen() {
               >
                 <Image
                   source={{ uri: food.image }}
-                  className="h-[70px] w-[70px] rounded-[16px]"
+                  className="h-[88px] w-[88px] rounded-[16px]"
                 />
                 <Text className="mt-2 text-[13px] font-bold text-text">
                   {food.name}
@@ -879,6 +859,12 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
+
+        <ImageBackground
+          source={require("../../assets/images/this banner.png")}
+          resizeMode="cover"
+          className="mx-4 mt-4 h-[190px] overflow-hidden rounded-[20px]"
+        />
 
         {/* Section 4: Customer Reviews */}
         <View className="mt-4 px-4">
