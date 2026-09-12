@@ -1,4 +1,4 @@
-import api from "@/app/api";
+import api, { API_BASE_URL } from "@/app/api";
 import { AuthContext } from "@/context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -98,6 +98,15 @@ export interface WishlistItem {
 
 export const WISHLIST_STORAGE_KEY = "@veetu_rusi_user_wishlist";
 
+function normalizeWishlistImage(image: unknown) {
+  if (typeof image !== "string") return image;
+
+  const apiOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
+  return image
+    .replace("http://localhost:5000", apiOrigin)
+    .replace("http://127.0.0.1:5000", apiOrigin);
+}
+
 interface StoreContextType {
   chefFoodsCache: Product[];
   setChefFoodsCache: (products: Product[]) => void;
@@ -174,7 +183,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // Fetch cart from backend if user is authenticated
   const fetchUserFoodCart = useCallback(async () => {
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (!userId) return;
 
     try {
@@ -193,7 +202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // Fetch wishlist from backend
   const fetchWishlist = useCallback(async () => {
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (!userId) return;
 
     try {
@@ -201,10 +210,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const res = await api.get(`/wishlist/${userId}`);
       const data = Array.isArray(res.data) ? res.data : res.data?.data;
       if (Array.isArray(data)) {
-        setWishlist(data);
+        const normalizedData = data.map((item) => ({
+          ...item,
+          image: normalizeWishlistImage(item.image || item.wishlist_image),
+        }));
+        setWishlist(normalizedData);
         await AsyncStorage.setItem(
           WISHLIST_STORAGE_KEY,
-          JSON.stringify(data),
+          JSON.stringify(normalizedData),
         );
       }
     } catch (err) {
@@ -435,7 +448,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const clearUserFoodCart = useCallback(async () => {
     setUserFoodCart([]);
     await AsyncStorage.removeItem(FOOD_CART_STORAGE_KEY).catch(console.error);
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (userId) {
       try {
         await api.delete(`/user-food/clear/${userId}`);
@@ -472,7 +485,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       );
       if (!productId) return false;
 
-      const userId = user?.id || user?.user_id;
+      const userId = user?.user_id || user?.id;
 
       const currentlyIn = wishlist.some(
         (w) =>
