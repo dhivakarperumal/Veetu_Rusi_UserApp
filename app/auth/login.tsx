@@ -175,7 +175,7 @@ export default function LoginScreen() {
             </View>
             <View style={styles.newUserMessage}>
               <Text style={styles.newUserText}>Welcome! New users</Text>
-              </View>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
