@@ -7,14 +7,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -649,10 +649,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-       
-
-        
-
         {/* Promo Banner */}
         <View className="mx-4 mt-1 rounded-[20px] border border-primary/30 bg-gradient-to-r from-[#ffe6d5] to-[#fffaf7] px-4 py-4">
           <View className="flex-row items-center justify-between">
@@ -1020,12 +1016,12 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-3 w-[180px] rounded-[16px] border border-border bg-white p-3"
+                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[100px] w-full rounded-[14px]"
+                        className="h-[86px] w-full rounded-[12px]"
                         resizeMode="cover"
                       />
                       <View className="absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5">
@@ -1083,7 +1079,7 @@ export default function HomeScreen() {
               ].map((offer) => (
                 <Pressable
                   key={offer.title}
-                  className="mr-3 w-[160px] rounded-[16px] border border-border bg-white p-3"
+                  className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   onPress={() => {
                     router.push({
                       pathname: "/(tabs)/food" as any,
@@ -1095,7 +1091,7 @@ export default function HomeScreen() {
                     source={{
                       uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
                     }}
-                    className="h-[90px] w-[120px] rounded-[14px]"
+                    className="h-[86px] w-full rounded-[12px]"
                   />
                   <Text className="mt-2 text-[16px] font-black text-text">
                     {offer.title}
