@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
   ImageBackground,
+  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -199,6 +200,7 @@ export default function HomeScreen() {
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
   useEffect(() => {
     const autoplay = setInterval(() => {
@@ -508,7 +510,13 @@ export default function HomeScreen() {
                 />
               </Pressable>
             ) : (
-              <Ionicons name="filter" size={22} color={colors.grayDark} />
+              <Pressable
+                accessibilityLabel="Open filters"
+                hitSlop={8}
+                onPress={() => setFilterSheetVisible(true)}
+              >
+                <Ionicons name="filter" size={22} color={colors.grayDark} />
+              </Pressable>
             )}
           </View>
         </View>
@@ -777,15 +785,15 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-3 w-[154px] overflow-hidden rounded-[18px] border border-border bg-white"
+                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[130px] w-full"
+                        className="h-[86px] w-full rounded-[12px]"
                         resizeMode="cover"
                       />
-                      <Pressable className="absolute right-2 top-2 h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm">
+                      <Pressable className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm">
                         <Ionicons
                           name="heart-outline"
                           size={18}
@@ -800,7 +808,7 @@ export default function HomeScreen() {
                         </View>
                       )}
                     </View>
-                    <View className="p-3">
+                    <View>
                       <Text
                         className="text-[15px] font-black text-text"
                         numberOfLines={1}
@@ -1126,6 +1134,91 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={filterSheetVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterSheetVisible(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="rounded-t-[28px] bg-white px-5 pb-8 pt-4">
+            <View className="mb-4 flex-row items-center justify-between">
+              <View>
+                <Text className="text-[20px] font-black text-text">
+                  Filter Food
+                </Text>
+                <Text className="mt-1 text-[12px] text-textSecondary">
+                  Choose a category to explore
+                </Text>
+              </View>
+              <Pressable
+                accessibilityLabel="Close filters"
+                hitSlop={10}
+                onPress={() => setFilterSheetVisible(false)}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={26}
+                  color={colors.grayDark}
+                />
+              </Pressable>
+            </View>
+
+            <View className="flex-row flex-wrap justify-between">
+              {[
+                { label: "All Food", icon: "restaurant-outline", params: {} },
+                {
+                  label: "Meals",
+                  icon: "fast-food-outline",
+                  params: { category: "Meals" },
+                },
+                {
+                  label: "Tiffin",
+                  icon: "cafe-outline",
+                  params: { category: "Tiffin" },
+                },
+                {
+                  label: "Snacks",
+                  icon: "ice-cream-outline",
+                  params: { category: "Snacks" },
+                },
+                {
+                  label: "Healthy",
+                  icon: "leaf-outline",
+                  params: { category: "Healthy" },
+                },
+                {
+                  label: "Offers",
+                  icon: "pricetag-outline",
+                  params: { offer: "10" },
+                },
+              ].map((filter) => (
+                <Pressable
+                  key={filter.label}
+                  className="mb-3 w-[31%] items-center rounded-2xl border border-borderLight bg-[#fffaf5] px-2 py-3 active:bg-primary/10"
+                  onPress={() => {
+                    setFilterSheetVisible(false);
+                    router.push({
+                      pathname: "/(tabs)/food" as any,
+                      params: filter.params,
+                    });
+                  }}
+                >
+                  <Ionicons
+                    name={filter.icon as keyof typeof Ionicons.glyphMap}
+                    size={24}
+                    color={colors.primary}
+                  />
+                  <Text className="mt-2 text-center text-[12px] font-bold text-text">
+                    {filter.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
