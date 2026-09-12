@@ -5,7 +5,7 @@ import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
@@ -16,11 +16,11 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
-  const { wishlist } = useStore();
+  const { userFoodCart, wishlist } = useStore();
   const [localUser, setLocalUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const sidebarTranslateX = useRef(new Animated.Value(-300)).current;
+  const [sidebarTranslateX] = useState(() => new Animated.Value(-300));
 
   useEffect(() => {
     Animated.timing(sidebarTranslateX, {
@@ -52,6 +52,10 @@ export default function AppHeader({ title }: AppHeaderProps) {
   }, [user, authContext]);
 
   const activeUser = user || localUser;
+  const cartCount = userFoodCart.reduce(
+    (total, item) => total + (Number(item.quantity) || 1),
+    0,
+  );
 
   const initialLetter = useMemo(() => {
     const source =
@@ -99,7 +103,7 @@ export default function AppHeader({ title }: AppHeaderProps) {
         <Image
           source={require("../assets/images/logo.png")}
           resizeMode="contain"
-          className="mr-2.5 h-[34px] w-[34px] rounded-full"
+          className="mr-2.5 h-11 w-11 rounded-full"
         />
         <Text className="text-[22px] font-bold text-text">{title}</Text>
       </View>
@@ -126,14 +130,23 @@ export default function AppHeader({ title }: AppHeaderProps) {
         </Pressable>
 
         <Pressable
-          className="h-9 w-9 items-center justify-center rounded-full bg-gray"
-          hitSlop={10}
+          accessibilityLabel="Open cart"
+          className="h-9 w-9 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          onPress={() => router.push("/(tabs)/cart")}
+          hitSlop={8}
         >
           <MaterialCommunityIcons
-            name="bell-outline"
+            name="cart-outline"
             size={22}
             color={colors.text}
           />
+          {cartCount > 0 && (
+            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primary px-1">
+              <Text className="text-[10px] font-black text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </Text>
+            </View>
+          )}
         </Pressable>
 
         <View className="relative">
