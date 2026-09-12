@@ -153,12 +153,7 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#fff" />
               ) : (
                 <>
-                  <Text style={styles.loginText}>Login</Text>
-                  <MaterialCommunityIcons
-                    name="chevron-right"
-                    size={30}
-                    color="#fff"
-                  />
+                  <Text style={styles.loginText}>Login Now</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -173,11 +168,14 @@ export default function LoginScreen() {
                 Don&apos;t have an account?
               </Text>
               <Link href="/auth/register" asChild>
-                <TouchableOpacity>
+                <TouchableOpacity style={styles.createLinkButton}>
                   <Text style={styles.createLink}>Create Account</Text>
                 </TouchableOpacity>
               </Link>
             </View>
+            <View style={styles.newUserMessage}>
+              <Text style={styles.newUserText}>Welcome! New users</Text>
+              </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -244,19 +242,22 @@ const styles = StyleSheet.create({
   forgotText: { color: "#fb5b0b", fontSize: 15, fontWeight: "500" },
   loginButton: {
     alignItems: "center",
-    backgroundColor: "#ff640b",
-    borderRadius: 17,
+    backgroundColor: "#ff650d",
+    borderColor: "#ff7b2c",
+    borderRadius: 14,
+    borderWidth: 1,
     flexDirection: "row",
-    height: 56,
+    gap: 6,
+    height: 54,
     justifyContent: "center",
     shadowColor: "#d94b00",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5,
+    elevation: 2,
   },
   disabled: { opacity: 0.65 },
-  loginText: { color: "#fff", fontSize: 19, fontWeight: "700" },
+  loginText: { color: "#fff", fontSize: 18, fontWeight: "700" },
   divider: { alignItems: "center", flexDirection: "row", marginVertical: 12 },
   dividerLine: { backgroundColor: "#d9dadd", flex: 1, height: 1 },
   orText: { color: "#858b91", fontSize: 15, marginHorizontal: 16 },
@@ -285,11 +286,31 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   createPrompt: { color: "#737a82", fontSize: 14 },
+  createLinkButton: {
+    alignItems: "center",
+    flexDirection: "column",
+  },
   createLink: {
     color: "#f15b23",
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 9,
     textDecorationLine: "underline",
+  },
+  createHint: {
+    color: "#9b9fa4",
+    fontSize: 10,
+    marginLeft: 9,
+    marginTop: 1,
+  },
+  newUserMessage: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  newUserText: {
+    color: "#737a82",
+    fontSize: 13,
+    textAlign: "center",
   },
 });
