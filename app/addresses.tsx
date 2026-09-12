@@ -2,11 +2,14 @@ import api from "@/app/api";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import {
-  readUserAddresses,
-  removeUserAddress,
-  saveUserAddresses,
-  upsertUserAddress,
-  UserAddress,
+    normalizeUserAddress,
+    readRemoteUserAddress,
+    readUserAddresses,
+    removeUserAddress,
+    saveRemoteUserAddress,
+    saveUserAddresses,
+    upsertUserAddress,
+    UserAddress,
 } from "@/utils/addressStorage";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -14,18 +17,18 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -134,6 +137,7 @@ export default function Address() {
     try {
       setLoading(true);
       const storageAddresses = await readUserAddresses(userId);
+      const remoteAddress = await readRemoteUserAddress(userId);
 
       // Fetch user orders from both /orders and /user-food-orders/my-orders
       let userOrders: any[] = [];
@@ -186,7 +190,11 @@ export default function Address() {
       );
 
       // Merge and deduplicate by comparing key fields
-      const mergedAddresses = [...storageAddresses, ...validOrders].filter(
+      const mergedAddresses = [
+        ...(remoteAddress ? [remoteAddress] : []),
+        ...storageAddresses,
+        ...validOrders,
+      ].filter(
         (address, index, array) => {
           const match = array.findIndex((item) => {
             const first = `${address.customer_name || ""}|${address.customer_email || ""}|${address.customer_phone || ""}|${address.street_address || ""}|${address.city || ""}|${address.district || ""}|${address.state || ""}|${address.country || ""}|${address.zip_code || ""}`.toLowerCase();
@@ -195,7 +203,7 @@ export default function Address() {
           });
           return match === index;
         }
-      );
+      ).map((address, index) => normalizeUserAddress(userId, address, index));
 
       await saveUserAddresses(userId, mergedAddresses);
       setAddresses(mergedAddresses);
@@ -367,9 +375,13 @@ export default function Address() {
     }
 
     try {
+      const remoteAddress = await saveRemoteUserAddress(userId, {
+        ...form,
+        user_id: String(userId),
+      });
       const nextAddresses = await upsertUserAddress(userId, {
         ...form,
-        id: Date.now().toString(),
+        id: remoteAddress?.id,
         user_id: String(userId),
       });
       setAddresses(nextAddresses);
@@ -407,6 +419,11 @@ export default function Address() {
       );
 
       setAddresses(updatedAddresses);
+      await saveRemoteUserAddress(userId, {
+        ...form,
+        id: editingId,
+        user_id: String(userId),
+      });
       await saveUserAddresses(userId, updatedAddresses);
       Alert.alert("Success 🎉", "Address updated successfully!");
       resetForm();
@@ -429,6 +446,20 @@ export default function Address() {
           onPress: async () => {
             if (!userId) return;
             try {
+              const addressToDelete = addresses.find(
+                (address) => String(address.id) === String(id),
+              );
+              if (String(id) === `profile_${userId}`) {
+                await saveRemoteUserAddress(userId, {
+                  ...addressToDelete,
+                  street_address: "",
+                  city: "",
+                  district: "",
+                  state: "",
+                  country: "India",
+                  zip_code: "",
+                });
+              }
               const nextAddresses = await removeUserAddress(userId, id);
               setAddresses(nextAddresses);
               if (editingId === id) {
@@ -556,11 +587,11 @@ export default function Address() {
             </View>
           ) : (
             <View className="gap-3">
-              {addresses.map((address, index) => {
+              {addresses.map((address) => {
                 const isCurrentlyEditing = editingId === address.id;
                 return (
                   <View
-                    key={address.id || index}
+                    key={address.id}
                     className={`rounded-2xl border bg-white p-4 shadow-sm shadow-black/5 ${
                       isCurrentlyEditing
                         ? "border-primary ring-2 ring-primary/20"
@@ -585,13 +616,6 @@ export default function Address() {
                         </Text>
                       </View>
 
-                      {index === 0 && (
-                        <View className="rounded-full bg-emerald-50 px-2.5 py-0.5 border border-emerald-200">
-                          <Text className="text-[10px] font-black text-emerald-700">
-                            DEFAULT
-                          </Text>
-                        </View>
-                      )}
                     </View>
 
                     {/* Address Lines */}

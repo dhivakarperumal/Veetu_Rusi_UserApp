@@ -3,27 +3,29 @@ import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { CartItem, useStore } from "@/context/StoreContext";
 import {
-  readUserAddresses,
-  upsertUserAddress,
-  UserAddress,
+    readRemoteUserAddress,
+    readUserAddresses,
+    saveRemoteUserAddress,
+    upsertUserAddress,
+    UserAddress,
 } from "@/utils/addressStorage";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -263,9 +265,13 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     if (userId) {
-      readUserAddresses(userId).then((list) => {
-        setSavedAddresses(list);
-        if (list.length > 0) {
+      Promise.all([readUserAddresses(userId), readRemoteUserAddress(userId)]).then(
+        ([localAddresses, remoteAddress]) => {
+          const list = remoteAddress
+            ? [remoteAddress, ...localAddresses.filter((item) => item.id !== remoteAddress.id)]
+            : localAddresses;
+          setSavedAddresses(list);
+          if (list.length > 0) {
           // Pre-fill with the first saved address if fields are empty
           const first = list[0];
           setStreetAddress((prev) => prev || first.street_address);
@@ -274,8 +280,9 @@ export default function CheckoutScreen() {
           setStateValue((prev) => prev || first.state || "Tamil Nadu");
           setZipCode((prev) => prev || first.zip_code);
           setCountry((prev) => prev || first.country || "India");
-        }
-      });
+          }
+        },
+      );
     }
   }, [userId]);
 
@@ -467,7 +474,19 @@ export default function CheckoutScreen() {
 
       // Save address for future use
       if (userId) {
+        const remoteAddress = await saveRemoteUserAddress(userId, {
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          street_address: streetAddress,
+          city,
+          district,
+          state: stateValue,
+          country,
+          zip_code: zipCode,
+        });
         const nextAddresses = await upsertUserAddress(userId, {
+          id: remoteAddress?.id,
           customer_name: name,
           customer_email: email,
           customer_phone: phone,

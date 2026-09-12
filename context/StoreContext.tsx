@@ -1,13 +1,13 @@
-import api from "@/app/api";
+import api, { API_BASE_URL } from "@/app/api";
 import { AuthContext } from "@/context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
 } from "react";
 
 export const FOOD_CART_STORAGE_KEY = "@veetu_rusi_user_food_cart";
@@ -98,6 +98,15 @@ export interface WishlistItem {
 
 export const WISHLIST_STORAGE_KEY = "@veetu_rusi_user_wishlist";
 
+function normalizeWishlistImage(image: unknown) {
+  if (typeof image !== "string") return image;
+
+  const apiOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
+  return image
+    .replace("http://localhost:5000", apiOrigin)
+    .replace("http://127.0.0.1:5000", apiOrigin);
+}
+
 interface StoreContextType {
   chefFoodsCache: Product[];
   setChefFoodsCache: (products: Product[]) => void;
@@ -174,7 +183,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // Fetch cart from backend if user is authenticated
   const fetchUserFoodCart = useCallback(async () => {
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (!userId) return;
 
     try {
@@ -193,7 +202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // Fetch wishlist from backend
   const fetchWishlist = useCallback(async () => {
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (!userId) return;
 
     try {
@@ -201,10 +210,52 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const res = await api.get(`/wishlist/${userId}`);
       const data = Array.isArray(res.data) ? res.data : res.data?.data;
       if (Array.isArray(data)) {
-        setWishlist(data);
+        const normalizedData = await Promise.all(
+          data.map(async (item) => {
+            const normalizedItem = {
+              ...item,
+              image: normalizeWishlistImage(
+                item.image || item.wishlist_image,
+              ),
+            };
+
+            if (normalizedItem.name) return normalizedItem;
+
+            const productId = String(normalizedItem.product_id || "");
+            const cachedProduct = chefFoodsCache.find(
+              (product) => String(product.id) === productId,
+            );
+            if (cachedProduct?.name) {
+              return {
+                ...normalizedItem,
+                name: cachedProduct.name,
+                product: cachedProduct,
+              };
+            }
+
+            try {
+              const productResponse = await api.get(
+                `/chef-foods/${productId}`,
+              );
+              const product = productResponse.data?.data || productResponse.data;
+              return {
+                ...normalizedItem,
+                name: product?.name || product?.product_name,
+                product,
+              };
+            } catch (error) {
+              console.warn(
+                `Could not resolve wishlist product name for ${productId}:`,
+                error,
+              );
+              return normalizedItem;
+            }
+          }),
+        );
+        setWishlist(normalizedData);
         await AsyncStorage.setItem(
           WISHLIST_STORAGE_KEY,
-          JSON.stringify(data),
+          JSON.stringify(normalizedData),
         );
       }
     } catch (err) {
@@ -212,7 +263,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoadingWishlist(false);
     }
-  }, [user]);
+  }, [user, chefFoodsCache]);
 
   useEffect(() => {
     if (user?.id || user?.user_id) {
@@ -435,7 +486,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const clearUserFoodCart = useCallback(async () => {
     setUserFoodCart([]);
     await AsyncStorage.removeItem(FOOD_CART_STORAGE_KEY).catch(console.error);
-    const userId = user?.id || user?.user_id;
+    const userId = user?.user_id || user?.id;
     if (userId) {
       try {
         await api.delete(`/user-food/clear/${userId}`);
@@ -472,7 +523,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       );
       if (!productId) return false;
 
-      const userId = user?.id || user?.user_id;
+      const userId = user?.user_id || user?.id;
 
       const currentlyIn = wishlist.some(
         (w) =>
@@ -579,7 +630,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           product,
         };
 
-        const updated = [newItem, ...wishlist];
+        const previousWishlist = wishlist;
+        const updated = [newItem, ...previousWishlist];
         setWishlist(updated);
         await AsyncStorage.setItem(
           WISHLIST_STORAGE_KEY,
@@ -588,7 +640,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         if (userId) {
           try {
-            await api.post("/wishlist", {
+            const response = await api.post("/wishlist", {
               user_id: userId,
               product_id: productId,
               variant_color: variantColor,
@@ -598,8 +650,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               price: price,
               total_price: price,
             });
+
+            if (response.data?.action === "removed") {
+              const serverUpdated = updated.filter(
+                (item) => item.id !== newItem.id,
+              );
+              setWishlist(serverUpdated);
+              await AsyncStorage.setItem(
+                WISHLIST_STORAGE_KEY,
+                JSON.stringify(serverUpdated),
+              );
+              return false;
+            }
+
+            const serverId = response.data?.id;
+            if (serverId !== undefined && serverId !== null) {
+              const serverUpdated = updated.map((item) =>
+                item.id === newItem.id
+                  ? { ...item, id: String(serverId) }
+                  : item,
+              );
+              setWishlist(serverUpdated);
+              await AsyncStorage.setItem(
+                WISHLIST_STORAGE_KEY,
+                JSON.stringify(serverUpdated),
+              );
+            }
           } catch (err) {
-            console.warn("Failed to add wishlist item on backend:", err);
+            setWishlist(previousWishlist);
+            await AsyncStorage.setItem(
+              WISHLIST_STORAGE_KEY,
+              JSON.stringify(previousWishlist),
+            ).catch(console.error);
+            console.warn("Failed to sync wishlist item with backend:", err);
+            return false;
           }
         }
         return true;
