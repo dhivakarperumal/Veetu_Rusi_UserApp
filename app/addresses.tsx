@@ -2,6 +2,7 @@ import api from "@/app/api";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import {
+    normalizeUserAddress,
     readRemoteUserAddress,
     readUserAddresses,
     removeUserAddress,
@@ -202,7 +203,7 @@ export default function Address() {
           });
           return match === index;
         }
-      );
+      ).map((address, index) => normalizeUserAddress(userId, address, index));
 
       await saveUserAddresses(userId, mergedAddresses);
       setAddresses(mergedAddresses);
