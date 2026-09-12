@@ -5,8 +5,8 @@ import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Modal, Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title: string;
@@ -19,6 +19,16 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const { wishlist } = useStore();
   const [localUser, setLocalUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarTranslateX = useRef(new Animated.Value(-300)).current;
+
+  useEffect(() => {
+    Animated.timing(sidebarTranslateX, {
+      toValue: sidebarOpen ? 0 : -300,
+      duration: 240,
+      useNativeDriver: true,
+    }).start();
+  }, [sidebarOpen, sidebarTranslateX]);
 
   useEffect(() => {
     const syncUser = async () => {
@@ -44,7 +54,8 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const activeUser = user || localUser;
 
   const initialLetter = useMemo(() => {
-    const source = activeUser?.username || activeUser?.name || activeUser?.email || "User";
+    const source =
+      activeUser?.username || activeUser?.name || activeUser?.email || "User";
     return String(source).trim().charAt(0).toUpperCase() || "U";
   }, [activeUser?.username, activeUser?.name, activeUser?.email]);
 
@@ -71,8 +82,20 @@ export default function AppHeader({ title }: AppHeaderProps) {
 
   return (
     <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-[18px] py-3">
-      {/* Left section: Logo and Title */}
+      {/* Left section: Menu, Logo and Title */}
       <View className="flex-1 flex-row items-center">
+        <Pressable
+          accessibilityLabel="Open menu"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          onPress={() => setSidebarOpen(true)}
+          hitSlop={8}
+        >
+          <View className="items-center gap-1.5">
+            <View className="h-1.5 w-7 rounded-full bg-text" />
+            <View className="h-1.5 w-5 rounded-full bg-text" />
+            <View className="h-1.5 w-7 rounded-full bg-text" />
+          </View>
+        </Pressable>
         <View className="mr-2.5 h-[34px] w-[34px] items-center justify-center rounded-full bg-primary">
           <Text className="text-[18px] font-bold text-white">V</Text>
         </View>
@@ -186,6 +209,124 @@ export default function AppHeader({ title }: AppHeaderProps) {
           )}
         </View>
       </View>
+      <Modal
+        visible={sidebarOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSidebarOpen(false)}
+      >
+        <View className="flex-1 bg-black/40">
+          <Pressable
+            className="absolute inset-0"
+            onPress={() => setSidebarOpen(false)}
+          />
+          <Animated.View
+            className="w-full flex-1 bg-white px-5 pb-8 pt-12"
+            style={{ transform: [{ translateX: sidebarTranslateX }] }}
+          >
+            <View className="mb-7 flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className="mr-3 h-11 w-11 items-center justify-center rounded-full bg-primary">
+                  <Text className="text-xl font-black text-white">V</Text>
+                </View>
+                <View>
+                  <Text className="text-lg font-black text-text">
+                    Veetu Rusi
+                  </Text>
+                  <Text className="text-xs text-textSecondary">
+                    Home food, made with love
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                accessibilityLabel="Close menu"
+                onPress={() => setSidebarOpen(false)}
+                hitSlop={10}
+              >
+                <MaterialCommunityIcons
+                  name="close"
+                  size={24}
+                  color={colors.text}
+                />
+              </Pressable>
+            </View>
+
+            <View className="mb-5 rounded-2xl bg-[#fff7e8] px-4 py-3">
+              <Text className="text-xs font-semibold text-textSecondary">
+                Welcome back
+              </Text>
+              <Text
+                className="mt-1 text-base font-black text-text"
+                numberOfLines={1}
+              >
+                {activeUser?.username || activeUser?.name || "Guest User"}
+              </Text>
+            </View>
+
+            {[
+              { label: "Home", icon: "home-outline", route: "/(tabs)" },
+              {
+                label: "Food Menu",
+                icon: "silverware-fork-knife",
+                route: "/(tabs)/food",
+              },
+              {
+                label: "My Orders",
+                icon: "clipboard-text-outline",
+                route: "/orders",
+              },
+              { label: "My Wallet", icon: "wallet-outline", route: "/wallet" },
+              {
+                label: "Addresses",
+                icon: "map-marker-outline",
+                route: "/addresses",
+              },
+              {
+                label: "Help & Support",
+                icon: "help-circle-outline",
+                route: "/help-support",
+              },
+            ].map((item) => (
+              <Pressable
+                key={item.label}
+                className="mb-1 flex-row items-center rounded-xl px-3 py-3 active:bg-gray"
+                onPress={() => {
+                  setSidebarOpen(false);
+                  router.push(item.route as any);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name={
+                    item.icon as keyof typeof MaterialCommunityIcons.glyphMap
+                  }
+                  size={22}
+                  color={colors.primary}
+                />
+                <Text className="ml-3 text-[15px] font-semibold text-text">
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              className="mt-auto flex-row items-center rounded-xl bg-primary/10 px-3 py-3 active:bg-primary/20"
+              onPress={() => {
+                setSidebarOpen(false);
+                router.push("/about");
+              }}
+            >
+              <MaterialCommunityIcons
+                name="information-outline"
+                size={22}
+                color={colors.primary}
+              />
+              <Text className="ml-3 text-[15px] font-semibold text-primary">
+                About Veetu Rusi
+              </Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </Modal>
     </View>
   );
 }
