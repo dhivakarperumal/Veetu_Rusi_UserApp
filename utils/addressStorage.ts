@@ -1,3 +1,4 @@
+import api from "@/app/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface UserAddress {
@@ -16,6 +17,82 @@ export interface UserAddress {
 }
 
 const STORAGE_PREFIX = "@veetu_rusi_user_addresses_";
+
+function getProfileData(response: any) {
+  return response?.data?.user || response?.data?.data || response?.data || {};
+}
+
+function profileToAddress(userId: string | number, profile: any): UserAddress | null {
+  const streetAddress = profile?.street_address || profile?.address || "";
+  const hasAddress = streetAddress || profile?.city || profile?.district || profile?.pincode || profile?.zip_code;
+  if (!hasAddress) return null;
+
+  return {
+    id: String(profile?.address_id || `profile_${userId}`),
+    user_id: String(userId),
+    customer_name: profile?.customer_name || profile?.name || profile?.username || "",
+    customer_email: profile?.customer_email || profile?.email || "",
+    customer_phone: profile?.customer_phone || profile?.phone || profile?.mobile || "",
+    street_address: streetAddress,
+    city: profile?.city || "",
+    district: profile?.district || "",
+    state: profile?.state || "",
+    country: profile?.country || "India",
+    zip_code: profile?.zip_code || profile?.pincode || "",
+    created_at: profile?.address_created_at || profile?.updated_at,
+  };
+}
+
+export async function readRemoteUserAddress(
+  userId: string | number,
+): Promise<UserAddress | null> {
+  if (!userId) return null;
+  try {
+    const profile = getProfileData(await api.get("/auth/profile"));
+    return profileToAddress(userId, profile);
+  } catch (err) {
+    console.warn("Failed to read remote user address:", err);
+    return null;
+  }
+}
+
+export async function saveRemoteUserAddress(
+  userId: string | number,
+  address: Partial<UserAddress>,
+): Promise<UserAddress | null> {
+  if (!userId) return null;
+  try {
+    const response = await api.put("/auth/profile", {
+      address: address.street_address || "",
+      street_address: address.street_address || "",
+      city: address.city || "",
+      district: address.district || "",
+      state: address.state || "",
+      country: address.country || "India",
+      pincode: address.zip_code || "",
+      zip_code: address.zip_code || "",
+      customer_name: address.customer_name || "",
+      customer_email: address.customer_email || "",
+      customer_phone: address.customer_phone || "",
+    });
+    return profileToAddress(userId, getProfileData(response)) || {
+      id: String(address.id || `profile_${userId}`),
+      user_id: String(userId),
+      customer_name: address.customer_name || "",
+      customer_email: address.customer_email || "",
+      customer_phone: address.customer_phone || "",
+      street_address: address.street_address || "",
+      city: address.city || "",
+      district: address.district || "",
+      state: address.state || "",
+      country: address.country || "India",
+      zip_code: address.zip_code || "",
+    };
+  } catch (err) {
+    console.warn("Failed to save remote user address:", err);
+    return null;
+  }
+}
 
 export async function readUserAddresses(userId: string | number): Promise<UserAddress[]> {
   if (!userId) return [];
