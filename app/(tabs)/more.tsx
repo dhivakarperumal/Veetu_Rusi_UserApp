@@ -1,19 +1,22 @@
+import api, { clearTokenCache } from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
+import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { clearTokenCache } from "../api";
 
 export default function MoreScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { logout } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const loadUserProfile = async () => {
     try {
@@ -72,6 +75,42 @@ export default function MoreScreen() {
         style: "destructive",
       },
     ]);
+  };
+
+  const handleDeleteAccount = () => {
+    const userId = user?.id || user?.user_id;
+    if (!userId) {
+      Alert.alert("Error", "We could not identify your account.");
+      return;
+    }
+
+    Alert.alert(
+      "Delete Account",
+      "Your account will be marked inactive and signed out. Continue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            setDeletingAccount(true);
+            try {
+              await api.put(`/users/${userId}`, { status: "inactive" });
+              await logout();
+              router.replace("/auth/login");
+            } catch (error) {
+              console.error("Delete account failed:", error);
+              Alert.alert(
+                "Delete Failed",
+                "We could not delete your account. Please try again.",
+              );
+            } finally {
+              setDeletingAccount(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -153,25 +192,25 @@ export default function MoreScreen() {
           ))}
 
           <TouchableOpacity
-            onPress={handleLogout}
-            disabled={loading}
-            className={`flex-row items-center px-4 py-4 ${
-              loading ? "opacity-60" : "opacity-100"
+            onPress={handleDeleteAccount}
+            disabled={deletingAccount || loading}
+            className={`flex-row items-center border-t border-borderLight px-4 py-4 ${
+              deletingAccount ? "opacity-60" : "opacity-100"
             }`}
           >
             <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-red-50">
               <MaterialCommunityIcons
-                name="logout"
+                name="account-remove-outline"
                 size={23}
                 color={colors.error}
               />
             </View>
             <Text className="flex-1 text-[16px] font-bold text-error">
-              Logout
+              Delete Account
             </Text>
-            {loading ? (
+            {deletingAccount ? (
               <Text className="text-[13px] font-semibold text-textSecondary">
-                Loading...
+                Deleting...
               </Text>
             ) : (
               <MaterialCommunityIcons
@@ -180,6 +219,30 @@ export default function MoreScreen() {
                 color={colors.textSecondary}
               />
             )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleLogout}
+            disabled={loading}
+            className={`flex-row items-center justify-center px-4 py-4 ${
+              loading ? "opacity-60" : "opacity-100"
+            }`}
+          >
+            <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-red-50">
+              <MaterialCommunityIcons
+                name="logout"
+                size={23}
+                color={colors.error}
+              />
+            </View>
+            <Text className="text-[16px] font-bold text-error">
+              Logout
+            </Text>
+            {loading ? (
+              <Text className="ml-2 text-[13px] font-semibold text-textSecondary">
+                Loading...
+              </Text>
+            ) : null}
           </TouchableOpacity>
         </View>
       </ScrollView>

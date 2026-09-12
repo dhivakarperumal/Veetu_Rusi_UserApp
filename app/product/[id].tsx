@@ -69,7 +69,10 @@ export default function ProductDetailScreen() {
               ? reviewsRes.data
               : [];
           const loadedProductId = String(
-            loadedProduct?.id || loadedProduct?._id || loadedProduct?.product_id || id,
+            loadedProduct?.id ||
+              loadedProduct?._id ||
+              loadedProduct?.product_id ||
+              id,
           );
           setApiReviews(
             allReviews.filter((review: any) => {
