@@ -210,10 +210,48 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const res = await api.get(`/wishlist/${userId}`);
       const data = Array.isArray(res.data) ? res.data : res.data?.data;
       if (Array.isArray(data)) {
-        const normalizedData = data.map((item) => ({
-          ...item,
-          image: normalizeWishlistImage(item.image || item.wishlist_image),
-        }));
+        const normalizedData = await Promise.all(
+          data.map(async (item) => {
+            const normalizedItem = {
+              ...item,
+              image: normalizeWishlistImage(
+                item.image || item.wishlist_image,
+              ),
+            };
+
+            if (normalizedItem.name) return normalizedItem;
+
+            const productId = String(normalizedItem.product_id || "");
+            const cachedProduct = chefFoodsCache.find(
+              (product) => String(product.id) === productId,
+            );
+            if (cachedProduct?.name) {
+              return {
+                ...normalizedItem,
+                name: cachedProduct.name,
+                product: cachedProduct,
+              };
+            }
+
+            try {
+              const productResponse = await api.get(
+                `/chef-foods/${productId}`,
+              );
+              const product = productResponse.data?.data || productResponse.data;
+              return {
+                ...normalizedItem,
+                name: product?.name || product?.product_name,
+                product,
+              };
+            } catch (error) {
+              console.warn(
+                `Could not resolve wishlist product name for ${productId}:`,
+                error,
+              );
+              return normalizedItem;
+            }
+          }),
+        );
         setWishlist(normalizedData);
         await AsyncStorage.setItem(
           WISHLIST_STORAGE_KEY,
@@ -225,7 +263,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoadingWishlist(false);
     }
-  }, [user]);
+  }, [user, chefFoodsCache]);
 
   useEffect(() => {
     if (user?.id || user?.user_id) {
