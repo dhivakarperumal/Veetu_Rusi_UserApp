@@ -873,7 +873,7 @@ export default function HomeScreen() {
               >
                 <Image
                   source={{ uri: food.image }}
-                  className="h-[88px] w-[88px] rounded-[16px]"
+                  className="h-[88px] w-[88px] rounded-[16px] border border-primary/20 bg-white p-1 shadow-sm"
                 />
                 <Text className="mt-2 text-[13px] font-bold text-text">
                   {food.name}
