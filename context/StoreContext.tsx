@@ -78,6 +78,26 @@ export interface CartItem {
   [key: string]: any;
 }
 
+export interface WishlistItem {
+  id?: string;
+  _id?: string;
+  product_id: string;
+  user_id?: string;
+  name?: string;
+  image?: string;
+  price?: number;
+  mrp?: number;
+  total_price?: number;
+  variant_size?: string;
+  variant_color?: string;
+  chef_name?: string;
+  rating?: number;
+  product?: any;
+  [key: string]: any;
+}
+
+export const WISHLIST_STORAGE_KEY = "@veetu_rusi_user_wishlist";
+
 interface StoreContextType {
   chefFoodsCache: Product[];
   setChefFoodsCache: (products: Product[]) => void;
@@ -98,6 +118,16 @@ interface StoreContextType {
   clearUserFoodCart: () => Promise<void>;
   fetchUserFoodCart: () => Promise<void>;
   placeFoodOrder: (orderData: Record<string, any>) => Promise<any>;
+
+  wishlist: WishlistItem[];
+  loadingWishlist: boolean;
+  fetchWishlist: () => Promise<void>;
+  toggleWishlist: (
+    product: Record<string, any>,
+    variant?: any,
+    size?: string | null,
+  ) => Promise<boolean>;
+  isInWishlist: (productId: string | number) => boolean;
 }
 
 export const StoreContext = createContext<StoreContextType | undefined>(
@@ -111,26 +141,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   >(null);
   const [categoriesCache, setCategoriesCache] = useState<CategoryItem[]>([]);
   const [userFoodCart, setUserFoodCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [loadingWishlist, setLoadingWishlist] = useState<boolean>(false);
 
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
 
-  // Load cart from AsyncStorage on startup
+  // Load cart and wishlist from AsyncStorage on startup
   useEffect(() => {
-    const loadStoredCart = async () => {
+    const loadStoredData = async () => {
       try {
-        const stored = await AsyncStorage.getItem(FOOD_CART_STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
+        const storedCart = await AsyncStorage.getItem(FOOD_CART_STORAGE_KEY);
+        if (storedCart) {
+          const parsed = JSON.parse(storedCart);
           if (Array.isArray(parsed)) {
             setUserFoodCart(parsed);
           }
         }
+        const storedWishlist = await AsyncStorage.getItem(WISHLIST_STORAGE_KEY);
+        if (storedWishlist) {
+          const parsedW = JSON.parse(storedWishlist);
+          if (Array.isArray(parsedW)) {
+            setWishlist(parsedW);
+          }
+        }
       } catch (err) {
-        console.error("Failed to load food cart from storage:", err);
+        console.error("Failed to load cart/wishlist from storage:", err);
       }
     };
-    loadStoredCart();
+    loadStoredData();
   }, []);
 
   // Fetch cart from backend if user is authenticated
@@ -152,12 +191,36 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Fetch wishlist from backend
+  const fetchWishlist = useCallback(async () => {
+    const userId = user?.id || user?.user_id;
+    if (!userId) return;
+
+    try {
+      setLoadingWishlist(true);
+      const res = await api.get(`/wishlist/${userId}`);
+      const data = Array.isArray(res.data) ? res.data : res.data?.data;
+      if (Array.isArray(data)) {
+        setWishlist(data);
+        await AsyncStorage.setItem(
+          WISHLIST_STORAGE_KEY,
+          JSON.stringify(data),
+        );
+      }
+    } catch (err) {
+      console.warn("Fetch wishlist from backend warning:", err);
+    } finally {
+      setLoadingWishlist(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (user?.id || user?.user_id) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUserFoodCart();
+      fetchWishlist();
     }
-  }, [user, fetchUserFoodCart]);
+  }, [user, fetchUserFoodCart, fetchWishlist]);
 
   // Add to food cart
   const addToFoodCart = useCallback(
@@ -382,6 +445,169 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Check if product is in wishlist
+  const isInWishlist = useCallback(
+    (productId: string | number) => {
+      if (!productId) return false;
+      const pId = String(productId);
+      return wishlist.some(
+        (w) =>
+          String(w.product_id) === pId ||
+          String(w.id) === pId ||
+          String(w._id) === pId,
+      );
+    },
+    [wishlist],
+  );
+
+  // Toggle wishlist
+  const toggleWishlist = useCallback(
+    async (
+      product: Record<string, any>,
+      variant: any = null,
+      size: string | null = null,
+    ): Promise<boolean> => {
+      const productId = String(
+        product.product_id ?? product.id ?? product._id ?? "",
+      );
+      if (!productId) return false;
+
+      const userId = user?.id || user?.user_id;
+
+      const currentlyIn = wishlist.some(
+        (w) =>
+          String(w.product_id) === productId ||
+          String(w.id) === productId ||
+          String(w._id) === productId,
+      );
+
+      if (currentlyIn) {
+        // Remove from wishlist
+        const updated = wishlist.filter(
+          (w) =>
+            String(w.product_id) !== productId &&
+            String(w.id) !== productId &&
+            String(w._id) !== productId,
+        );
+        setWishlist(updated);
+        await AsyncStorage.setItem(
+          WISHLIST_STORAGE_KEY,
+          JSON.stringify(updated),
+        ).catch(console.error);
+
+        if (userId) {
+          try {
+            await api.delete(`/wishlist/${userId}/${productId}`);
+          } catch (err) {
+            console.warn("Failed to delete wishlist item on backend:", err);
+          }
+        }
+        return false;
+      } else {
+        // Add to wishlist
+        const selectedVariant = variant || product.variants?.[0] || null;
+        const selectedSize =
+          size ??
+          selectedVariant?.selectedSizes?.[0] ??
+          selectedVariant?.weight ??
+          product.variant_size ??
+          "";
+        const variantColor =
+          selectedVariant?.colorName ||
+          selectedVariant?.color ||
+          product.variant_color ||
+          "";
+
+        let image = "";
+        if (typeof product.image === "string" && product.image.trim()) {
+          image = product.image.trim().split(/\s+/)[0];
+        } else if (Array.isArray(product.images) && product.images.length > 0) {
+          const first = product.images[0];
+          image =
+            typeof first === "string"
+              ? first.trim().split(/\s+/)[0]
+              : first?.url || "";
+        } else if (typeof product.images === "string" && product.images.trim()) {
+          try {
+            const parsed = JSON.parse(product.images);
+            image =
+              Array.isArray(parsed) && parsed.length > 0
+                ? parsed[0]
+                : product.images.trim();
+          } catch {
+            image = product.images.trim().split(/\s+/)[0];
+          }
+        } else if (selectedVariant?.images) {
+          const vImg = selectedVariant.images;
+          image =
+            typeof vImg === "string"
+              ? vImg.trim().split(/\s+/)[0]
+              : Array.isArray(vImg) && vImg.length > 0
+                ? vImg[0]
+                : "";
+        }
+
+        const rawPrice =
+          selectedVariant?.offerPrice ||
+          selectedVariant?.price ||
+          selectedVariant?.final_price ||
+          product.final_price ||
+          product.offer_price ||
+          product.price ||
+          product.mrp ||
+          0;
+        const price = parseFloat(String(rawPrice)) || 0;
+        const mrp = parseFloat(String(product.mrp || rawPrice)) || price;
+
+        const newItem: WishlistItem = {
+          id: `wish_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          product_id: productId,
+          user_id: userId ? String(userId) : undefined,
+          name: product.name || product.c_name || "Food Dish",
+          image: image || "",
+          price,
+          mrp,
+          total_price: price,
+          variant_size: selectedSize,
+          variant_color: variantColor,
+          chef_name:
+            product.chef_name ||
+            product.homeChefName ||
+            product.vendor_name ||
+            "",
+          rating: product.rating || product.average_rating || 4.5,
+          product,
+        };
+
+        const updated = [newItem, ...wishlist];
+        setWishlist(updated);
+        await AsyncStorage.setItem(
+          WISHLIST_STORAGE_KEY,
+          JSON.stringify(updated),
+        ).catch(console.error);
+
+        if (userId) {
+          try {
+            await api.post("/wishlist", {
+              user_id: userId,
+              product_id: productId,
+              variant_color: variantColor,
+              variant_size: selectedSize,
+              image: image,
+              email: user?.email || "",
+              price: price,
+              total_price: price,
+            });
+          } catch (err) {
+            console.warn("Failed to add wishlist item on backend:", err);
+          }
+        }
+        return true;
+      }
+    },
+    [user, wishlist],
+  );
+
   // Place food order
   const placeFoodOrder = useCallback(
     async (orderData: Record<string, any>) => {
@@ -391,7 +617,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       return res.data;
     },
-    [clearUserFoodCart]
+    [clearUserFoodCart],
   );
 
   return (
@@ -410,6 +636,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         clearUserFoodCart,
         fetchUserFoodCart,
         placeFoodOrder,
+        wishlist,
+        loadingWishlist,
+        fetchWishlist,
+        toggleWishlist,
+        isInWishlist,
       }}
     >
       {children}

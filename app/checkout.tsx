@@ -8,6 +8,7 @@ import {
   UserAddress,
 } from "@/utils/addressStorage";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -162,8 +163,10 @@ export default function CheckoutScreen() {
   const [showSavedAddressesModal, setShowSavedAddressesModal] = useState(false);
   const [showStatePickerModal, setShowStatePickerModal] = useState(false);
   const [stateSearchText, setStateSearchText] = useState("");
+  const [localUser, setLocalUser] = useState<any>(null);
 
-  const userId = user?.id || user?.user_id;
+  const effectiveUser = user || localUser;
+  const userId = effectiveUser?.id || effectiveUser?.user_id;
 
   // Checkout items list
   const checkoutItems = useMemo(() => {
@@ -237,12 +240,25 @@ export default function CheckoutScreen() {
 
   // Initialize user profile and saved addresses
   useEffect(() => {
-    if (user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(user.name || user.username || "");
-      setEmail(user.email || "");
-      setPhone(user.phone || user.mobile || "");
-    }
+    const syncUser = async () => {
+      let active = user;
+      if (!active) {
+        try {
+          const stored = await AsyncStorage.getItem("userProfile");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            active = parsed.user || parsed;
+            setLocalUser(active);
+          }
+        } catch {}
+      }
+      if (active) {
+        setName((prev: string) => prev || active.name || active.username || "");
+        setEmail((prev: string) => prev || active.email || "");
+        setPhone((prev: string) => prev || active.phone || active.mobile || "");
+      }
+    };
+    syncUser();
   }, [user]);
 
   useEffect(() => {
@@ -393,7 +409,7 @@ export default function CheckoutScreen() {
   };
 
   const validateDelivery = () => {
-    if (!user) return "Please login to continue.";
+    if (!effectiveUser) return "Please login to continue.";
     if (!checkoutItems.length) return "Your food cart is empty.";
 
     if (!name.trim()) return "Please enter your name.";

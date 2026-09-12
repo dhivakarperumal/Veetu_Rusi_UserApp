@@ -3,6 +3,7 @@ import AppHeader from "@/components/AppHeader";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -186,13 +187,36 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams<{ newOrderId?: string }>();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { fetchUserFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [localUser, setLocalUser] = useState<any>(null);
+
+  // Sync user profile from AsyncStorage if not in memory
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!user) {
+        try {
+          const stored = await AsyncStorage.getItem("userProfile");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const actual = parsed.user || parsed;
+            setLocalUser(actual);
+            if (updateUser) {
+              await updateUser(actual);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to read userProfile from storage in orders:", e);
+        }
+      }
+    };
+    syncUser();
+  }, [user, updateUser]);
 
   // Selected order details modal
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -219,7 +243,19 @@ export default function OrdersScreen() {
   const [deliverySubmitting, setDeliverySubmitting] = useState(false);
 
   const fetchOrders = useCallback(async () => {
-    if (!user) {
+    let activeUser = user || localUser;
+    if (!activeUser) {
+      try {
+        const stored = await AsyncStorage.getItem("userProfile");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          activeUser = parsed.user || parsed;
+          setLocalUser(activeUser);
+        }
+      } catch {}
+    }
+
+    if (!activeUser) {
       setLoading(false);
       return;
     }
@@ -259,7 +295,7 @@ export default function OrdersScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user, logout, router]);
+  }, [user, localUser, logout, router]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -622,7 +658,9 @@ export default function OrdersScreen() {
     return { bg: "bg-blue-100", text: "text-blue-700" };
   };
 
-  if (!user || sessionExpired) {
+  const effectiveUser = user || localUser;
+
+  if (!effectiveUser || sessionExpired) {
     return (
       <View
         className="flex-1 bg-[#F8F9FA]"

@@ -1,4 +1,5 @@
 import { colors } from "@/config/colors";
+import { useAuth } from "@/context/AuthContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -26,11 +27,15 @@ export default function QuickViewModal({
   onClose,
 }: QuickViewModalProps) {
   const router = useRouter();
-  const { addToFoodCart } = useStore();
+  const { user } = useAuth();
+  const { addToFoodCart, toggleWishlist, isInWishlist } = useStore();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [adding, setAdding] = useState(false);
+
+  const productId = String(product?.id || product?._id || product?.product_id || "");
+  const isWishlisted = isInWishlist(productId);
 
   // Available sizes/variants
   const sizes = useMemo(() => {
@@ -153,6 +158,22 @@ export default function QuickViewModal({
     }
   };
 
+  const handleBuyNow = () => {
+    onClose();
+    const buyNowData = {
+      product,
+      variant: product.variants?.[0] || null,
+      size: selectedSize,
+      quantity,
+    };
+    router.push({
+      pathname: "/checkout",
+      params: {
+        buyNowItem: JSON.stringify(buyNowData),
+      },
+    });
+  };
+
   const handleViewDetails = () => {
     const id = product.id || product._id;
     onClose();
@@ -178,7 +199,7 @@ export default function QuickViewModal({
           {/* Grab Handle */}
           <View className="mb-2 h-1.5 w-12 self-center rounded-full bg-grayDark/30" />
 
-          {/* Top Bar: Category Pill & Close Button */}
+          {/* Top Bar: Category Pill, Wishlist & Close Button */}
           <View className="mb-3 flex-row items-center justify-between">
             <View className="rounded-full bg-primary/10 px-3 py-1">
               <Text className="text-[11px] font-bold text-primary">
@@ -186,17 +207,51 @@ export default function QuickViewModal({
               </Text>
             </View>
 
-            <TouchableOpacity
-              className="h-8 w-8 items-center justify-center rounded-full bg-gray"
-              onPress={onClose}
-              hitSlop={8}
-            >
-              <MaterialCommunityIcons
-                name="close"
-                size={18}
-                color={colors.text}
-              />
-            </TouchableOpacity>
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                className="h-8 w-8 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+                onPress={async () => {
+                  const uid = user?.id || user?.user_id;
+                  if (!uid) {
+                    Alert.alert(
+                      "Login Required",
+                      "Please login to add this dish to your wishlist.",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Login",
+                          onPress: () => {
+                            onClose();
+                            router.push("/auth/login");
+                          },
+                        },
+                      ],
+                    );
+                    return;
+                  }
+                  await toggleWishlist(product, product.variants?.[0], selectedSize);
+                }}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons
+                  name={isWishlisted ? "heart" : "heart-outline"}
+                  size={18}
+                  color={isWishlisted ? colors.error : colors.text}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="h-8 w-8 items-center justify-center rounded-full bg-gray"
+                onPress={onClose}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons
+                  name="close"
+                  size={18}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} className="max-h-[460px]">
@@ -344,23 +399,39 @@ export default function QuickViewModal({
           </ScrollView>
 
           {/* Action Buttons */}
-          <TouchableOpacity
-            className="mt-4 flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 shadow-md shadow-primary/30 active:opacity-90"
-            onPress={handleAddToCart}
-            disabled={adding}
-          >
-            <MaterialCommunityIcons
-              name="cart-plus"
-              size={20}
-              color={colors.white}
-            />
-            <Text className="text-base font-black text-white">
-              {adding ? "Adding..." : `Add to Cart • ₹${totalPrice}`}
-            </Text>
-          </TouchableOpacity>
+          <View className="mt-4 flex-row items-center gap-3">
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl border-2 border-primary bg-white py-3.5 active:bg-primary/10"
+              onPress={handleAddToCart}
+              disabled={adding}
+            >
+              <MaterialCommunityIcons
+                name="cart-plus"
+                size={19}
+                color={colors.primary}
+              />
+              <Text className="text-[14px] font-bold text-primary">
+                {adding ? "Adding..." : "Add to Cart"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl bg-primary py-3.5 shadow-md shadow-primary/30 active:opacity-90"
+              onPress={handleBuyNow}
+            >
+              <MaterialCommunityIcons
+                name="lightning-bolt"
+                size={19}
+                color={colors.white}
+              />
+              <Text className="text-[14px] font-bold text-white">
+                Buy Now
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            className="mt-2.5 items-center justify-center py-1.5"
+            className="mt-3 items-center justify-center py-1.5"
             onPress={handleViewDetails}
           >
             <Text className="text-[12px] font-bold text-textSecondary">
