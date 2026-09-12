@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Image,
+    ImageBackground,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -478,39 +479,24 @@ export default function HomeScreen() {
         </View>
 
         {/* Hero Banner */}
-        <View className="mx-4 overflow-hidden rounded-[22px] bg-[#253B1F]">
-          <View className="min-h-[180px] justify-between px-5 py-5">
-            <View className="w-[70%]">
-              <Text className="text-[28px] font-black text-white">
-                Food Made with Love
-              </Text>
-              <Text className="mt-2 text-[15px] font-semibold text-[#dce7a0]">
-                Fresh • Healthy • Hygienic
-              </Text>
-            </View>
-            <View className="mt-6 flex-row items-center justify-between">
-              <Pressable
-                className="rounded-full bg-primary px-6 py-3"
-                onPress={() => router.push("/(tabs)/food")}
-              >
-                <Text className="font-bold text-white">Order Now →</Text>
-              </Pressable>
-              <View className="items-center">
-                <Text className="text-[14px] font-bold text-[#ffe1bf]">
-                  Good
-                </Text>
-                <Text className="text-[14px] font-bold text-[#ffe1bf]">
-                  Food
-                </Text>
-                <Text className="text-[14px] font-bold text-[#ffe1bf]">
-                  Happier
-                </Text>
-                <Text className="text-[14px] font-bold text-[#ffe1bf]">
-                  You!
-                </Text>
-              </View>
-            </View>
-          </View>
+        <View className="mx-4 mb-3 h-[190px] overflow-hidden rounded-[22px]">
+          <ImageBackground
+            source={require("../../assets/images/hero bg.png")}
+            resizeMode="cover"
+            className="h-full w-full"
+          />
+          <Pressable
+            className="absolute bottom-3 left-3 flex-row items-center rounded-full bg-primary px-4 py-2.5 shadow-sm shadow-black active:opacity-80"
+            onPress={() => router.push("/(tabs)/food")}
+          >
+            <Text className="text-[13px] font-black text-white">Order Now</Text>
+            <Ionicons
+              name="arrow-forward"
+              size={16}
+              color={colors.white}
+              className="ml-1.5"
+            />
+          </Pressable>
         </View>
 
         {/* Categories Section */}
