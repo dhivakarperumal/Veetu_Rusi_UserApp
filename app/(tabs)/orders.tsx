@@ -702,7 +702,7 @@ export default function OrdersScreen() {
   if (!effectiveUser || sessionExpired) {
     return (
       <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-        <AppHeader title="My Orders" />
+        <AppHeader title="Orders" />
         <View className="flex-1 items-center justify-center px-6">
           <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary/10">
             <MaterialCommunityIcons
@@ -741,7 +741,7 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      <AppHeader title="My Food Orders" />
+      <AppHeader title="Orders" />
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
