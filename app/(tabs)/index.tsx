@@ -573,6 +573,9 @@ export default function HomeScreen() {
         </View>
 
         {/* Categories Section */}
+        <View className="mx-4 mt-5 mb-1">
+          <Text className="text-[26px] font-black text-text">Categories</Text>
+        </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
