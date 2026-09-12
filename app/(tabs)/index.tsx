@@ -1,8 +1,9 @@
 import api from "@/app/api";
 import AppHeader from "@/components/AppHeader";
+import QuickViewModal from "@/components/QuickViewModal";
 import { colors } from "@/config/colors";
 import { useLocation } from "@/context/LocationContext";
-import { useStore } from "@/context/StoreContext";
+import { Product, useStore } from "@/context/StoreContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -201,6 +202,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const autoplay = setInterval(() => {
@@ -778,12 +780,7 @@ export default function HomeScreen() {
                   <Pressable
                     key={productId || food.name || i}
                     onPress={() => {
-                      if (productId) {
-                        router.push({
-                          pathname: "/product/[id]" as any,
-                          params: { id: String(productId) },
-                        });
-                      }
+                      setSelectedProduct(food as Product);
                     }}
                     className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   >
@@ -842,7 +839,13 @@ export default function HomeScreen() {
                             </Text>
                           )}
                         </View>
-                        <Pressable className="h-8 w-8 items-center justify-center rounded-full bg-primary">
+                        <Pressable
+                          className="h-8 w-8 items-center justify-center rounded-full bg-primary"
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            setSelectedProduct(food as Product);
+                          }}
+                        >
                           <Ionicons name="add" size={20} color="white" />
                         </Pressable>
                       </View>
@@ -1033,12 +1036,7 @@ export default function HomeScreen() {
                   <Pressable
                     key={productId || idx}
                     onPress={() => {
-                      if (productId) {
-                        router.push({
-                          pathname: "/product/[id]" as any,
-                          params: { id: String(productId) },
-                        });
-                      }
+                      setSelectedProduct(offerItem);
                     }}
                     className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   >
@@ -1098,7 +1096,13 @@ export default function HomeScreen() {
                             </Text>
                           )}
                         </View>
-                        <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
+                        <Pressable
+                          className="h-7 w-7 items-center justify-center rounded-full bg-primary"
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            setSelectedProduct(offerItem);
+                          }}
+                        >
                           <Ionicons name="add" size={19} color="white" />
                         </Pressable>
                       </View>
@@ -1191,6 +1195,12 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      <QuickViewModal
+        product={selectedProduct}
+        visible={selectedProduct !== null}
+        onClose={() => setSelectedProduct(null)}
+      />
 
       <Modal
         visible={filterSheetVisible}
