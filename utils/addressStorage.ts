@@ -24,7 +24,8 @@ function getProfileData(response: any) {
 
 function profileToAddress(userId: string | number, profile: any): UserAddress | null {
   const streetAddress = profile?.street_address || profile?.address || "";
-  const hasAddress = streetAddress || profile?.city || profile?.district || profile?.pincode || profile?.zip_code;
+  const city = profile?.city || profile?.area || "";
+  const hasAddress = streetAddress || city || profile?.district || profile?.pincode || profile?.zip_code;
   if (!hasAddress) return null;
 
   return {
@@ -34,7 +35,7 @@ function profileToAddress(userId: string | number, profile: any): UserAddress | 
     customer_email: profile?.customer_email || profile?.email || "",
     customer_phone: profile?.customer_phone || profile?.phone || profile?.mobile || "",
     street_address: streetAddress,
-    city: profile?.city || "",
+    city,
     district: profile?.district || "",
     state: profile?.state || "",
     country: profile?.country || "India",
@@ -62,18 +63,34 @@ export async function saveRemoteUserAddress(
 ): Promise<UserAddress | null> {
   if (!userId) return null;
   try {
+    const profileResponse = await api.get("/auth/profile");
+    const profile = getProfileData(profileResponse);
+    const customerName = address.customer_name || profile.name || profile.username || "";
+    const customerEmail = address.customer_email || profile.email || "";
+    const customerPhone = address.customer_phone || profile.phone || profile.mobile || "";
+    const city = address.city || "";
+    const streetAddress = address.street_address || "";
+    const zipCode = address.zip_code || "";
+
     const response = await api.put("/auth/profile", {
-      address: address.street_address || "",
-      street_address: address.street_address || "",
-      city: address.city || "",
+      ...profile,
+      name: customerName,
+      username: profile.username || customerName,
+      email: customerEmail,
+      phone: customerPhone,
+      mobile: customerPhone,
+      address: streetAddress,
+      street_address: streetAddress,
+      area: city,
+      city,
       district: address.district || "",
       state: address.state || "",
       country: address.country || "India",
-      pincode: address.zip_code || "",
-      zip_code: address.zip_code || "",
-      customer_name: address.customer_name || "",
-      customer_email: address.customer_email || "",
-      customer_phone: address.customer_phone || "",
+      pincode: zipCode,
+      zip_code: zipCode,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
     });
     return profileToAddress(userId, getProfileData(response)) || {
       id: String(address.id || `profile_${userId}`),

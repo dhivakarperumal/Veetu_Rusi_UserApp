@@ -586,11 +586,11 @@ export default function Address() {
             </View>
           ) : (
             <View className="gap-3">
-              {addresses.map((address, index) => {
+              {addresses.map((address) => {
                 const isCurrentlyEditing = editingId === address.id;
                 return (
                   <View
-                    key={address.id || index}
+                    key={address.id}
                     className={`rounded-2xl border bg-white p-4 shadow-sm shadow-black/5 ${
                       isCurrentlyEditing
                         ? "border-primary ring-2 ring-primary/20"
@@ -615,13 +615,6 @@ export default function Address() {
                         </Text>
                       </View>
 
-                      {index === 0 && (
-                        <View className="rounded-full bg-emerald-50 px-2.5 py-0.5 border border-emerald-200">
-                          <Text className="text-[10px] font-black text-emerald-700">
-                            DEFAULT
-                          </Text>
-                        </View>
-                      )}
                     </View>
 
                     {/* Address Lines */}
