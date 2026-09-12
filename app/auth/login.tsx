@@ -167,24 +167,7 @@ export default function LoginScreen() {
               <Text style={styles.orText}>OR</Text>
               <View style={styles.dividerLine} />
             </View>
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialButton}>
-                <MaterialCommunityIcons
-                  name="google"
-                  size={22}
-                  color="#4285F4"
-                />
-                <Text style={styles.socialText}>Google</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <MaterialCommunityIcons
-                  name="apple"
-                  size={23}
-                  color="#111820"
-                />
-                <Text style={styles.socialText}>Apple</Text>
-              </TouchableOpacity>
-            </View>
+
             <View style={styles.createRow}>
               <Text style={styles.createPrompt}>
                 Don&apos;t have an account?
@@ -207,19 +190,19 @@ const styles = StyleSheet.create({
   hero: { height: 300, position: "relative" },
 
   card: {
-    backgroundColor: "#fffdfa",
-    borderColor: "rgba(220, 170, 100, 0.18)",
-    borderWidth: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.97)",
     borderRadius: 28,
-    marginHorizontal: 20,
-    marginTop: -80,
+    borderColor: "rgba(190, 130, 55, 0.14)",
+    borderWidth: 1,
+    marginHorizontal: 10,
+    marginTop: -60,
     paddingHorizontal: 20,
     paddingVertical: 12,
     shadowColor: "#b47729",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 14,
+    elevation: 7,
   },
   title: {
     color: "#17202b",
@@ -231,64 +214,75 @@ const styles = StyleSheet.create({
     color: "#737a82",
     fontSize: 16,
     marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 13,
     textAlign: "center",
   },
-  fieldGroup: { marginBottom: 13 },
+  fieldGroup: { marginBottom: 9 },
   fieldLabel: {
     color: "#27313b",
     fontSize: 14,
     fontWeight: "600",
-    marginBottom: 7,
+    marginBottom: 5,
   },
   input: {
     alignItems: "center",
-    borderColor: "#d9dadd",
-    borderRadius: 16,
+    backgroundColor: "#fff",
+    borderColor: "#d5d8dc",
+    borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
-    height: 50,
-    paddingHorizontal: 20,
+    height: 52,
+    paddingHorizontal: 17,
   },
-  inputText: { color: "#17202b", flex: 1, fontSize: 16, marginLeft: 16 },
-  forgotButton: { alignSelf: "flex-end", marginBottom: 18, marginTop: -1 },
+  inputText: {
+    color: "#17202b",
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 13,
+  },
+  forgotButton: { alignSelf: "flex-end", marginBottom: 13, marginTop: -1 },
   forgotText: { color: "#fb5b0b", fontSize: 15, fontWeight: "500" },
   loginButton: {
     alignItems: "center",
     backgroundColor: "#ff640b",
     borderRadius: 17,
     flexDirection: "row",
-    height: 60,
+    height: 56,
     justifyContent: "center",
+    shadowColor: "#d94b00",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   disabled: { opacity: 0.65 },
   loginText: { color: "#fff", fontSize: 19, fontWeight: "700" },
-  divider: { alignItems: "center", flexDirection: "row", marginVertical: 18 },
+  divider: { alignItems: "center", flexDirection: "row", marginVertical: 12 },
   dividerLine: { backgroundColor: "#d9dadd", flex: 1, height: 1 },
   orText: { color: "#858b91", fontSize: 15, marginHorizontal: 16 },
   socialRow: { flexDirection: "row", gap: 14 },
   socialButton: {
     alignItems: "center",
-    backgroundColor: "#fff",
     borderColor: "#d9dadd",
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     flex: 1,
     flexDirection: "row",
-    height: 50,
+    height: 48,
     justifyContent: "center",
+    paddingHorizontal: 8,
   },
   socialText: {
     color: "#17202b",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 8,
+    fontSize: 12,
+    fontWeight: "500",
+    marginLeft: 10,
   },
   createRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 14,
   },
   createPrompt: { color: "#737a82", fontSize: 14 },
   createLink: {
