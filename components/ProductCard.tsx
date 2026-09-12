@@ -94,9 +94,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.8}
-        className="mb-3 flex-row items-center rounded-[18px] border border-borderLight bg-white p-2.5 shadow-sm shadow-black"
+        className="relative mb-3 w-full rounded-[18px] border border-borderLight bg-white p-2.5 shadow-sm shadow-black"
       >
-        <View className="relative h-[90px] w-[90px] overflow-hidden rounded-[16px] bg-gray">
+        <View className="relative h-[120px] w-full overflow-hidden rounded-[16px] bg-gray">
           {imageUrl ? (
             <Image
               source={{ uri: imageUrl }}
@@ -149,7 +149,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </TouchableOpacity>
         </View>
 
-        <View className="flex-1 justify-center px-3">
+        <View className="flex-1 justify-center px-1.5 pb-1 pt-2 pr-10">
           <Text
             className="mb-1 text-[15px] font-bold text-text"
             numberOfLines={2}
@@ -191,7 +191,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Plus '+' button triggers QuickViewModal */}
         <TouchableOpacity
-          className="h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white active:bg-primary/10"
+          className="absolute bottom-3 right-3 h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white active:bg-primary/10"
           onPress={(event) => {
             event.stopPropagation();
             setModalVisible(true);

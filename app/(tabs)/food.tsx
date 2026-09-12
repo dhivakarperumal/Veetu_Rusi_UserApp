@@ -837,7 +837,7 @@ export default function FoodScreen({
                   {currentProducts.map((product, index) => (
                     <View
                       key={product.id || product._id || `product-${index}`}
-                      className="w-full"
+                      className="w-[48%]"
                     >
                       <ProductCard product={product} />
                     </View>
