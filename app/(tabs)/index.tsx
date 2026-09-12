@@ -1040,40 +1040,61 @@ export default function HomeScreen() {
                         });
                       }
                     }}
-                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
+                    className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   >
                     <View className="relative">
                       <Image
                         source={{ uri: image }}
-                        className="h-[86px] w-full rounded-[12px]"
+                        className="h-[112px] w-full"
                         resizeMode="cover"
                       />
-                      <View className="absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5">
+                      <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-1">
                         <Text className="text-[10px] font-bold text-white">
                           {discount}
                         </Text>
                       </View>
+                      <Pressable className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-white shadow-sm">
+                        <Ionicons
+                          name="heart-outline"
+                          size={17}
+                          color={colors.primary}
+                        />
+                      </Pressable>
                     </View>
-                    <Text
-                      className="mt-2 text-[15px] font-black text-text"
-                      numberOfLines={1}
-                    >
-                      {offerItem.name || offerItem.c_name || "Offer Item"}
-                    </Text>
-                    <View className="mt-1 flex-row items-baseline gap-1.5">
-                      <Text className="text-[14px] font-bold text-text">
-                        ₹{Math.round(Number(price))}
+                    <View className="p-2.5">
+                      <Text
+                        className="text-[15px] font-black text-text"
+                        numberOfLines={1}
+                      >
+                        {offerItem.name || offerItem.c_name || "Offer Item"}
                       </Text>
-                      {origPrice > Number(price) && (
-                        <Text className="text-[11px] text-textSecondary line-through">
-                          ₹{origPrice}
+                      <View className="mt-1 flex-row items-center">
+                        <Ionicons name="star" size={14} color={colors.warning} />
+                        <Text className="ml-1 text-[12px] font-bold text-text">
+                          {offerItem.rating ?? "4.8"} ({offerItem.orders ?? "1.2K"})
                         </Text>
-                      )}
-                    </View>
-                    <View className="mt-3 rounded-full bg-primary px-3 py-1.5">
-                      <Text className="text-center text-[12px] font-bold text-white">
-                        Order Now →
+                      </View>
+                      <Text
+                        className="mt-0.5 text-[12px] font-medium text-textSecondary"
+                        numberOfLines={1}
+                      >
+                        {offerItem.category || offerItem.category_type || "Sea Food"}
                       </Text>
+                      <View className="mt-2 flex-row items-center justify-between">
+                        <View>
+                          <Text className="text-[16px] font-black text-primary">
+                            ₹{Math.round(Number(price))}
+                          </Text>
+                          {origPrice > Number(price) && (
+                            <Text className="text-[11px] text-textSecondary line-through">
+                              ₹{origPrice}
+                            </Text>
+                          )}
+                        </View>
+                        <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
+                          <Ionicons name="add" size={19} color="white" />
+                        </Pressable>
+                      </View>
                     </View>
                   </Pressable>
                 );
@@ -1103,7 +1124,7 @@ export default function HomeScreen() {
               ].map((offer) => (
                 <Pressable
                   key={offer.title}
-                  className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
+                  className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   onPress={() => {
                     router.push({
                       pathname: "/(tabs)/food" as any,
@@ -1115,18 +1136,31 @@ export default function HomeScreen() {
                     source={{
                       uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
                     }}
-                    className="h-[86px] w-full rounded-[12px]"
+                    className="h-[112px] w-full"
                   />
-                  <Text className="mt-2 text-[16px] font-black text-text">
-                    {offer.title}
-                  </Text>
-                  <Text className="text-[13px] font-bold text-textSecondary">
-                    {offer.text}
-                  </Text>
-                  <View className="mt-3 rounded-full bg-primary px-4 py-2">
-                    <Text className="text-center text-[12px] font-black text-white">
-                      {offer.button}
+                  <View className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-1">
+                    <Text className="text-[10px] font-bold text-white">OFFER</Text>
+                  </View>
+                  <View className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-white shadow-sm">
+                    <Ionicons name="heart-outline" size={17} color={colors.primary} />
+                  </View>
+                  <View className="p-2.5">
+                    <Text className="text-[15px] font-black text-text" numberOfLines={1}>
+                      {offer.title}
                     </Text>
+                    <View className="mt-1 flex-row items-center">
+                      <Ionicons name="star" size={14} color={colors.warning} />
+                      <Text className="ml-1 text-[12px] font-bold text-text">4.8 (1.2K)</Text>
+                    </View>
+                    <Text className="mt-0.5 text-[12px] font-medium text-textSecondary" numberOfLines={1}>
+                      {offer.category}
+                    </Text>
+                    <View className="mt-2 flex-row items-center justify-between">
+                      <Text className="text-[16px] font-black text-primary">{offer.text}</Text>
+                      <Pressable className="h-7 w-7 items-center justify-center rounded-full bg-primary">
+                        <Ionicons name="add" size={19} color="white" />
+                      </Pressable>
+                    </View>
                   </View>
                 </Pressable>
               ))}
