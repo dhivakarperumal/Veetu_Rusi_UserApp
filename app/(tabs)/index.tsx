@@ -5,7 +5,7 @@ import { useLocation } from "@/context/LocationContext";
 import { useStore } from "@/context/StoreContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -16,6 +16,7 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -169,6 +170,10 @@ const foodTypes = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  const heroWidth = windowWidth - 32;
+  const heroScrollRef = useRef<ScrollView>(null);
+  const [heroSlide, setHeroSlide] = useState(0);
   const router = useRouter();
   const { categoriesCache, setCategoriesCache } = useStore();
   const {
@@ -194,6 +199,19 @@ export default function HomeScreen() {
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const autoplay = setInterval(() => {
+      const nextSlide = (heroSlide + 1) % 3;
+      setHeroSlide(nextSlide);
+      heroScrollRef.current?.scrollTo({
+        x: nextSlide * heroWidth,
+        animated: true,
+      });
+    }, 5000);
+
+    return () => clearInterval(autoplay);
+  }, [heroSlide, heroWidth]);
 
   const fetchCategories = useCallback(
     async (force = false) => {
@@ -480,23 +498,51 @@ export default function HomeScreen() {
 
         {/* Hero Banner */}
         <View className="mx-4 mb-3 h-[190px] overflow-hidden rounded-[22px]">
-          <ImageBackground
-            source={require("../../assets/images/hero bg.png")}
-            resizeMode="cover"
-            className="h-full w-full"
-          />
-          <Pressable
-            className="absolute bottom-5 left-3 flex-row items-center rounded-full bg-primary px-4 py-2.5 shadow-sm shadow-black active:opacity-80"
-            onPress={() => router.push("/(tabs)/food")}
+          <ScrollView
+            ref={heroScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            bounces={false}
+            decelerationRate="fast"
+            onMomentumScrollEnd={(event) => {
+              setHeroSlide(
+                Math.round(event.nativeEvent.contentOffset.x / heroWidth),
+              );
+            }}
           >
-            <Text className="text-[13px] font-black text-white">Order Now</Text>
-            <Ionicons
-              name="arrow-forward"
-              size={16}
-              color={colors.white}
-              className="ml-1.5"
+            <View style={{ width: heroWidth }} className="h-[190px]">
+              <ImageBackground
+                source={require("../../assets/images/hero bg.png")}
+                resizeMode="cover"
+                className="h-full w-full"
+              />
+              <Pressable
+                className="absolute bottom-5 left-3 flex-row items-center rounded-full bg-primary px-4 py-2.5 shadow-sm shadow-black active:opacity-80"
+                onPress={() => router.push("/(tabs)/food")}
+              >
+                <Text className="text-[13px] font-black text-white">
+                  Order Now
+                </Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={16}
+                  color={colors.white}
+                  className="ml-1.5"
+                />
+              </Pressable>
+            </View>
+            <Image
+              source={require("../../assets/images/offer banner.png")}
+              resizeMode="cover"
+              style={{ width: heroWidth, height: 190 }}
             />
-          </Pressable>
+            <Image
+              source={require("../../assets/images/this banner.png")}
+              resizeMode="cover"
+              style={{ width: heroWidth, height: 190 }}
+            />
+          </ScrollView>
         </View>
 
         {/* Categories Section */}
