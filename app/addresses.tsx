@@ -139,7 +139,7 @@ export default function Address() {
       await saveUserAddresses(userId, remoteAddresses);
       setAddresses(remoteAddresses);
     } catch (error) {
-      console.error("fetchAddresses error:", error);
+      console.warn("Using cached addresses because the server address route is unavailable:", error);
       const fallback = await readUserAddresses(userId);
       setAddresses(fallback);
     } finally {

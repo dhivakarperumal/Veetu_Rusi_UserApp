@@ -79,7 +79,16 @@ export async function readRemoteUserAddresses(
       (address) => String(address.user_id) === String(userId),
     );
   } catch (err) {
-    console.warn("Failed to read remote user addresses:", err);
+    const error = err as {
+      status?: number | string;
+      response?: { status?: number | string };
+      message?: string;
+    };
+    const status = error.status || error.response?.status;
+    console.warn(
+      `Failed to read remote user addresses${status ? ` (HTTP ${status})` : ""}:`,
+      error.message || err,
+    );
     throw err;
   }
 }
