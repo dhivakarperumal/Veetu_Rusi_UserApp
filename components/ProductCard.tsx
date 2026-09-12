@@ -1,10 +1,11 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import QuickViewModal from "./QuickViewModal";
 
 interface ProductCardProps {

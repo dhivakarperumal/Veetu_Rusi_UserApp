@@ -1,4 +1,4 @@
-import "../global.css";
+import CustomAlertHost from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { AuthProvider } from "@/context/AuthContext";
 import { LocationProvider } from "@/context/LocationContext";
@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import "../global.css";
 
 function RootLayoutContent() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -65,6 +66,7 @@ export default function RootLayout() {
       <StoreProvider>
         <LocationProvider>
           <RootLayoutContent />
+          <CustomAlertHost />
         </LocationProvider>
       </StoreProvider>
     </AuthProvider>

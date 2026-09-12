@@ -1,3 +1,4 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -6,7 +7,6 @@ import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -14,7 +14,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

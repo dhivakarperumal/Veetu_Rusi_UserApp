@@ -1,3 +1,4 @@
+import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useStore, WishlistItem } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -5,13 +6,12 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     FlatList,
     Image,
     RefreshControl,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
