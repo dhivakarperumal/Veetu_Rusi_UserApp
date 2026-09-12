@@ -688,8 +688,14 @@ export default function FoodScreen({
                   </View>
                 </View>
 
-                {/* Price Filter */}
-                <View className="mb-3 border-b border-borderLight pb-3">
+                <ScrollView
+                  className="shrink"
+                  contentContainerStyle={{ paddingBottom: 16 }}
+                  showsVerticalScrollIndicator={true}
+                  nestedScrollEnabled
+                >
+                  {/* Price Filter */}
+                  <View className="mb-3 border-b border-borderLight pb-3">
                   <Text className="mb-2 text-xs font-semibold text-text">
                     Price
                   </Text>
@@ -704,10 +710,10 @@ export default function FoodScreen({
                   <Text className="text-xs text-textSecondary">
                     Up to ₹{Number(priceRange).toLocaleString()}
                   </Text>
-                </View>
+                  </View>
 
-                {/* Type Filter */}
-                <View className="mb-3 border-b border-borderLight pb-3">
+                  {/* Type Filter */}
+                  <View className="mb-3 border-b border-borderLight pb-3">
                   <Text className="mb-2 text-xs font-semibold text-text">
                     Type
                   </Text>
@@ -763,10 +769,10 @@ export default function FoodScreen({
                     </View>
                     <Text className="text-xs text-text">All Types</Text>
                   </TouchableOpacity>
-                </View>
+                  </View>
 
-                {/* Category Filter */}
-                {categories.length > 0 && (
+                  {/* Category Filter */}
+                  {categories.length > 0 && (
                   <View className="mb-3 border-b border-borderLight pb-3">
                     <Text className="mb-2 text-xs font-semibold text-text">
                       Category
@@ -799,10 +805,10 @@ export default function FoodScreen({
                       );
                     })}
                   </View>
-                )}
+                  )}
 
-                {/* Offers Filter */}
-                <View className="mb-3 border-b border-borderLight pb-3">
+                  {/* Offers Filter */}
+                  <View className="mb-3 border-b border-borderLight pb-3">
                   <Text className="mb-2 text-xs font-semibold text-text">
                     Offers
                   </Text>
@@ -828,7 +834,8 @@ export default function FoodScreen({
                       </Text>
                     </TouchableOpacity>
                   ))}
-                </View>
+                  </View>
+                </ScrollView>
               </View>
             </View>
           </Modal>
