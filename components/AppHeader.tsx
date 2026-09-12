@@ -82,7 +82,7 @@ export default function AppHeader({ title }: AppHeaderProps) {
 
   return (
     <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-[18px] py-3">
-      {/* Left section: Menu, Logo and Title */}
+      {/* Left section: Menu and Logo */}
       <View className="flex-1 flex-row items-center">
         <Pressable
           accessibilityLabel="Open menu"

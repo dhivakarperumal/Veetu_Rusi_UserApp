@@ -412,7 +412,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-      <AppHeader title="Veetu Rusi" />
+      <AppHeader title="Home" />
 
       {/* Location Bar with explicit Change Location button */}
       <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-2.5">
