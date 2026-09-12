@@ -141,6 +141,7 @@ export default function WishlistScreen() {
       mrp > price && mrp > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0;
     const rating = item.rating || item.average_rating || 4.5;
     const chefName = item.chef_name || item.homeChefName || "";
+    const categoryName = item.category || item.product?.category || chefName;
 
     const itemKey = String(item.product_id || item.id || item._id);
     const isAdding = addingCartId === itemKey;
@@ -165,7 +166,7 @@ export default function WishlistScreen() {
       <TouchableOpacity
         onPress={() => handlePressItem(item)}
         activeOpacity={0.9}
-        className={`border border-borderLight bg-white shadow-sm shadow-black/10 ${
+        className={`relative border border-borderLight bg-white shadow-sm shadow-black/10 ${
           viewMode === "card"
             ? "mb-3 w-[48%] rounded-2xl p-2.5"
             : "mb-3.5 w-full flex-row rounded-2xl p-3"
@@ -194,7 +195,11 @@ export default function WishlistScreen() {
           )}
 
           {discount > 0 && (
-            <View className="absolute right-1 top-1 rounded bg-primary px-1.5 py-0.5 shadow-sm">
+            <View
+              className={`absolute top-1 rounded bg-primary px-1.5 py-0.5 shadow-sm ${
+                viewMode === "card" ? "left-1" : "right-1"
+              }`}
+            >
               <Text className="text-[9px] font-black text-white">
                 {discount}% OFF
               </Text>
@@ -224,7 +229,11 @@ export default function WishlistScreen() {
                   handleRemove(item);
                 }}
                 hitSlop={8}
-                className="h-7 w-7 items-center justify-center rounded-full bg-red-50 active:bg-red-100"
+                className={`h-7 w-7 items-center justify-center rounded-full bg-red-50 active:bg-red-100 ${
+                  viewMode === "card"
+                    ? "absolute right-1.5 top-1.5 z-10 bg-white/90"
+                    : ""
+                }`}
               >
                 <MaterialCommunityIcons
                   name="trash-can-outline"
@@ -234,7 +243,7 @@ export default function WishlistScreen() {
               </TouchableOpacity>
             </View>
 
-            {Boolean(chefName) && (
+            {Boolean(categoryName) && (
               <View className="mt-0.5 flex-row items-center gap-1">
                 <MaterialCommunityIcons
                   name="chef-hat"
@@ -245,14 +254,20 @@ export default function WishlistScreen() {
                   className="text-[12px] font-semibold text-primary"
                   numberOfLines={1}
                 >
-                  {chefName}
+                  {categoryName}
                 </Text>
               </View>
             )}
 
-            {/* Price & Rating Row */}
+            <View className="mt-1 flex-row items-center">
+              <MaterialCommunityIcons name="star" size={12} color="#FFB800" />
+              <Text className="ml-0.5 text-[11px] font-bold text-[#B37A00]">
+                {Number(rating).toFixed(1)}
+              </Text>
+            </View>
+
             <View className="mt-1 flex-row items-center gap-2">
-              <Text className="text-[16px] font-black text-text">
+              <Text className="text-[16px] font-black text-primary">
                 ₹{price.toFixed(0)}
               </Text>
               {mrp > price && (
@@ -260,35 +275,30 @@ export default function WishlistScreen() {
                   ₹{mrp.toFixed(0)}
                 </Text>
               )}
-              <View className="ml-auto flex-row items-center rounded-md bg-[#FFF8E7] px-1.5 py-0.5">
-                <MaterialCommunityIcons name="star" size={12} color="#FFB800" />
-                <Text className="ml-0.5 text-[11px] font-bold text-[#B37A00]">
-                  {Number(rating).toFixed(1)}
-                </Text>
-              </View>
             </View>
           </View>
 
           {/* Dual Action Buttons: Add to Cart & Buy Now */}
-          <View
-            className={`mt-2.5 items-center gap-2 ${
-              viewMode === "card" ? "flex-col" : "flex-row"
-            }`}
-          >
+          <View className="mt-2.5 flex-row items-center gap-1">
             <TouchableOpacity
               onPress={(e) => {
                 e.stopPropagation();
                 handleAddToCart(item);
               }}
               disabled={isAdding}
-              className="flex-1 flex-row items-center justify-center gap-1 rounded-xl border border-primary bg-white py-2 active:bg-primary/10"
+              className="flex-1 flex-row items-center justify-center gap-1 rounded-xl border border-primary bg-white px-1 py-2 active:bg-primary/10"
             >
               <MaterialCommunityIcons
                 name="cart-plus"
                 size={14}
                 color={colors.primary}
               />
-              <Text className="text-[12px] font-bold text-primary">
+              <Text
+                className={`font-bold text-primary ${
+                  viewMode === "card" ? "text-[10px]" : "text-[12px]"
+                }`}
+                numberOfLines={1}
+              >
                 {isAdding ? "Adding..." : "Add to Cart"}
               </Text>
             </TouchableOpacity>
@@ -298,14 +308,21 @@ export default function WishlistScreen() {
                 e.stopPropagation();
                 handleBuyNow(item);
               }}
-              className="flex-1 flex-row items-center justify-center gap-1 rounded-xl bg-primary py-2 shadow-sm shadow-primary/30 active:opacity-90"
+              className="flex-1 flex-row items-center justify-center gap-1 rounded-xl bg-primary px-1 py-2 shadow-sm shadow-primary/30 active:opacity-90"
             >
               <MaterialCommunityIcons
                 name="lightning-bolt"
                 size={14}
                 color={colors.white}
               />
-              <Text className="text-[12px] font-bold text-white">Buy Now</Text>
+              <Text
+                className={`font-bold text-white ${
+                  viewMode === "card" ? "text-[10px]" : "text-[12px]"
+                }`}
+                numberOfLines={1}
+              >
+                Buy Now
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
