@@ -10,15 +10,21 @@ import QuickViewModal from "./QuickViewModal";
 
 interface ProductCardProps {
   product: Product;
+  horizontal?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  horizontal = false,
+}: ProductCardProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useStore();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const productId = String(product.id || product._id || product.product_id || "");
+  const productId = String(
+    product.id || product._id || product.product_id || "",
+  );
   const isWishlisted = isInWishlist(productId);
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -94,9 +100,15 @@ export default function ProductCard({ product }: ProductCardProps) {
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.8}
-        className="relative mb-3 w-full rounded-[18px] border border-borderLight bg-white p-2.5 shadow-sm shadow-black"
+        className={`relative mb-3 w-full rounded-[18px] border border-borderLight bg-white p-2.5 shadow-sm shadow-black ${
+          horizontal ? "flex-row items-center" : ""
+        }`}
       >
-        <View className="relative h-[120px] w-full overflow-hidden rounded-[16px] bg-gray">
+        <View
+          className={`relative overflow-hidden rounded-[16px] bg-gray ${
+            horizontal ? "h-[90px] w-[90px]" : "h-[120px] w-full"
+          }`}
+        >
           {imageUrl ? (
             <Image
               source={{ uri: imageUrl }}
@@ -149,7 +161,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           </TouchableOpacity>
         </View>
 
-        <View className="flex-1 justify-center px-1.5 pb-1 pt-2 pr-10">
+        <View
+          className={`flex-1 justify-center ${
+            horizontal ? "px-3" : "px-1.5 pb-1 pt-2 pr-10"
+          }`}
+        >
           <Text
             className="mb-1 text-[15px] font-bold text-text"
             numberOfLines={2}
@@ -191,7 +207,11 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Plus '+' button triggers QuickViewModal */}
         <TouchableOpacity
-          className="absolute bottom-3 right-3 h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white active:bg-primary/10"
+          className={`${
+            horizontal
+              ? "ml-2 h-9 w-9"
+              : "absolute bottom-3 right-3 h-9 w-9"
+          } items-center justify-center rounded-full border-2 border-primary bg-white active:bg-primary/10`}
           onPress={(event) => {
             event.stopPropagation();
             setModalVisible(true);

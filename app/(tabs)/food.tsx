@@ -6,11 +6,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useLocation, UserLocation } from "@/context/LocationContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   Modal,
   RefreshControl,
   ScrollView,
@@ -33,7 +32,6 @@ export default function FoodScreen({
 }: {
   defaultCategory?: string;
 }) {
-  const router = useRouter();
   const params = useLocalSearchParams<{
     category?: string;
     search?: string;
@@ -844,88 +842,15 @@ export default function FoodScreen({
                   ))}
                 </View>
               ) : (
-                <View className="rounded-xl border border-borderLight bg-white">
-                  <View className="flex-row border-b border-borderLight bg-gray px-3 py-2">
-                    <Text className="flex-1 text-[11px] font-bold uppercase text-textSecondary">
-                      Product
-                    </Text>
-                    <Text className="w-[78px] text-right text-[11px] font-bold uppercase text-textSecondary">
-                      Price
-                    </Text>
-                    <Text className="w-[42px] text-right text-[11px] font-bold uppercase text-textSecondary">
-                      Add
-                    </Text>
-                  </View>
-                  {currentProducts.map((product, index) => {
-                    const productId = product.id || product._id;
-                    const price = Number(
-                      product.final_price ??
-                        product.offer_price ??
-                        product.mrp ??
-                        0,
-                    );
-                    const image =
-                      typeof product.image === "string"
-                        ? product.image.split(/\s+/)[0]
-                        : Array.isArray(product.images) && product.images[0]
-                          ? String(product.images[0]?.url || product.images[0])
-                          : undefined;
-
-                    return (
-                      <TouchableOpacity
-                        key={productId || `table-product-${index}`}
-                        onPress={() =>
-                          productId &&
-                          router.push({
-                            pathname: "/product/[id]" as any,
-                            params: { id: String(productId) },
-                          })
-                        }
-                        className="flex-row items-center border-b border-borderLight px-3 py-3 last:border-b-0"
-                      >
-                        {image ? (
-                          <Image
-                            source={{ uri: image }}
-                            className="mr-3 h-12 w-12 rounded-lg bg-gray"
-                          />
-                        ) : (
-                          <View className="mr-3 h-12 w-12 items-center justify-center rounded-lg bg-gray">
-                            <MaterialCommunityIcons
-                              name="food-outline"
-                              size={22}
-                              color={colors.grayDark}
-                            />
-                          </View>
-                        )}
-                        <View className="flex-1">
-                          <Text
-                            className="text-[14px] font-bold text-text"
-                            numberOfLines={1}
-                          >
-                            {product.name || "Product"}
-                          </Text>
-                          <Text
-                            className="mt-1 text-[11px] text-textSecondary"
-                            numberOfLines={1}
-                          >
-                            {product.chef_name ||
-                              product.category ||
-                              "Home Food"}
-                          </Text>
-                        </View>
-                        <Text className="w-[78px] text-right text-[14px] font-bold text-primary">
-                          ₹{price.toFixed(0)}
-                        </Text>
-                        <View className="w-[42px] items-end">
-                          <MaterialCommunityIcons
-                            name="plus-circle"
-                            size={24}
-                            color={colors.primary}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
+                <View className="w-full">
+                  {currentProducts.map((product, index) => (
+                    <View
+                      key={product.id || product._id || `list-product-${index}`}
+                      className="w-full"
+                    >
+                      <ProductCard product={product} horizontal />
+                    </View>
+                  ))}
                 </View>
               )
             ) : (
