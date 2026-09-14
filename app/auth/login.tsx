@@ -223,12 +223,12 @@ return (
                   <MaterialCommunityIcons
                     name="account-outline"
                     size={21}
-                    color="#FFFFFF"
+                    color="#D95A28"
                   />
 
                   <TextInput
                     placeholder="Email or Phone Number"
-                    placeholderTextColor="rgba(255,255,255,0.70)"
+                    placeholderTextColor="#8B8178"
                     value={form.identifier}
                     onChangeText={(value) =>
                       handleChange(
@@ -275,13 +275,13 @@ return (
                   <MaterialCommunityIcons
                     name="lock-outline"
                     size={21}
-                    color="#FFFFFF"
+                    color="#D95A28"
                   />
 
                   <TextInput
                     ref={passwordInputRef}
                     placeholder="Password"
-                    placeholderTextColor="rgba(255,255,255,0.70)"
+                    placeholderTextColor="#8B8178"
                     value={form.password}
                     onChangeText={(value) =>
                       handleChange(
@@ -314,7 +314,7 @@ return (
                           : "eye-outline"
                       }
                       size={22}
-                      color="#FFFFFF"
+                      color="#6E6258"
                     />
                   </TouchableOpacity>
                 </View>
@@ -352,7 +352,7 @@ return (
 
               <View style={styles.registerContainer}>
                 <Text style={styles.registerText}>
-                  Don't Have An Account?
+                  Don&apos;t Have An Account?
                 </Text>
 
                 <Link
@@ -398,8 +398,12 @@ const styles = StyleSheet.create({
    * Strong overlay makes every word readable.
    */
   overlay: {
-    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(8, 15, 13, 0.70)",
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
   },
 
   keyboardView: {
@@ -548,13 +552,11 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 16,
 
-    backgroundColor:
-      "rgba(255,255,255,0.16)",
+    backgroundColor: "#FFF9F2",
 
     borderWidth: 1,
 
-    borderColor:
-      "rgba(255,255,255,0.60)",
+    borderColor: "#E7C7B2",
 
     borderRadius: 12,
   },
@@ -562,7 +564,7 @@ const styles = StyleSheet.create({
   inputText: {
     flex: 1,
 
-    color: "#FFFFFF",
+    color: "#213447",
 
     fontSize: 15,
 
