@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -136,192 +137,269 @@ export default function LoginScreen() {
   };
 
 return (
-  <View style={[styles.root, { paddingTop: insets.top }]}>
-    <KeyboardAvoidingView
-      style={styles.keyboardView}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+  <View
+    style={[
+      styles.root,
+      {
+        paddingTop: insets.top,
+      },
+    ]}
+  >
+    <ImageBackground
+      source={{
+        uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85",
+      }}
+      resizeMode="cover"
+      style={styles.background}
     >
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          {
-            paddingBottom:
-              Platform.OS === "android" && keyboardHeight > 0
-                ? keyboardHeight + 60
-                : 30,
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={
-          Platform.OS === "ios" ? "interactive" : "on-drag"
+      {/* Dark overlay for text readability */}
+      <View style={styles.overlay} />
+
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={
+          Platform.OS === "ios"
+            ? "padding"
+            : undefined
         }
-        bounces={false}
       >
-        <Pressable
-          onPress={Keyboard.dismiss}
-          style={styles.container}
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingBottom:
+                Platform.OS === "android" &&
+                keyboardHeight > 0
+                  ? keyboardHeight + 60
+                  : 35,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={
+            Platform.OS === "ios"
+              ? "interactive"
+              : "on-drag"
+          }
+          bounces={false}
         >
-          {/* Logo */}
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/logo.png")}
-              resizeMode="contain"
-              style={styles.logo}
-            />
-          </View>
+          <Pressable
+            onPress={Keyboard.dismiss}
+            style={styles.container}
+          >
+            {/* LOGO */}
 
-          {/* Brand */}
-          <Text style={styles.brandName}>Veetu Rusi</Text>
-
-          <Text style={styles.tagline}>
-            Homemade food. Freshly delivered.
-          </Text>
-
-          {/* Login Form */}
-          <View style={styles.formContainer}>
-            {/* Email / Phone */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>
-                Email or Phone Number
-              </Text>
-
-              <View style={styles.inputWrapper}>
-                <MaterialCommunityIcons
-                  name="account-outline"
-                  size={21}
-                  color="#777"
-                />
-
-                <TextInput
-                  placeholder="Email or Phone Number"
-                  placeholderTextColor="#999"
-                  value={form.identifier}
-                  onChangeText={(value) =>
-                    handleChange("identifier", value)
-                  }
-                  style={styles.inputText}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  onSubmitEditing={() =>
-                    passwordInputRef.current?.focus()
-                  }
-                  onFocus={() => handleFocus(120)}
-                />
-              </View>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require("../../assets/images/logo.png")}
+                resizeMode="contain"
+                style={styles.logo}
+              />
             </View>
 
-            {/* Password */}
-            <View style={styles.fieldContainer}>
-              <View style={styles.passwordHeader}>
-                <Text style={styles.label}>Password</Text>
+            {/* BRAND */}
+
+            <Text style={styles.brandName}>
+              Veetu Rusi
+            </Text>
+
+            <Text style={styles.tagline}>
+              Homemade food. Freshly delivered.
+            </Text>
+
+            {/* FORM */}
+
+            <View style={styles.formContainer}>
+              {/* EMAIL */}
+
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>
+                  Email or Phone Number
+                </Text>
+
+                <View style={styles.inputWrapper}>
+                  <MaterialCommunityIcons
+                    name="account-outline"
+                    size={21}
+                    color="#FFFFFF"
+                  />
+
+                  <TextInput
+                    placeholder="Email or Phone Number"
+                    placeholderTextColor="rgba(255,255,255,0.70)"
+                    value={form.identifier}
+                    onChangeText={(value) =>
+                      handleChange(
+                        "identifier",
+                        value
+                      )
+                    }
+                    style={styles.inputText}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="next"
+                    onSubmitEditing={() =>
+                      passwordInputRef.current?.focus()
+                    }
+                    onFocus={() =>
+                      handleFocus(100)
+                    }
+                  />
+                </View>
+              </View>
+
+              {/* PASSWORD */}
+
+              <View style={styles.fieldContainer}>
+                <View style={styles.passwordHeader}>
+                  <Text style={styles.label}>
+                    Password
+                  </Text>
+
+                  <Link
+                    href="/auth/forgot-password"
+                    asChild
+                  >
+                    <TouchableOpacity>
+                      <Text style={styles.forgotText}>
+                        Forgot Password?
+                      </Text>
+                    </TouchableOpacity>
+                  </Link>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <MaterialCommunityIcons
+                    name="lock-outline"
+                    size={21}
+                    color="#FFFFFF"
+                  />
+
+                  <TextInput
+                    ref={passwordInputRef}
+                    placeholder="Password"
+                    placeholderTextColor="rgba(255,255,255,0.70)"
+                    value={form.password}
+                    onChangeText={(value) =>
+                      handleChange(
+                        "password",
+                        value
+                      )
+                    }
+                    secureTextEntry={!showPassword}
+                    style={styles.inputText}
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit}
+                    onFocus={() =>
+                      handleFocus(180)
+                    }
+                  />
+
+                  <TouchableOpacity
+                    onPress={() =>
+                      setShowPassword(
+                        !showPassword
+                      )
+                    }
+                    hitSlop={10}
+                    style={styles.eyeButton}
+                  >
+                    <MaterialCommunityIcons
+                      name={
+                        showPassword
+                          ? "eye-off-outline"
+                          : "eye-outline"
+                      }
+                      size={22}
+                      color="#FFFFFF"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* SIGN IN */}
+
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={loading}
+                activeOpacity={0.85}
+                style={[
+                  styles.loginButton,
+                  loading && styles.disabled,
+                ]}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Text style={styles.loginText}>
+                      Sign In
+                    </Text>
+
+                    <MaterialCommunityIcons
+                      name="arrow-right"
+                      size={20}
+                      color="#FFFFFF"
+                    />
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* REGISTER */}
+
+              <View style={styles.registerContainer}>
+                <Text style={styles.registerText}>
+                  Don't Have An Account?
+                </Text>
 
                 <Link
-                  href="/auth/forgot-password"
+                  href="/auth/register"
                   asChild
                 >
                   <TouchableOpacity>
-                    <Text style={styles.forgotText}>
-                      Forgot Password?
+                    <Text style={styles.registerLink}>
+                      Sign Up
                     </Text>
                   </TouchableOpacity>
                 </Link>
               </View>
-
-              <View style={styles.inputWrapper}>
-                <MaterialCommunityIcons
-                  name="lock-outline"
-                  size={21}
-                  color="#777"
-                />
-
-                <TextInput
-                  ref={passwordInputRef}
-                  placeholder="Password"
-                  placeholderTextColor="#999"
-                  value={form.password}
-                  onChangeText={(value) =>
-                    handleChange("password", value)
-                  }
-                  secureTextEntry={!showPassword}
-                  style={styles.inputText}
-                  returnKeyType="done"
-                  onSubmitEditing={handleSubmit}
-                  onFocus={() => handleFocus(200)}
-                />
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setShowPassword(!showPassword)
-                  }
-                  hitSlop={10}
-                >
-                  <MaterialCommunityIcons
-                    name={
-                      showPassword
-                        ? "eye-off-outline"
-                        : "eye-outline"
-                    }
-                    size={22}
-                    color="#777"
-                  />
-                </TouchableOpacity>
-              </View>
             </View>
 
-            {/* Sign In */}
-            <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={loading}
-              activeOpacity={0.85}
-              style={[
-                styles.loginButton,
-                loading && styles.disabled,
-              ]}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.loginText}>
-                  Sign In
-                </Text>
-              )}
-            </TouchableOpacity>
+            {/* FOOTER */}
 
-            {/* Register */}
-            <View style={styles.registerContainer}>
-              <Text style={styles.registerText}>
-                Don't Have An Account?
-              </Text>
-
-              <Link href="/auth/register" asChild>
-                <TouchableOpacity>
-                  <Text style={styles.registerLink}>
-                    Sign Up
-                  </Text>
-                </TouchableOpacity>
-              </Link>
-            </View>
-          </View>
-
-          {/* Bottom */}
-          <Text style={styles.bottomText}>
-            Homemade • Fresh • Local
-          </Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <Text style={styles.bottomText}>
+              Homemade • Fresh • Local
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   </View>
-);  
+);
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#f8f5f0",
+    backgroundColor: "#111",
+  },
+
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
+  /*
+   * IMPORTANT:
+   * Strong overlay makes every word readable.
+   */
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(8, 15, 13, 0.70)",
   },
 
   keyboardView: {
@@ -337,129 +415,208 @@ const styles = StyleSheet.create({
   },
 
   /*
-   * SINGLE SIMPLE LAYOUT
+   * SINGLE PAGE
    */
+
   container: {
     flexGrow: 1,
-    paddingHorizontal: 28,
-    paddingTop: 55,
-    paddingBottom: 25,
+    minHeight: "100%",
+
     alignItems: "center",
+
+    paddingHorizontal: 28,
+    paddingTop: 38,
+    paddingBottom: 25,
   },
 
   /*
    * LOGO
    */
+
   logoContainer: {
-    width: 105,
-    height: 105,
+    width: 96,
+    height: 96,
+
     alignItems: "center",
     justifyContent: "center",
+
+    backgroundColor: "#FFFFFF",
+
+    borderRadius: 28,
+
     marginBottom: 10,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+
+    elevation: 6,
   },
 
   logo: {
-    width: 100,
-    height: 100,
+    width: 88,
+    height: 88,
   },
 
   /*
    * BRAND
    */
+
   brandName: {
-    color: "#213447",
-    fontSize: 27,
+    color: "#FFFFFF",
+
+    fontSize: 29,
     fontWeight: "800",
+
     textAlign: "center",
+
+    letterSpacing: 0.3,
   },
 
   tagline: {
-    color: "#8b8580",
-    fontSize: 12.5,
+    color: "rgba(255,255,255,0.88)",
+
+    fontSize: 13,
+
     marginTop: 5,
+
     textAlign: "center",
   },
 
   /*
    * FORM
    */
+
   formContainer: {
     width: "100%",
     maxWidth: 430,
-    marginTop: 42,
+
+    marginTop: 34,
   },
 
   fieldContainer: {
     width: "100%",
-    marginBottom: 20,
+
+    marginBottom: 19,
   },
 
+  /*
+   * LABEL
+   */
+
   label: {
-    color: "#354650",
-    fontSize: 12,
+    color: "#FFFFFF",
+
+    fontSize: 13,
     fontWeight: "700",
+
     marginBottom: 8,
   },
 
   passwordHeader: {
     flexDirection: "row",
+
     alignItems: "center",
+
     justifyContent: "space-between",
   },
 
   forgotText: {
-    color: "#e85d2a",
-    fontSize: 12,
+    color: "#FFB08A",
+
+    fontSize: 12.5,
     fontWeight: "700",
+
     marginBottom: 8,
   },
 
   /*
    * INPUT
    */
+
   inputWrapper: {
     width: "100%",
-    height: 56,
+    height: 58,
 
     flexDirection: "row",
+
     alignItems: "center",
 
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
 
-    backgroundColor: "rgba(255,255,255,0.65)",
+    backgroundColor:
+      "rgba(255,255,255,0.16)",
 
-    borderBottomWidth: 1.5,
-    borderBottomColor: "#d8cec3",
+    borderWidth: 1,
+
+    borderColor:
+      "rgba(255,255,255,0.60)",
+
+    borderRadius: 12,
   },
 
   inputText: {
     flex: 1,
-    color: "#213447",
+
+    color: "#FFFFFF",
+
     fontSize: 15,
-    marginLeft: 11,
+
+    marginLeft: 12,
+
     paddingVertical: 0,
+  },
+
+  eyeButton: {
+    paddingLeft: 8,
+    paddingVertical: 8,
   },
 
   /*
    * SIGN IN
    */
+
   loginButton: {
     width: "100%",
-    height: 56,
+    height: 58,
 
-    borderRadius: 10,
+    borderRadius: 12,
 
-    backgroundColor: "#e85d2a",
+    backgroundColor: "#E85D2A",
+
+    flexDirection: "row",
 
     alignItems: "center",
+
     justifyContent: "center",
 
-    marginTop: 3,
+    gap: 8,
+
+    marginTop: 2,
+
+    shadowColor: "#000",
+
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    shadowOpacity: 0.25,
+
+    shadowRadius: 7,
+
+    elevation: 5,
   },
 
   loginText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#FFFFFF",
+
+    fontSize: 17,
+
     fontWeight: "800",
   },
 
@@ -468,35 +625,46 @@ const styles = StyleSheet.create({
   },
 
   /*
-   * SIGN UP
+   * REGISTER
    */
+
   registerContainer: {
     flexDirection: "row",
+
     alignItems: "center",
+
     justifyContent: "center",
 
-    marginTop: 27,
+    marginTop: 26,
   },
 
   registerText: {
-    color: "#777",
-    fontSize: 12.5,
+    color: "rgba(255,255,255,0.88)",
+
+    fontSize: 13,
   },
 
   registerLink: {
-    color: "#e85d2a",
-    fontSize: 12.5,
+    color: "#FFB08A",
+
+    fontSize: 13,
+
     fontWeight: "800",
+
     marginLeft: 5,
   },
 
   /*
    * FOOTER
    */
+
   bottomText: {
-    color: "#aaa099",
-    fontSize: 11,
-    marginTop: 35,
+    color: "rgba(255,255,255,0.70)",
+
+    fontSize: 11.5,
+
+    marginTop: 32,
+
     textAlign: "center",
   },
 });
