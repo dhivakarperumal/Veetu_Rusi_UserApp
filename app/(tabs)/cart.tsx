@@ -84,7 +84,7 @@ export default function CartScreen() {
               color={colors.white}
             />
             <Text className="text-sm font-bold text-white">
-              Explore Home Chefs →
+              Explore Food Items →
             </Text>
           </TouchableOpacity>
         </View>
