@@ -267,12 +267,12 @@ export default function HomeScreen() {
 
       const foodsFromApi =
         foodsResult.status === "fulfilled" &&
-        Array.isArray(foodsResult.value.data)
+          Array.isArray(foodsResult.value.data)
           ? foodsResult.value.data
           : [];
       const productsFromApi =
         productsResult.status === "fulfilled" &&
-        Array.isArray(productsResult.value.data)
+          Array.isArray(productsResult.value.data)
           ? productsResult.value.data
           : [];
       const reviewsData =
@@ -418,27 +418,27 @@ export default function HomeScreen() {
     (location?.area && location?.district
       ? `${location.area}, ${location.district}`
       : location?.area ||
-        location?.district ||
-        location?.city ||
-        location?.pincode ||
-        "Set your location");
+      location?.district ||
+      location?.city ||
+      location?.pincode ||
+      "Set your location");
 
   const visibleCategories =
     categories.length > 0
       ? categories.slice(0, 8).map((category, index) => ({
-          key: category.name || category.c_name || String(index),
-          name: category.name || category.c_name || "Food",
-          image: getCategoryImageUrl(category),
-          icon: getIconByCategory(category.name || category.c_name || "Food"),
-          index,
-        }))
+        key: category.name || category.c_name || String(index),
+        name: category.name || category.c_name || "Food",
+        image: getCategoryImageUrl(category),
+        icon: getIconByCategory(category.name || category.c_name || "Food"),
+        index,
+      }))
       : staticCategories.map((category, index) => ({
-          key: category.label,
-          name: category.label,
-          image: "",
-          icon: category.icon,
-          index,
-        }));
+        key: category.label,
+        name: category.label,
+        image: "",
+        icon: category.icon,
+        index,
+      }));
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
@@ -463,9 +463,9 @@ export default function HomeScreen() {
                 (location?.area && location?.district
                   ? `${location.area}, ${location.district}`
                   : location?.area ||
-                    location?.district ||
-                    location?.pincode ||
-                    "Set your location")}
+                  location?.district ||
+                  location?.pincode ||
+                  "Set your location")}
             </Text>
           </View>
         </Pressable>
@@ -951,81 +951,12 @@ export default function HomeScreen() {
         </View>
 
         <ImageBackground
-          source={require("../../assets/images/this banner.png")}
+          source={require("../../assets/images/reviewabovebanner.png")}
           resizeMode="cover"
           className="mx-4 mt-4 h-[190px] overflow-hidden rounded-[20px]"
         />
 
-        {/* Section 4: Customer Reviews */}
-        <View className="mt-4 px-4">
-          <View className="mb-3 flex-row items-center justify-between">
-            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
-              Customer Reviews
-            </Text>
-            <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
-            </Pressable>
-          </View>
 
-          {reviewsLoading ? (
-            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          ) : reviewsError ? (
-            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
-              <Text className="font-semibold text-error">{reviewsError}</Text>
-            </View>
-          ) : reviews.length === 0 ? (
-            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
-              <Text className="font-semibold text-textSecondary">
-                No customer reviews yet.
-              </Text>
-            </View>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-3"
-            >
-              {reviews
-                .slice(0, 8)
-                .map((r: Record<string, any>, idx: number) => {
-                  const stars = Array.from({ length: 5 }, (_, i) =>
-                    i < Number(r.rating || 0) ? "★" : "☆",
-                  ).join("");
-                  const reviewer = String(
-                    r.user_name || r.user_email || "Verified Customer",
-                  );
-
-                  return (
-                    <View
-                      key={r.id || `${reviewer}-${idx}`}
-                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
-                    >
-                      <View className="flex-row items-center">
-                        <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
-                          <Text className="font-black text-primary">
-                            {reviewer.split(" ")[0].slice(0, 1).toUpperCase()}
-                          </Text>
-                        </View>
-                        <Text className="ml-3 text-[16px] font-black text-text">
-                          {reviewer}
-                        </Text>
-                      </View>
-                      <Text className="mt-2 text-[12px] font-black text-warning">
-                        {stars}
-                      </Text>
-                      <Text className="mt-2 text-[13px] font-medium text-textSecondary">
-                        {r.comment || "Good food experience."}
-                      </Text>
-                    </View>
-                  );
-                })}
-            </ScrollView>
-          )}
-        </View>
 
         {/* Section 5: Best Offers for You (Filtered by fetched location) */}
         <View className="mt-4 px-4 pb-6">
@@ -1228,6 +1159,216 @@ export default function HomeScreen() {
               ))}
             </View>
           )}
+        </View>
+
+        {/* Section 6: Plan Your Week */}
+        <View className="mt-1 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
+              Plan Your Week
+            </Text>
+            {/* <Text className="text-[14px] font-bold text-primary">Explore</Text> */}
+          </View>
+          <View className="flex-row justify-between">
+            {[
+              { label: "Breakfast", icon: "cafe-outline", category: "Break Fast" },
+              { label: "Lunch", icon: "restaurant-outline", category: "Lunch" },
+              { label: "Evening Bites", icon: "ice-cream-outline", category: "Evening Bites" },
+              { label: "Dinner", icon: "moon-outline", category: "Dinner" },
+            ].map((item) => (
+              <Pressable
+                key={item.label}
+                className="w-[23.5%] items-center rounded-[16px] border border-border bg-white px-1.5 py-4"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { category: item.category },
+                  })
+                }
+              >
+                <View className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                  <Ionicons
+                    name={item.icon as keyof typeof Ionicons.glyphMap}
+                    size={23}
+                    color={colors.primary}
+                  />
+                </View>
+                <Text className="mt-2 text-center text-[12px] font-bold text-text">
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Section 7: Fresh From Home Kitchens */}
+        <View className="mt-5 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <View>
+              <Text className="mt-2 text-[18px] font-black text-text">
+                Fresh From Home Kitchens
+              </Text>
+              <Text className="mt-1 text-[12px] font-semibold text-textSecondary">
+                Made with care by local chefs
+              </Text>
+            </View>
+            <Pressable onPress={() => router.push("/(tabs)/food")}>
+              <Text className="text-[14px] font-bold text-primary">See all</Text>
+            </Pressable>
+          </View>
+          <Pressable
+            className="overflow-hidden rounded-[18px] border border-border bg-white"
+            onPress={() => router.push("/(tabs)/food")}
+          >
+            <ImageBackground
+              source={require("../../assets/images/cloudkitchen.jpg")}
+              resizeMode="cover"
+              className="h-[220px] justify-end"
+            >
+              <View className="bg-black/20 px-4 pb-4 pt-8">
+                <View className="mb-2 flex-row items-center">
+                  <View className="rounded-full bg-primary px-2.5 py-1">
+                    <Text className="text-[10px] font-black text-white">
+                      LOCAL & FRESH
+                    </Text>
+                  </View>
+                  <Text className="ml-2 text-[11px] font-bold text-white/85">
+                    Made today
+                  </Text>
+                </View>
+                <Text className="text-[20px] font-black text-white">
+                  Comfort food, made nearby
+                </Text>
+                <Text className="mt-1 text-[13px] font-semibold text-white/90">
+                  Discover the taste of a real home kitchen
+                </Text>
+                <View className="mt-3 flex-row items-center">
+                  <Text className="text-[12px] font-black text-white">
+                    Explore homemade favourites
+                  </Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={16}
+                    color={colors.white}
+                    className="ml-1.5"
+                  />
+                </View>
+              </View>
+            </ImageBackground>
+          </Pressable>
+        </View>
+
+        {/* Section 4: Customer Reviews */}
+        <View className="mt-4 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
+              Customer Reviews
+            </Text>
+            
+          </View>
+
+          {reviewsLoading ? (
+            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : reviewsError ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-error">{reviewsError}</Text>
+            </View>
+          ) : reviews.length === 0 ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-textSecondary">
+                No customer reviews yet.
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-3"
+            >
+              {reviews
+                .slice(0, 8)
+                .map((r: Record<string, any>, idx: number) => {
+                  const stars = Array.from({ length: 5 }, (_, i) =>
+                    i < Number(r.rating || 0) ? "★" : "☆",
+                  ).join("");
+                  const reviewer = String(
+                    r.user_name || r.user_email || "Verified Customer",
+                  );
+
+                  return (
+                    <View
+                      key={r.id || `${reviewer}-${idx}`}
+                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
+                          <Text className="font-black text-primary">
+                            {reviewer.split(" ")[0].slice(0, 1).toUpperCase()}
+                          </Text>
+                        </View>
+                        <Text className="ml-3 text-[16px] font-black text-text">
+                          {reviewer}
+                        </Text>
+                      </View>
+                      <Text className="mt-2 text-[12px] font-black text-warning">
+                        {stars}
+                      </Text>
+                      <Text className="mt-2 text-[13px] font-medium text-textSecondary">
+                        {r.comment || "Good food experience."}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </ScrollView>
+          )}
+        </View>
+
+        {/* Section 8: Delivery Promise */}
+        <View className="mt-5 mb-10 px-4">
+          <View className="rounded-[20px] border border-primary/20 bg-[#FFF4EA] px-4 py-5">
+            <View className="flex-row items-center">
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
+                <Ionicons
+                  name="bicycle-outline"
+                  size={27}
+                  color={colors.white}
+                />
+              </View>
+              <View className="ml-3 flex-1">
+                <Text className="text-[18px] font-black text-secondary">
+                  Good food is on the way
+                </Text>
+                <Text className="mt-1 text-[13px] font-medium text-textSecondary">
+                  Freshly packed and delivered with care.
+                </Text>
+              </View>
+              <Ionicons
+                name="arrow-forward-circle"
+                size={28}
+                color={colors.primary}
+              />
+            </View>
+            <View className="mt-5 flex-row border-t border-primary/20 pt-4">
+              {[
+                { icon: "shield-checkmark-outline", label: "Safe packing" },
+                { icon: "time-outline", label: "On-time delivery" },
+                { icon: "heart-outline", label: "Made with care" },
+              ].map((item) => (
+                <View key={item.label} className="flex-1 items-center">
+                  <Ionicons
+                    name={item.icon as keyof typeof Ionicons.glyphMap}
+                    size={20}
+                    color={colors.primary}
+                  />
+                  <Text className="mt-1 text-center text-[11px] font-bold text-secondary">
+                    {item.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
       </ScrollView>
 

@@ -9,14 +9,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -72,8 +72,10 @@ export default function FoodScreen({
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-  const [priceRange, setPriceRange] = useState(10000);
+  const [minimumPrice, setMinimumPrice] = useState("");
+  const [maximumPrice, setMaximumPrice] = useState("10000");
   const [offerFilter, setOfferFilter] = useState(0);
+  const [ratingFilter, setRatingFilter] = useState(0);
   const [sortOption, setSortOption] = useState("");
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
 
@@ -88,7 +90,6 @@ export default function FoodScreen({
     /* eslint-disable react-hooks/set-state-in-effect */
     if (params.category) {
       setSelectedCategory(params.category);
-      setShowFilters(true);
     }
     if (params.search) {
       setSearch(params.search);
@@ -276,16 +277,30 @@ export default function FoodScreen({
       );
     }
 
-    // Price filter
-    updated = updated.filter(
-      (p) =>
-        Number(p.final_price ?? p.offer_price ?? p.mrp ?? 0) <=
-        Number(priceRange),
-    );
+    // Price range filter
+    const minimumPriceValue = minimumPrice ? Number(minimumPrice) : 0;
+    const maximumPriceValue = maximumPrice
+      ? Number(maximumPrice)
+      : Number.POSITIVE_INFINITY;
+    updated = updated.filter((p) => {
+      const productPrice = Number(p.final_price ?? p.offer_price ?? p.mrp ?? 0);
+      return (
+        productPrice >= minimumPriceValue && productPrice <= maximumPriceValue
+      );
+    });
 
     // Offer filter
     if (offerFilter) {
       updated = updated.filter((p) => Number(p.offer || 0) >= offerFilter);
+    }
+
+    // Rating filter
+    if (ratingFilter) {
+      updated = updated.filter(
+        (p) =>
+          Number(p.rating ?? p.average_rating ?? p.star_rating ?? 0) >=
+          ratingFilter,
+      );
     }
 
     // Sorting
@@ -319,8 +334,10 @@ export default function FoodScreen({
     selectedSubCategory,
     selectedColor,
     selectedSize,
-    priceRange,
+    minimumPrice,
+    maximumPrice,
     offerFilter,
+    ratingFilter,
     sortOption,
     products,
     selectedType,
@@ -334,8 +351,10 @@ export default function FoodScreen({
     setSelectedSubCategory("");
     setSelectedColor("");
     setSelectedSize("");
-    setPriceRange(10000);
+    setMinimumPrice("");
+    setMaximumPrice("10000");
     setOfferFilter(0);
+    setRatingFilter(0);
   };
 
   // Derived filter data
@@ -653,15 +672,15 @@ export default function FoodScreen({
             onRequestClose={() => setShowFilters(false)}
           >
             <View className="flex-1 justify-end bg-black/40">
-              <View className="max-h-[82%] rounded-t-[26px] bg-white p-4">
-                <View className="mb-4 flex-row items-center justify-between">
-                  <Text className="text-sm font-bold text-text">Filters</Text>
+              <View className="max-h-[82%] rounded-t-[26px] bg-white">
+                <View className="flex-row items-center justify-between rounded-t-[26px] bg-primary px-5 py-4">
+                  <Text className="text-[20px] font-black text-white">Filters</Text>
                   <View className="flex-row items-center">
                     <TouchableOpacity
                       onPress={clearFilters}
-                      className="mr-3 rounded border border-error px-2 py-1"
+                      className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
                     >
-                      <Text className="text-[11px] font-medium text-error">
+                      <Text className="text-[13px] font-bold text-white">
                         Clear
                       </Text>
                     </TouchableOpacity>
@@ -669,45 +688,57 @@ export default function FoodScreen({
                       <MaterialCommunityIcons
                         name="close"
                         size={22}
-                        color={colors.text}
+                        color={colors.white}
                       />
                     </TouchableOpacity>
                   </View>
                 </View>
 
                 <ScrollView
-                  className="shrink"
-                  contentContainerStyle={{ paddingBottom: 16 }}
+                  className="shrink px-5"
+                  contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
                   showsVerticalScrollIndicator={true}
                   nestedScrollEnabled
                 >
                   {/* Price Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-xs font-semibold text-text">
+                    <Text className="mb-2 text-[15px] font-black text-secondary">
                       Price
                     </Text>
-                    <View className="mb-2 flex-row gap-2">
+                    <View className="mb-2 flex-row gap-3">
                       <TextInput
-                        className="flex-1 rounded-md border border-borderLight px-2 py-1.5 text-xs text-text"
-                        value={String(priceRange)}
-                        onChangeText={(val) => setPriceRange(Number(val))}
+                        className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
+                        value={minimumPrice}
+                        onChangeText={setMinimumPrice}
                         keyboardType="numeric"
+                        placeholder="Min price"
+                        placeholderTextColor={colors.grayDark}
+                        accessibilityLabel="Minimum price"
+                      />
+                      <TextInput
+                        className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
+                        value={maximumPrice}
+                        onChangeText={setMaximumPrice}
+                        keyboardType="numeric"
+                        placeholder="Max price"
+                        placeholderTextColor={colors.grayDark}
+                        accessibilityLabel="Maximum price"
                       />
                     </View>
-                    <Text className="text-xs text-textSecondary">
-                      Up to ₹{Number(priceRange).toLocaleString()}
+                    <Text className="text-[13px] font-medium text-textSecondary">
+                      ₹{minimumPrice || "0"} - ₹{maximumPrice || "Any"}
                     </Text>
                   </View>
 
                   {/* Type Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-xs font-semibold text-text">
+                    <Text className="mb-2 text-[15px] font-black text-secondary">
                       Type
                     </Text>
                     {["Food", "Products"].map((type) => (
                       <TouchableOpacity
                         key={type}
-                        className="flex-row items-center gap-2 py-1.5"
+                        className="flex-row items-center gap-2 py-2"
                         onPress={() => {
                           setSelectedType(type);
                           if (selectedCategory) {
@@ -736,11 +767,11 @@ export default function FoodScreen({
                             <View className="h-2 w-2 rounded-full bg-primary" />
                           )}
                         </View>
-                        <Text className="text-xs text-text">{type}</Text>
+                        <Text className="text-[14px] font-medium text-text">{type}</Text>
                       </TouchableOpacity>
                     ))}
                     <TouchableOpacity
-                      className="flex-row items-center gap-2 py-1.5"
+                      className="flex-row items-center gap-2 py-2"
                       onPress={() => setSelectedType("")}
                     >
                       <View
@@ -754,16 +785,35 @@ export default function FoodScreen({
                           <View className="h-2 w-2 rounded-full bg-primary" />
                         )}
                       </View>
-                      <Text className="text-xs text-text">All Types</Text>
+                      <Text className="text-[14px] font-medium text-text">All Types</Text>
                     </TouchableOpacity>
                   </View>
 
                   {/* Category Filter */}
                   {categories.length > 0 && (
                     <View className="mb-3 border-b border-borderLight pb-3">
-                      <Text className="mb-2 text-xs font-semibold text-text">
+                      <Text className="mb-2 text-[15px] font-black text-secondary">
                         Category
                       </Text>
+                      <TouchableOpacity
+                        className="flex-row items-center gap-2 py-2"
+                        onPress={() => setSelectedCategory("")}
+                      >
+                        <View
+                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                            selectedCategory === ""
+                              ? "border-primary"
+                              : "border-borderLight"
+                          }`}
+                        >
+                          {selectedCategory === "" && (
+                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                          )}
+                        </View>
+                        <Text className="text-[14px] font-medium text-text">
+                          All Categories
+                        </Text>
+                      </TouchableOpacity>
                       {categories.map((cat) => {
                         const isCatSelected =
                           cat?.trim().toLowerCase() ===
@@ -773,21 +823,21 @@ export default function FoodScreen({
                         return (
                           <TouchableOpacity
                             key={cat}
-                            className="flex-row items-center gap-2 py-1.5"
+                            className="flex-row items-center gap-2 py-2"
                             onPress={() => setSelectedCategory(cat)}
                           >
                             <View
-                              className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                              className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
                                 isCatSelected
                                   ? "border-primary"
                                   : "border-borderLight"
                               }`}
                             >
                               {isCatSelected && (
-                                <View className="h-2 w-2 rounded-full bg-primary" />
+                                <View className="h-2.5 w-2.5 rounded-full bg-primary" />
                               )}
                             </View>
-                            <Text className="text-xs text-text">{cat}</Text>
+                            <Text className="text-[14px] font-medium text-text">{cat}</Text>
                           </TouchableOpacity>
                         );
                       })}
@@ -796,28 +846,95 @@ export default function FoodScreen({
 
                   {/* Offers Filter */}
                   <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-xs font-semibold text-text">
+                    <Text className="mb-2 text-[15px] font-black text-secondary">
                       Offers
                     </Text>
+                    <TouchableOpacity
+                      className="flex-row items-center gap-2 py-2"
+                      onPress={() => setOfferFilter(0)}
+                    >
+                      <View
+                        className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                          offerFilter === 0
+                            ? "border-primary"
+                            : "border-borderLight"
+                        }`}
+                      >
+                        {offerFilter === 0 && (
+                          <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                        )}
+                      </View>
+                      <Text className="text-[14px] font-medium text-text">
+                        All Offers
+                      </Text>
+                    </TouchableOpacity>
                     {[10, 20, 30, 40, 50].map((offer) => (
                       <TouchableOpacity
                         key={offer}
-                        className="flex-row items-center gap-2 py-1.5"
+                        className="flex-row items-center gap-2 py-2"
                         onPress={() => setOfferFilter(offer)}
                       >
                         <View
-                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
+                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
                             offerFilter === offer
                               ? "border-primary"
                               : "border-borderLight"
                           }`}
                         >
                           {offerFilter === offer && (
-                            <View className="h-2 w-2 rounded-full bg-primary" />
+                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
                           )}
                         </View>
-                        <Text className="text-xs text-text">
+                        <Text className="text-[14px] font-medium text-text">
                           {offer}% and above
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Rating Filter */}
+                  <View className="mb-3 border-b border-borderLight pb-3">
+                    <Text className="mb-2 text-[15px] font-black text-secondary">
+                      Rating
+                    </Text>
+                    <TouchableOpacity
+                      className="flex-row items-center gap-2 py-2"
+                      onPress={() => setRatingFilter(0)}
+                    >
+                      <View
+                        className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                          ratingFilter === 0
+                            ? "border-primary"
+                            : "border-borderLight"
+                        }`}
+                      >
+                        {ratingFilter === 0 && (
+                          <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                        )}
+                      </View>
+                      <Text className="text-[14px] font-medium text-text">
+                        All Ratings
+                      </Text>
+                    </TouchableOpacity>
+                    {[4, 3, 2].map((rating) => (
+                      <TouchableOpacity
+                        key={rating}
+                        className="flex-row items-center gap-2 py-2"
+                        onPress={() => setRatingFilter(rating)}
+                      >
+                        <View
+                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                            ratingFilter === rating
+                              ? "border-primary"
+                              : "border-borderLight"
+                          }`}
+                        >
+                          {ratingFilter === rating && (
+                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                          )}
+                        </View>
+                        <Text className="text-[14px] font-medium text-text">
+                          {rating}.0 and above
                         </Text>
                       </TouchableOpacity>
                     ))}
@@ -868,6 +985,7 @@ export default function FoodScreen({
                   selectedCategory ||
                   selectedType ||
                   offerFilter ||
+                  ratingFilter ||
                   selectedSubCategory ||
                   selectedColor ||
                   selectedSize
@@ -879,6 +997,7 @@ export default function FoodScreen({
                   selectedCategory ||
                   selectedType ||
                   offerFilter ||
+                  ratingFilter ||
                   selectedSubCategory ||
                   selectedColor ||
                   selectedSize) && (
