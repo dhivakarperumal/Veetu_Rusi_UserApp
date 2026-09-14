@@ -951,7 +951,7 @@ export default function HomeScreen() {
         </View>
 
         <ImageBackground
-          source={require("../../assets/images/this banner.png")}
+          source={require("../../assets/images/reviewabovebanner.png")}
           resizeMode="cover"
           className="mx-4 mt-4 h-[190px] overflow-hidden rounded-[20px]"
         />
