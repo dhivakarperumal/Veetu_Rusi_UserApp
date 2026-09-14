@@ -14,6 +14,11 @@
       }
     },
     "android": {
+      "navigationBar": {
+        "backgroundColor": "#2D3E50",
+        "barStyle": "light",
+        "enforceContrast": false
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/logos.png",
@@ -23,6 +28,11 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.veeturusi",
       "softwareKeyboardLayoutMode": "resize"
+    },
+    "androidNavigationBar": {
+      "visible": "always",
+      "barStyle": "light-content",
+      "backgroundColor": "#2D3E50"
     },
     "web": {
       "output": "static",
@@ -46,7 +56,13 @@
       "expo-font",
       "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-navigation-bar",
+        {
+          "style": "dark"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
