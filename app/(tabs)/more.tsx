@@ -47,6 +47,11 @@ export default function MoreScreen() {
     { label: "My Wishlist", icon: "heart-outline", route: "/wishlist" },
     { label: "My Addresses", icon: "map-marker-outline", route: "/addresses" },
     { label: "Help & Support", icon: "lifebuoy", route: "/help-support" },
+    {
+      label: "Terms & Conditions",
+      icon: "file-document-outline",
+      route: "/terms-and-conditions",
+    },
     { label: "About Veetu Rusi", icon: "information-outline", route: "/about" },
   ];
 

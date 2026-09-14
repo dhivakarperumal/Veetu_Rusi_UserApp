@@ -4,9 +4,10 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LocationProvider } from "@/context/LocationContext";
 import { StoreProvider } from "@/context/StoreContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import "../global.css";
 
 function RootLayoutContent() {
@@ -30,6 +31,20 @@ function RootLayoutContent() {
     };
 
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const configureNavigationBar = async () => {
+      try {
+        NavigationBar.setStyle("dark");
+      } catch (error) {
+        console.warn("Navigation bar styling unavailable:", error);
+      }
+    };
+
+    configureNavigationBar();
   }, []);
 
   if (isLoading) {

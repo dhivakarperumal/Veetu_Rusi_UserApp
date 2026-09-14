@@ -10,6 +10,14 @@ declare module "react-native-razorpay" {
       email?: string;
       contact?: string;
     };
+    method?: {
+      card?: boolean;
+      netbanking?: boolean;
+      wallet?: boolean;
+      upi?: boolean;
+      emi?: boolean;
+      paylater?: boolean;
+    };
     theme?: {
       color?: string;
     };
