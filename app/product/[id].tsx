@@ -5,8 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+
 import {
     ActivityIndicator,
     Dimensions,
