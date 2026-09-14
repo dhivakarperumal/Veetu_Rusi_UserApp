@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
    * Strong overlay makes every word readable.
    */
   overlay: {
-    backgroundColor: "rgba(8, 15, 13, 0.70)",
+    backgroundColor: "rgba(8, 15, 13, 0.35)",
     bottom: 0,
     left: 0,
     position: "absolute",
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
 
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(255,255,255,0.12)",
 
     borderRadius: 28,
 
@@ -512,14 +512,20 @@ const styles = StyleSheet.create({
    * LABEL
    */
 
-  label: {
-    color: "#FFFFFF",
+ label: {
+  color: "#FFFFFF",
+  fontSize: 13,
+  fontWeight: "700",
+  marginBottom: 8,
+},
 
-    fontSize: 13,
-    fontWeight: "700",
-
-    marginBottom: 8,
-  },
+inputText: {
+  flex: 1,
+  color: "#FFFFFF",
+  fontSize: 15,
+  marginLeft: 12,
+  paddingVertical: 0,
+},
 
   passwordHeader: {
     flexDirection: "row",
@@ -552,26 +558,17 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 16,
 
-    backgroundColor: "#FFF9F2",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    opacity: 1,
 
     borderWidth: 1,
 
-    borderColor: "#E7C7B2",
+    borderColor: "rgba(255,255,255,0.55)",
 
     borderRadius: 12,
   },
 
-  inputText: {
-    flex: 1,
 
-    color: "#213447",
-
-    fontSize: 15,
-
-    marginLeft: 12,
-
-    paddingVertical: 0,
-  },
 
   eyeButton: {
     paddingLeft: 8,
