@@ -267,12 +267,12 @@ export default function HomeScreen() {
 
       const foodsFromApi =
         foodsResult.status === "fulfilled" &&
-        Array.isArray(foodsResult.value.data)
+          Array.isArray(foodsResult.value.data)
           ? foodsResult.value.data
           : [];
       const productsFromApi =
         productsResult.status === "fulfilled" &&
-        Array.isArray(productsResult.value.data)
+          Array.isArray(productsResult.value.data)
           ? productsResult.value.data
           : [];
       const reviewsData =
@@ -418,27 +418,27 @@ export default function HomeScreen() {
     (location?.area && location?.district
       ? `${location.area}, ${location.district}`
       : location?.area ||
-        location?.district ||
-        location?.city ||
-        location?.pincode ||
-        "Set your location");
+      location?.district ||
+      location?.city ||
+      location?.pincode ||
+      "Set your location");
 
   const visibleCategories =
     categories.length > 0
       ? categories.slice(0, 8).map((category, index) => ({
-          key: category.name || category.c_name || String(index),
-          name: category.name || category.c_name || "Food",
-          image: getCategoryImageUrl(category),
-          icon: getIconByCategory(category.name || category.c_name || "Food"),
-          index,
-        }))
+        key: category.name || category.c_name || String(index),
+        name: category.name || category.c_name || "Food",
+        image: getCategoryImageUrl(category),
+        icon: getIconByCategory(category.name || category.c_name || "Food"),
+        index,
+      }))
       : staticCategories.map((category, index) => ({
-          key: category.label,
-          name: category.label,
-          image: "",
-          icon: category.icon,
-          index,
-        }));
+        key: category.label,
+        name: category.label,
+        image: "",
+        icon: category.icon,
+        index,
+      }));
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
@@ -463,9 +463,9 @@ export default function HomeScreen() {
                 (location?.area && location?.district
                   ? `${location.area}, ${location.district}`
                   : location?.area ||
-                    location?.district ||
-                    location?.pincode ||
-                    "Set your location")}
+                  location?.district ||
+                  location?.pincode ||
+                  "Set your location")}
             </Text>
           </View>
         </Pressable>
@@ -956,76 +956,7 @@ export default function HomeScreen() {
           className="mx-4 mt-4 h-[190px] overflow-hidden rounded-[20px]"
         />
 
-        {/* Section 4: Customer Reviews */}
-        <View className="mt-4 px-4">
-          <View className="mb-3 flex-row items-center justify-between">
-            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
-              Customer Reviews
-            </Text>
-            <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
-            </Pressable>
-          </View>
 
-          {reviewsLoading ? (
-            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          ) : reviewsError ? (
-            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
-              <Text className="font-semibold text-error">{reviewsError}</Text>
-            </View>
-          ) : reviews.length === 0 ? (
-            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
-              <Text className="font-semibold text-textSecondary">
-                No customer reviews yet.
-              </Text>
-            </View>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-3"
-            >
-              {reviews
-                .slice(0, 8)
-                .map((r: Record<string, any>, idx: number) => {
-                  const stars = Array.from({ length: 5 }, (_, i) =>
-                    i < Number(r.rating || 0) ? "★" : "☆",
-                  ).join("");
-                  const reviewer = String(
-                    r.user_name || r.user_email || "Verified Customer",
-                  );
-
-                  return (
-                    <View
-                      key={r.id || `${reviewer}-${idx}`}
-                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
-                    >
-                      <View className="flex-row items-center">
-                        <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
-                          <Text className="font-black text-primary">
-                            {reviewer.split(" ")[0].slice(0, 1).toUpperCase()}
-                          </Text>
-                        </View>
-                        <Text className="ml-3 text-[16px] font-black text-text">
-                          {reviewer}
-                        </Text>
-                      </View>
-                      <Text className="mt-2 text-[12px] font-black text-warning">
-                        {stars}
-                      </Text>
-                      <Text className="mt-2 text-[13px] font-medium text-textSecondary">
-                        {r.comment || "Good food experience."}
-                      </Text>
-                    </View>
-                  );
-                })}
-            </ScrollView>
-          )}
-        </View>
 
         {/* Section 5: Best Offers for You (Filtered by fetched location) */}
         <View className="mt-4 px-4 pb-6">
@@ -1325,6 +1256,77 @@ export default function HomeScreen() {
               </View>
             </ImageBackground>
           </Pressable>
+        </View>
+
+        {/* Section 4: Customer Reviews */}
+        <View className="mt-4 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
+              Customer Reviews
+            </Text>
+            <Pressable onPress={() => router.push("/(tabs)/food")}>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
+            </Pressable>
+          </View>
+
+          {reviewsLoading ? (
+            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : reviewsError ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-error">{reviewsError}</Text>
+            </View>
+          ) : reviews.length === 0 ? (
+            <View className="mb-4 rounded-2xl bg-white px-4 py-4">
+              <Text className="font-semibold text-textSecondary">
+                No customer reviews yet.
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-3"
+            >
+              {reviews
+                .slice(0, 8)
+                .map((r: Record<string, any>, idx: number) => {
+                  const stars = Array.from({ length: 5 }, (_, i) =>
+                    i < Number(r.rating || 0) ? "★" : "☆",
+                  ).join("");
+                  const reviewer = String(
+                    r.user_name || r.user_email || "Verified Customer",
+                  );
+
+                  return (
+                    <View
+                      key={r.id || `${reviewer}-${idx}`}
+                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
+                          <Text className="font-black text-primary">
+                            {reviewer.split(" ")[0].slice(0, 1).toUpperCase()}
+                          </Text>
+                        </View>
+                        <Text className="ml-3 text-[16px] font-black text-text">
+                          {reviewer}
+                        </Text>
+                      </View>
+                      <Text className="mt-2 text-[12px] font-black text-warning">
+                        {stars}
+                      </Text>
+                      <Text className="mt-2 text-[13px] font-medium text-textSecondary">
+                        {r.comment || "Good food experience."}
+                      </Text>
+                    </View>
+                  );
+                })}
+            </ScrollView>
+          )}
         </View>
 
         {/* Section 8: Delivery Promise */}
