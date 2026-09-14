@@ -609,6 +609,12 @@ export default function CheckoutScreen() {
           email: email.trim(),
           contact: phone.trim(),
         },
+        method: {
+          card: true,
+          netbanking: true,
+          wallet: true,
+          upi: false,
+        },
         theme: { color: colors.primary },
       });
 
