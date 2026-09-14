@@ -88,7 +88,6 @@ export default function FoodScreen({
     /* eslint-disable react-hooks/set-state-in-effect */
     if (params.category) {
       setSelectedCategory(params.category);
-      setShowFilters(true);
     }
     if (params.search) {
       setSearch(params.search);
@@ -362,16 +361,6 @@ export default function FoodScreen({
               .map((cat) => cat.trim()),
           ),
         ];
-
-  if (
-    selectedCategory &&
-    !categories.some(
-      (category) =>
-        category.toLowerCase() === selectedCategory.trim().toLowerCase(),
-    )
-  ) {
-    categories.unshift(selectedCategory);
-  }
 
   // Pagination
   const productsPerPage = 10;

@@ -1240,10 +1240,10 @@ export default function HomeScreen() {
           </View>
           <View className="flex-row justify-between">
             {[
-              { label: "Breakfast", icon: "cafe-outline", category: "Breakfast" },
-              { label: "Lunch", icon: "restaurant-outline", category: "Lunch" },
-              { label: "Evening Bites", icon: "ice-cream-outline", category: "Evening Bites" },
-              { label: "Dinner", icon: "moon-outline", category: "Dinner" },
+              { label: "Breakfast", icon: "cafe-outline", category: "Tiffin" },
+              { label: "Lunch", icon: "restaurant-outline", category: "Meals" },
+              { label: "Evening Bites", icon: "ice-cream-outline", category: "Snacks" },
+              { label: "Dinner", icon: "moon-outline", category: "Meals" },
             ].map((item) => (
               <Pressable
                 key={item.label}
