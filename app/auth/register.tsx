@@ -9,25 +9,28 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    TouchableWithoutFeedback,
     View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const emailRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmPasswordRef = useRef<TextInput>(null);
+  const activeOffsetRef = useRef<number>(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const initialReferral = (
     Array.isArray(params.referral_code)
@@ -50,10 +53,44 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      const height = e.endCoordinates.height;
+      setKeyboardHeight(height);
+      if (activeOffsetRef.current > 0) {
+        setTimeout(() => {
+          scrollViewRef.current?.scrollTo({
+            y: activeOffsetRef.current,
+            animated: true,
+          });
+        }, 50);
+      }
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+      activeOffsetRef.current = 0;
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const handleFocus = (yOffset: number) => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
-    }, 100);
+    activeOffsetRef.current = yOffset;
+    setTimeout(
+      () => {
+        scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
+      },
+      Platform.OS === "android" ? 150 : 60
+    );
   };
 
   useEffect(() => {
@@ -118,30 +155,39 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#fff7e8]" edges={["top"]}>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
+        style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
       >
         <ScrollView
           ref={scrollViewRef}
-          contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingBottom:
+                Platform.OS === "android" && keyboardHeight > 0
+                  ? keyboardHeight + 100
+                  : 120,
+            },
+          ]}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
           nestedScrollEnabled
           showsVerticalScrollIndicator={false}
+          bounces={true}
+          overScrollMode="always"
         >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.hero}>
-              <ImageBackground
-                source={require("../../assets/images/login banner.png")}
-                resizeMode="stretch"
-                style={StyleSheet.absoluteFill}
-              />
-            </View>
-          </TouchableWithoutFeedback>
+          <Pressable onPress={Keyboard.dismiss} style={styles.hero}>
+            <ImageBackground
+              source={require("../../assets/images/login banner.png")}
+              resizeMode="stretch"
+              style={StyleSheet.absoluteFill}
+            />
+          </Pressable>
 
           <View style={styles.card}>
             <Text style={styles.title}>Create Account</Text>
@@ -165,7 +211,7 @@ export default function RegisterScreen() {
                   autoCapitalize="none"
                   returnKeyType="next"
                   onSubmitEditing={() => emailRef.current?.focus()}
-                  onFocus={() => handleFocus(60)}
+                  onFocus={() => handleFocus(120)}
                 />
               </View>
             </View>
@@ -191,7 +237,7 @@ export default function RegisterScreen() {
                   autoCapitalize="none"
                   returnKeyType="next"
                   onSubmitEditing={() => phoneRef.current?.focus()}
-                  onFocus={() => handleFocus(120)}
+                  onFocus={() => handleFocus(190)}
                 />
               </View>
             </View>
@@ -216,7 +262,7 @@ export default function RegisterScreen() {
                   style={styles.inputText}
                   returnKeyType="next"
                   onSubmitEditing={() => passwordRef.current?.focus()}
-                  onFocus={() => handleFocus(180)}
+                  onFocus={() => handleFocus(260)}
                 />
               </View>
             </View>
@@ -243,7 +289,7 @@ export default function RegisterScreen() {
                     style={styles.passwordText}
                     returnKeyType="next"
                     onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                    onFocus={() => handleFocus(250)}
+                    onFocus={() => handleFocus(330)}
                   />
                   <TouchableOpacity
                     style={styles.passwordToggle}
@@ -280,7 +326,7 @@ export default function RegisterScreen() {
                     style={styles.passwordText}
                     returnKeyType="done"
                     onSubmitEditing={handleSubmit}
-                    onFocus={() => handleFocus(250)}
+                    onFocus={() => handleFocus(400)}
                   />
                   <TouchableOpacity
                     style={styles.passwordToggle}
@@ -323,12 +369,15 @@ export default function RegisterScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flexGrow: 1, paddingBottom: 80, backgroundColor: "#fff7e8" },
+  root: { flex: 1, backgroundColor: "#fff7e8" },
+  keyboardView: { flex: 1 },
+  scrollView: { flex: 1 },
+  scrollContent: { flexGrow: 1, backgroundColor: "#fff7e8" },
   hero: { height: 300, position: "relative" },
   card: {
     backgroundColor: "rgba(255, 255, 255, 0.98)",

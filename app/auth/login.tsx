@@ -2,29 +2,32 @@ import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     ImageBackground,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    TouchableWithoutFeedback,
     View
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
+  const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const activeOffsetRef = useRef<number>(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [form, setForm] = useState({
     identifier: "",
@@ -33,10 +36,44 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      const height = e.endCoordinates.height;
+      setKeyboardHeight(height);
+      if (activeOffsetRef.current > 0) {
+        setTimeout(() => {
+          scrollViewRef.current?.scrollTo({
+            y: activeOffsetRef.current,
+            animated: true,
+          });
+        }, 50);
+      }
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+      activeOffsetRef.current = 0;
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const handleFocus = (yOffset: number) => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
-    }, 100);
+    activeOffsetRef.current = yOffset;
+    setTimeout(
+      () => {
+        scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
+      },
+      Platform.OS === "android" ? 150 : 60
+    );
   };
 
   const handleChange = (name: string, value: string) => {
@@ -88,29 +125,38 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#fff7e8]" edges={["top"]}>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
+        style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
       >
         <ScrollView
           ref={scrollViewRef}
-          contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingBottom:
+                Platform.OS === "android" && keyboardHeight > 0
+                  ? keyboardHeight + 100
+                  : 120,
+            },
+          ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
+          bounces={true}
+          overScrollMode="always"
         >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.hero}>
-              <ImageBackground
-                source={require("../../assets/images/login banner.png")}
-                resizeMode="stretch"
-                style={StyleSheet.absoluteFill}
-              />
-            </View>
-          </TouchableWithoutFeedback>
+          <Pressable onPress={Keyboard.dismiss} style={styles.hero}>
+            <ImageBackground
+              source={require("../../assets/images/login banner.png")}
+              resizeMode="stretch"
+              style={StyleSheet.absoluteFill}
+            />
+          </Pressable>
 
           <View style={styles.card}>
             <Text style={styles.title}>Welcome Back!</Text>
@@ -133,7 +179,7 @@ export default function LoginScreen() {
                   autoCapitalize="none"
                   returnKeyType="next"
                   onSubmitEditing={() => passwordInputRef.current?.focus()}
-                  onFocus={() => handleFocus(80)}
+                  onFocus={() => handleFocus(180)}
                 />
               </View>
             </View>
@@ -151,7 +197,7 @@ export default function LoginScreen() {
                   style={styles.inputText}
                   returnKeyType="done"
                   onSubmitEditing={handleSubmit}
-                  onFocus={() => handleFocus(150)}
+                  onFocus={() => handleFocus(260)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -205,12 +251,15 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flexGrow: 1, paddingBottom: 80, backgroundColor: "#fff7e8" },
+  root: { flex: 1, backgroundColor: "#fff7e8" },
+  keyboardView: { flex: 1 },
+  scrollView: { flex: 1 },
+  scrollContent: { flexGrow: 1, backgroundColor: "#fff7e8" },
   hero: { height: 300, position: "relative" },
 
   card: {
