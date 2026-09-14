@@ -584,6 +584,18 @@ export default function CheckoutScreen() {
       return;
     }
 
+    if (
+      Platform.OS === "web" ||
+      !RazorpayCheckout ||
+      typeof RazorpayCheckout.open !== "function"
+    ) {
+      Alert.alert(
+        "Razorpay Requires a New App Build",
+        "This installed app does not include the Razorpay native module. Close Expo Go, run `npx expo prebuild`, then install the app with `npx expo run:android`.",
+      );
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const payment = await RazorpayCheckout.open({
