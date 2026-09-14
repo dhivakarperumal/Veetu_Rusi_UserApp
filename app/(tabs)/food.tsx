@@ -578,7 +578,7 @@ export default function FoodScreen({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="flex-row gap-2"
+            contentContainerStyle={{ gap: 8, paddingRight: 4 }}
           >
             {[
               { label: "Default", value: "" },
@@ -948,7 +948,10 @@ export default function FoodScreen({
           <View className="flex-1">
             {currentProducts.length > 0 ? (
               viewMode === "card" ? (
-                <View className="flex-row flex-wrap justify-between gap-2.5">
+                <View
+                  className="flex-row flex-wrap justify-between"
+                  style={{ rowGap: 12, columnGap: 12 }}
+                >
                   {currentProducts.map((product, index) => (
                     <View
                       key={product.id || product._id || `product-${index}`}
@@ -959,7 +962,7 @@ export default function FoodScreen({
                   ))}
                 </View>
               ) : (
-                <View className="w-full">
+                <View className="w-full" style={{ rowGap: 12 }}>
                   {currentProducts.map((product, index) => (
                     <View
                       key={product.id || product._id || `list-product-${index}`}
