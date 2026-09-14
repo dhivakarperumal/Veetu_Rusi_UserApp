@@ -1240,13 +1240,14 @@ export default function HomeScreen() {
           </View>
           <View className="flex-row justify-between">
             {[
-              { label: "Breakfast", icon: "cafe-outline", category: "Tiffin" },
-              { label: "Lunch", icon: "restaurant-outline", category: "Meals" },
-              { label: "Evening Bites", icon: "ice-cream-outline", category: "Snacks" },
+              { label: "Breakfast", icon: "cafe-outline", category: "Breakfast" },
+              { label: "Lunch", icon: "restaurant-outline", category: "Lunch" },
+              { label: "Evening Bites", icon: "ice-cream-outline", category: "Evening Bites" },
+              { label: "Dinner", icon: "moon-outline", category: "Dinner" },
             ].map((item) => (
               <Pressable
                 key={item.label}
-                className="w-[31.5%] items-center rounded-[16px] border border-border bg-white px-2 py-4"
+                className="w-[23.5%] items-center rounded-[16px] border border-border bg-white px-1.5 py-4"
                 onPress={() =>
                   router.push({
                     pathname: "/(tabs)/food" as any,

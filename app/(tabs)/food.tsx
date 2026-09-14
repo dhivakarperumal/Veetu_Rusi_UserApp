@@ -9,14 +9,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -362,6 +362,16 @@ export default function FoodScreen({
               .map((cat) => cat.trim()),
           ),
         ];
+
+  if (
+    selectedCategory &&
+    !categories.some(
+      (category) =>
+        category.toLowerCase() === selectedCategory.trim().toLowerCase(),
+    )
+  ) {
+    categories.unshift(selectedCategory);
+  }
 
   // Pagination
   const productsPerPage = 10;
