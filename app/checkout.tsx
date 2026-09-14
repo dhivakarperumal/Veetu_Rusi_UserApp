@@ -444,6 +444,13 @@ export default function CheckoutScreen() {
   const finalizeOrder = async (paymentId: string | null = null) => {
     try {
       setIsSubmitting(true);
+      const orderSubtotal = Number(subtotal.toFixed(2));
+      const orderTotal = Number(grandTotal.toFixed(2));
+
+      if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
+        throw new Error("The order total must be greater than ₹0.");
+      }
+
       const res = await placeFoodOrder({
         name,
         email,
@@ -462,12 +469,16 @@ export default function CheckoutScreen() {
         payment_method: paymentMethod,
         payment_status: paymentMethod === "Online Payment" ? "Paid" : "Pending",
         payment_id: paymentId,
+        razorpay_payment_id: paymentId,
+        payment_provider: paymentMethod === "Online Payment" ? "Razorpay" : null,
         coupon_id: appliedCoupon?.id || null,
         coupon_code: appliedCoupon?.code || null,
         discount_amount: discountAmount,
-        subtotal,
-        total_amount: subtotal,
-        final_total: grandTotal,
+        subtotal: orderSubtotal,
+        amount: orderTotal,
+        total: orderTotal,
+        total_amount: orderTotal,
+        final_total: orderTotal,
         isBuyNow: Boolean(buyNowItem?.product),
         items: checkoutItems,
       });
@@ -596,11 +607,23 @@ export default function CheckoutScreen() {
       return;
     }
 
+    let razorpayPaymentId: string | null = null;
+
     try {
+      const paymentAmount = Number(grandTotal.toFixed(2));
+
+      if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
+        Alert.alert(
+          "Invalid Order Total",
+          "The order amount must be greater than ₹0 before making an online payment.",
+        );
+        return;
+      }
+
       setIsSubmitting(true);
       const payment = await RazorpayCheckout.open({
         key: RAZORPAY_KEY,
-        amount: String(Math.round(grandTotal * 100)),
+        amount: String(Math.round(paymentAmount * 100)),
         currency: "INR",
         name: "Veetu Rusi",
         description: `Food order for ${name.trim() || "customer"}`,
@@ -618,12 +641,22 @@ export default function CheckoutScreen() {
         theme: { color: colors.primary },
       });
 
-      if (!payment?.razorpay_payment_id) {
+      razorpayPaymentId = payment?.razorpay_payment_id || null;
+
+      if (!razorpayPaymentId) {
         throw new Error("Razorpay did not return a payment ID.");
       }
 
-      await finalizeOrder(payment.razorpay_payment_id);
+      await finalizeOrder(razorpayPaymentId);
     } catch (error: any) {
+      if (razorpayPaymentId) {
+        Alert.alert(
+          "Payment Successful",
+          `Payment ID ${razorpayPaymentId} was received, but the order could not be created. Please contact support with this payment ID.`,
+        );
+        return;
+      }
+
       const description =
         error?.description || error?.message || "Payment was cancelled or failed.";
       Alert.alert("Payment Not Completed", description);
