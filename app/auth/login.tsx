@@ -173,10 +173,11 @@ return (
                 Platform.OS === "android" &&
                 keyboardHeight > 0
                   ? keyboardHeight + 60
-                  : 35,
+                  : 0,
             },
           ]}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={keyboardHeight > 0}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === "ios"
@@ -416,6 +417,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
+    justifyContent: "center",
   },
 
   /*
@@ -423,10 +425,11 @@ const styles = StyleSheet.create({
    */
 
   container: {
-    flexGrow: 1,
+    flex: 1,
     minHeight: "100%",
 
     alignItems: "center",
+    justifyContent: "center",
 
     paddingHorizontal: 22,
     paddingTop: 32,
