@@ -1236,7 +1236,7 @@ export default function HomeScreen() {
             <Text className="mt-2 mb-2 text-[18px] font-black text-text">
               Plan Your Week
             </Text>
-            <Text className="text-[14px] font-bold text-primary">Explore</Text>
+            {/* <Text className="text-[14px] font-bold text-primary">Explore</Text> */}
           </View>
           <View className="flex-row justify-between">
             {[
@@ -1290,19 +1290,38 @@ export default function HomeScreen() {
             onPress={() => router.push("/(tabs)/food")}
           >
             <ImageBackground
-              source={{
-                uri: "https://images.unsplash.com/photo-1556910103-1c02745?auto=format&fit=crop&w=900&q=80",
-              }}
+              source={require("../../assets/images/cloudkitchen.jpg")}
               resizeMode="cover"
-              className="h-[145px] justify-end"
+              className="h-[220px] justify-end"
             >
-              <View className="bg-black/45 px-4 py-3">
-                <Text className="text-[17px] font-black text-white">
+              <View className="bg-black/20 px-4 pb-4 pt-8">
+                <View className="mb-2 flex-row items-center">
+                  <View className="rounded-full bg-primary px-2.5 py-1">
+                    <Text className="text-[10px] font-black text-white">
+                      LOCAL & FRESH
+                    </Text>
+                  </View>
+                  <Text className="ml-2 text-[11px] font-bold text-white/85">
+                    Made today
+                  </Text>
+                </View>
+                <Text className="text-[20px] font-black text-white">
                   Comfort food, made nearby
                 </Text>
-                <Text className="mt-1 text-[12px] font-semibold text-white/90">
+                <Text className="mt-1 text-[13px] font-semibold text-white/90">
                   Discover the taste of a real home kitchen
                 </Text>
+                <View className="mt-3 flex-row items-center">
+                  <Text className="text-[12px] font-black text-white">
+                    Explore homemade favourites
+                  </Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={16}
+                    color={colors.white}
+                    className="ml-1.5"
+                  />
+                </View>
               </View>
             </ImageBackground>
           </Pressable>
@@ -1310,20 +1329,46 @@ export default function HomeScreen() {
 
         {/* Section 8: Delivery Promise */}
         <View className="mt-5 mb-2 px-4">
-          <View className="rounded-[18px] bg-secondary px-4 py-4">
+          <View className="rounded-[20px] bg-secondary px-4 py-5">
             <View className="flex-row items-center">
-              <View className="h-11 w-11 items-center justify-center rounded-full bg-white/15">
-                <Ionicons name="bicycle-outline" size={25} color={colors.white} />
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-white/15">
+                <Ionicons
+                  name="bicycle-outline"
+                  size={27}
+                  color={colors.white}
+                />
               </View>
               <View className="ml-3 flex-1">
-                <Text className="text-[16px] font-black text-white">
+                <Text className="text-[18px] font-black text-white">
                   Good food is on the way
                 </Text>
-                <Text className="mt-1 text-[12px] font-medium text-white/80">
+                <Text className="mt-1 text-[13px] font-medium text-white/80">
                   Freshly packed and delivered with care.
                 </Text>
               </View>
-              <Ionicons name="arrow-forward-circle" size={26} color={colors.white} />
+              <Ionicons
+                name="arrow-forward-circle"
+                size={28}
+                color={colors.white}
+              />
+            </View>
+            <View className="mt-5 flex-row border-t border-white/15 pt-4">
+              {[
+                { icon: "shield-checkmark-outline", label: "Safe packing" },
+                { icon: "time-outline", label: "On-time delivery" },
+                { icon: "heart-outline", label: "Made with care" },
+              ].map((item) => (
+                <View key={item.label} className="flex-1 items-center">
+                  <Ionicons
+                    name={item.icon as keyof typeof Ionicons.glyphMap}
+                    size={20}
+                    color={colors.primaryLight}
+                  />
+                  <Text className="mt-1 text-center text-[11px] font-bold text-white/85">
+                    {item.label}
+                  </Text>
+                </View>
+              ))}
             </View>
           </View>
         </View>
