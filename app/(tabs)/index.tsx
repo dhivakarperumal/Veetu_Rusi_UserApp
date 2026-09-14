@@ -547,7 +547,7 @@ export default function HomeScreen() {
                 hitSlop={8}
                 onPress={() => setFilterSheetVisible(true)}
               >
-                <Ionicons name="filter" size={22} color={colors.grayDark} />
+                {/* <Ionicons name="filter" size={22} color={colors.grayDark} /> */}
               </Pressable>
             )}
           </View>
