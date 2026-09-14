@@ -3,7 +3,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     Modal,
@@ -56,6 +56,9 @@ export default function OrdersScreen() {
   const { addToFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [showFilters, setShowFilters] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -231,6 +234,38 @@ export default function OrdersScreen() {
     const amount = Number(value ?? 0);
     return `₹${amount.toLocaleString("en-IN")}`;
   };
+
+  const availableStatuses = useMemo(() => {
+    const statuses = orders.map((order) =>
+      String(order.status || order.order_status || "Processing").trim(),
+    );
+    return ["All Statuses", ...Array.from(new Set(statuses))];
+  }, [orders]);
+
+  const filteredOrders = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return orders.filter((order) => {
+      const status = String(
+        order.status || order.order_status || "Processing",
+      ).trim();
+      const searchableText = [
+        order.order_number,
+        order.id,
+        order.restaurant_name,
+        order.vendor_name,
+        order.item_name,
+        status,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (!query || searchableText.includes(query)) &&
+        (selectedStatus === "All Statuses" || status === selectedStatus)
+      );
+    });
+  }, [orders, searchQuery, selectedStatus]);
 
   const reorderFood = (order: any) => {
     const orderItems =
@@ -426,6 +461,53 @@ export default function OrdersScreen() {
         <Text className="text-[22px] font-bold text-text">My Orders</Text>
       </View>
 
+      {!loading && orders.length > 0 && (
+        <View className="border-b border-borderLight bg-white px-5 pb-3 pt-4">
+          <View className="flex-row items-center gap-2">
+            <View className="flex-1 flex-row items-center rounded-xl border border-borderLight bg-[#F9FAFB] px-3">
+              <MaterialCommunityIcons
+                name="magnify"
+                size={21}
+                color="#6B7280"
+              />
+              <TextInput
+                className="ml-2 flex-1 py-3 text-[15px] text-text"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search orders"
+                placeholderTextColor="#8A94A6"
+                returnKeyType="search"
+              />
+              {searchQuery ? (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <MaterialCommunityIcons
+                    name="close-circle"
+                    size={19}
+                    color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            <TouchableOpacity
+              className={`h-[48px] w-[48px] items-center justify-center rounded-xl ${
+                selectedStatus === "All Statuses" ? "bg-gray" : "bg-primary"
+              }`}
+              onPress={() => setShowFilters(true)}
+              accessibilityLabel="Filter orders"
+            >
+              <MaterialCommunityIcons
+                name="filter-variant"
+                size={22}
+                color={selectedStatus === "All Statuses" ? "#1F2937" : "#FFFFFF"}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text className="mt-2 text-[13px] font-medium text-textSecondary">
+            Showing {filteredOrders.length} of {orders.length} orders
+          </Text>
+        </View>
+      )}
+
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="small" color="#FF8C42" />
@@ -443,7 +525,17 @@ export default function OrdersScreen() {
           contentContainerStyle={{ padding: 20, paddingBottom: 60 }}
           showsVerticalScrollIndicator={false}
         >
-          {orders.map((order: any, index: number) => {
+          {filteredOrders.length === 0 ? (
+            <View className="items-center justify-center py-16">
+              <MaterialCommunityIcons name="file-search-outline" size={52} color="#9CA3AF" />
+              <Text className="mt-4 text-[18px] font-black text-text">
+                No matching orders
+              </Text>
+              <Text className="mt-2 text-center text-[14px] text-textSecondary">
+                Try another search or clear the selected status filter.
+              </Text>
+            </View>
+          ) : filteredOrders.map((order: any, index: number) => {
             const status = order.status || order.order_status || "Processing";
             const statusStyle = getStatusStyle(status);
             const actionButtons = getActionButtons(status, order);
@@ -599,16 +691,16 @@ export default function OrdersScreen() {
         onRequestClose={() => setShowPopup(false)}
       >
         <View className="flex-1 justify-end bg-black/40">
-          <View className="rounded-t-[28px] bg-white p-5 pb-7">
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="flex-1 text-[22px] font-black text-text">
+          <View className="max-h-[88%] rounded-t-[28px] bg-white">
+            <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
+              <Text className="flex-1 text-[20px] font-black text-white">
                 {selectedOrder?.order_number ||
                   `Order #${selectedOrder?.id}` ||
                   "Order details"}
               </Text>
               {hasAssignedDeliveryPartner(selectedOrder) ? (
-                <View className="ml-3 rounded-full bg-[#DCEAFF] px-3 py-2">
-                  <Text className="text-[12px] font-bold text-[#1558D6]">
+                <View className="ml-3 rounded-full bg-white/20 px-3 py-2">
+                  <Text className="text-[11px] font-bold text-white">
                     Delivery Partner Assigned
                   </Text>
                 </View>
@@ -617,7 +709,7 @@ export default function OrdersScreen() {
                 <MaterialCommunityIcons
                   name="close"
                   size={24}
-                  color="#374151"
+                  color="#FFFFFF"
                 />
               </Pressable>
             </View>
@@ -627,16 +719,20 @@ export default function OrdersScreen() {
                 <ActivityIndicator size="small" color="#FF8C42" />
               </View>
             ) : selectedOrder ? (
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View className="mb-4">
-                  <Text className="text-[13px] font-bold uppercase text-textSecondary">
+              <ScrollView
+                className="px-5"
+                contentContainerStyle={{ paddingTop: 18, paddingBottom: 28 }}
+                showsVerticalScrollIndicator={false}
+              >
+                <View className="mb-5">
+                  <Text className="text-[14px] font-black uppercase text-textSecondary">
                     Status
                   </Text>
                   <View
                     className={`mt-2 inline-flex self-start rounded-full px-3 py-1 ${getStatusStyle(selectedOrder.status || selectedOrder.order_status).badge}`}
                   >
                     <Text
-                      className={`text-[11px] font-bold ${getStatusStyle(selectedOrder.status || selectedOrder.order_status).text}`}
+                      className={`text-[13px] font-bold ${getStatusStyle(selectedOrder.status || selectedOrder.order_status).text}`}
                     >
                       {selectedOrder.status ||
                         selectedOrder.order_status ||
@@ -645,11 +741,11 @@ export default function OrdersScreen() {
                   </View>
                 </View>
 
-                <View className="mb-4">
-                  <Text className="text-[13px] font-bold uppercase text-textSecondary">
+                <View className="mb-5">
+                  <Text className="text-[14px] font-black uppercase text-textSecondary">
                     Total
                   </Text>
-                  <Text className="mt-1 text-[18px] font-bold text-text">
+                  <Text className="mt-1 text-[22px] font-black text-primary">
                     {formatPrice(
                       selectedOrder.total_amount ||
                         selectedOrder.amount ||
@@ -659,8 +755,8 @@ export default function OrdersScreen() {
                   </Text>
                 </View>
 
-                <View className="mb-4">
-                  <Text className="text-[13px] font-bold uppercase text-textSecondary">
+                <View className="mb-5">
+                  <Text className="text-[14px] font-black uppercase text-textSecondary">
                     Items
                   </Text>
                   {Array.isArray(
@@ -670,12 +766,12 @@ export default function OrdersScreen() {
                       (item: any, index: number) => (
                         <View
                           key={`${item?.name || item?.product_name || "item"}-${index}`}
-                          className="mt-2 flex-row items-center justify-between"
+                          className="mt-3 flex-row items-center justify-between rounded-xl bg-[#FFF8F2] px-3 py-2.5"
                         >
-                          <Text className="text-[14px] text-text">
+                          <Text className="text-[15px] font-medium text-text">
                             {item?.name || item?.product_name || "Food item"}
                           </Text>
-                          <Text className="text-[14px] font-semibold text-textSecondary">
+                          <Text className="text-[14px] font-bold text-textSecondary">
                             {item?.quantity || 1} ×{" "}
                             {formatPrice(item?.price || item?.unit_price || 0)}
                           </Text>
@@ -689,21 +785,21 @@ export default function OrdersScreen() {
                   )}
                 </View>
 
-                <View className="mb-4">
-                  <Text className="text-[13px] font-bold uppercase text-textSecondary">
+                <View className="mb-5">
+                  <Text className="text-[14px] font-black uppercase text-textSecondary">
                     Delivery Address
                   </Text>
-                  <Text className="mt-2 text-[14px] text-text">
+                  <Text className="mt-2 text-[15px] font-semibold text-text">
                     {address?.customer_name ||
                       selectedOrder.customer_name ||
                       "Customer"}
                   </Text>
-                  <Text className="mt-1 text-[14px] text-textSecondary">
+                  <Text className="mt-1 text-[15px] text-textSecondary">
                     {address?.street_address ||
                       selectedOrder.street_address ||
                       "Address not available"}
                   </Text>
-                  <Text className="text-[14px] text-textSecondary">
+                  <Text className="text-[15px] text-textSecondary">
                     {(address?.city || selectedOrder.city || "") +
                       ((address?.city || selectedOrder.city) &&
                       (address?.district || selectedOrder.district)
@@ -711,7 +807,7 @@ export default function OrdersScreen() {
                         : "") +
                       (address?.district || selectedOrder.district || "")}
                   </Text>
-                  <Text className="text-[14px] text-textSecondary">
+                  <Text className="text-[15px] text-textSecondary">
                     {(address?.state || selectedOrder.state || "") +
                       ((address?.state || selectedOrder.state) &&
                       (address?.zip_code || selectedOrder.zip_code)
@@ -719,10 +815,10 @@ export default function OrdersScreen() {
                         : "") +
                       (address?.zip_code || selectedOrder.zip_code || "")}
                   </Text>
-                  <Text className="text-[14px] text-textSecondary">
+                  <Text className="text-[15px] text-textSecondary">
                     {address?.country || selectedOrder.country || ""}
                   </Text>
-                  <Text className="mt-2 text-[14px] text-textSecondary">
+                  <Text className="mt-2 text-[15px] text-textSecondary">
                     {address?.customer_phone ||
                       selectedOrder.customer_phone ||
                       "No phone provided"}
@@ -773,6 +869,61 @@ export default function OrdersScreen() {
                 ) : null}
               </ScrollView>
             ) : null}
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={showFilters}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowFilters(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="max-h-[70%] rounded-t-[28px] bg-white">
+            <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
+              <Text className="text-[20px] font-black text-white">
+                Filter Orders
+              </Text>
+              <View className="flex-row items-center">
+                <TouchableOpacity
+                  className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
+                  onPress={() => setSelectedStatus("All Statuses")}
+                >
+                  <Text className="text-[13px] font-bold text-white">Clear</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowFilters(false)}>
+                  <MaterialCommunityIcons name="close" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View className="px-5 py-5">
+              <Text className="mb-3 text-[15px] font-black text-secondary">
+                Order Status
+              </Text>
+              {availableStatuses.map((status) => (
+                <TouchableOpacity
+                  key={status}
+                  className="flex-row items-center gap-3 py-2.5"
+                  onPress={() => {
+                    setSelectedStatus(status);
+                    setShowFilters(false);
+                  }}
+                >
+                  <View
+                    className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      selectedStatus === status
+                        ? "border-primary"
+                        : "border-borderLight"
+                    }`}
+                  >
+                    {selectedStatus === status && (
+                      <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                    )}
+                  </View>
+                  <Text className="text-[15px] font-medium text-text">{status}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
       </Modal>
