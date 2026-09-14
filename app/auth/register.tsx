@@ -433,6 +433,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F2C4A5",
     marginTop: 20,
+    
     maxWidth: 430,
     paddingHorizontal: 18,
     paddingTop: 18,
@@ -523,5 +524,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     textDecorationLine: "underline",
   },
-  bottomText: { color: "#D1D1D1", fontSize: 11.5, marginTop: 16 },
+  bottomText: {
+    color: "#D1D1D1",
+    fontSize: 11.5,
+    marginTop: 16,
+    marginBottom: 35,
+  },
 });
