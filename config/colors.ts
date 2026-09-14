@@ -1,9 +1,9 @@
 // Predefined color scheme for the app
 export const colors = {
   // Primary colors
-  primary: "#FF8C42", // Orange
-  primaryLight: "#FFB380",
-  primaryDark: "#E07B2F",
+  primary: "#243447", // Dark navy for high-contrast actions
+  primaryLight: "#48627A",
+  primaryDark: "#172433",
 
   // Secondary colors
   secondary: "#2D3E50", // Dark blue/gray
