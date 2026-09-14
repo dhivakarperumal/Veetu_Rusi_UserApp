@@ -8,7 +8,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -202,6 +202,9 @@ export default function OrdersScreen() {
   const { fetchUserFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -699,6 +702,38 @@ export default function OrdersScreen() {
 
   const effectiveUser = user || localUser;
 
+  const availableStatuses = useMemo(() => {
+    const statuses = orders.map((order) =>
+      String(order.status || "New Order").trim(),
+    );
+    return ["All Statuses", ...Array.from(new Set(statuses))];
+  }, [orders]);
+
+  const filteredOrders = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return orders.filter((order) => {
+      const status = String(order.status || "New Order").trim();
+      const searchableText = [
+        order.order_id,
+        order.id,
+        order.chef_name,
+        getChefNames(order.items),
+        status,
+        ...(order.items || []).map(
+          (item: any) => item.name || item.product_name || "",
+        ),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (!query || searchableText.includes(query)) &&
+        (selectedStatus === "All Statuses" || status === selectedStatus)
+      );
+    });
+  }, [orders, searchQuery, selectedStatus]);
+
   if (!effectiveUser || sessionExpired) {
     return (
       <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -742,6 +777,44 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       <AppHeader title="Orders" />
+
+      {!loading && orders.length > 0 && (
+        <View className="border-b border-borderLight bg-white px-4 pb-3 pt-3">
+          <View className="flex-row items-center gap-2">
+            <View className="flex-1 flex-row items-center rounded-xl border border-borderLight bg-[#F9FAFB] px-3">
+              <Ionicons name="search-outline" size={20} color={colors.grayDark} />
+              <TextInput
+                className="ml-2 flex-1 py-3 text-[15px] text-text"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search orders or food"
+                placeholderTextColor={colors.grayDark}
+              />
+              {searchQuery ? (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <Ionicons name="close-circle" size={19} color={colors.grayDark} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            <TouchableOpacity
+              className={`h-[48px] w-[48px] items-center justify-center rounded-xl ${
+                selectedStatus === "All Statuses" ? "bg-gray" : "bg-primary"
+              }`}
+              onPress={() => setShowFilters(true)}
+              accessibilityLabel="Filter orders"
+            >
+              <Ionicons
+                name="filter-outline"
+                size={21}
+                color={selectedStatus === "All Statuses" ? colors.text : colors.white}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text className="mt-2 text-[13px] font-medium text-textSecondary">
+            Showing {filteredOrders.length} of {orders.length} orders
+          </Text>
+        </View>
+      )}
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
@@ -790,7 +863,17 @@ export default function OrdersScreen() {
             </View>
           ) : (
             <View className="gap-4">
-              {orders.map((order) => {
+              {filteredOrders.length === 0 ? (
+                <View className="items-center justify-center rounded-3xl bg-white px-6 py-16">
+                  <MaterialCommunityIcons name="file-search-outline" size={52} color={colors.grayDark} />
+                  <Text className="mt-4 text-[18px] font-black text-text">
+                    No matching orders
+                  </Text>
+                  <Text className="mt-2 text-center text-[14px] text-textSecondary">
+                    Try another search or clear the selected status filter.
+                  </Text>
+                </View>
+              ) : filteredOrders.map((order) => {
                 const statusTheme = getStatusColor(order.status);
                 const itemsCount =
                   order.items?.reduce(
@@ -1031,6 +1114,60 @@ export default function OrdersScreen() {
         </ScrollView>
       )}
 
+      <Modal
+        visible={showFilters}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowFilters(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="max-h-[70%] rounded-t-[28px] bg-white">
+            <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
+              <Text className="text-[20px] font-black text-white">Filter Orders</Text>
+              <View className="flex-row items-center">
+                <TouchableOpacity
+                  onPress={() => setSelectedStatus("All Statuses")}
+                  className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
+                >
+                  <Text className="text-[13px] font-bold text-white">Clear</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowFilters(false)}>
+                  <Ionicons name="close" size={25} color={colors.white} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View className="px-5 py-5">
+              <Text className="mb-3 text-[15px] font-black text-secondary">
+                Order Status
+              </Text>
+              {availableStatuses.map((status) => (
+                <TouchableOpacity
+                  key={status}
+                  className="flex-row items-center gap-3 py-2.5"
+                  onPress={() => {
+                    setSelectedStatus(status);
+                    setShowFilters(false);
+                  }}
+                >
+                  <View
+                    className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      selectedStatus === status
+                        ? "border-primary"
+                        : "border-borderLight"
+                    }`}
+                  >
+                    {selectedStatus === status && (
+                      <View className="h-2.5 w-2.5 rounded-full bg-primary" />
+                    )}
+                  </View>
+                  <Text className="text-[15px] font-medium text-text">{status}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Order Details Modal */}
       {selectedOrder && (
         <Modal
@@ -1040,46 +1177,47 @@ export default function OrdersScreen() {
           onRequestClose={() => setSelectedOrder(null)}
         >
           <View className="flex-1 justify-end bg-black/60">
-            <View className="max-h-[90%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+            <View className="max-h-[90%] rounded-t-[32px] bg-white shadow-2xl">
               {/* Modal Header */}
-              <View className="mb-4 flex-row items-center justify-between border-b border-borderLight pb-3">
+              <View className="flex-row items-center justify-between rounded-t-[32px] bg-primary px-5 py-4">
                 <View>
-                  <Text className="text-lg font-black text-text">
+                  <Text className="text-[20px] font-black text-white">
                     Order Details
                   </Text>
-                  <Text className="text-xs text-textSecondary">
+                  <Text className="text-[13px] font-medium text-white/85">
                     Order #{selectedOrder.order_id || selectedOrder.id}
                   </Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => setSelectedOrder(null)}
-                  className="h-8 w-8 items-center justify-center rounded-full bg-gray"
+                  className="h-9 w-9 items-center justify-center rounded-full bg-white/20"
                 >
-                  <Ionicons name="close" size={20} color={colors.text} />
+                  <Ionicons name="close" size={22} color={colors.white} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                className="max-h-[500px]"
+                className="max-h-[500px] px-5"
+                contentContainerStyle={{ paddingTop: 18, paddingBottom: 28 }}
               >
                 {/* Delivery Information */}
                 <View className="mb-4 rounded-2xl bg-[#F9FAFB] p-3.5">
-                  <Text className="text-[10px] font-black uppercase text-textSecondary">
+                  <Text className="text-[14px] font-black uppercase text-textSecondary">
                     Delivery Address
                   </Text>
-                  <Text className="mt-1 text-sm font-bold text-text">
+                  <Text className="mt-2 text-[16px] font-bold text-text">
                     {selectedOrder.customer_name ||
                       selectedOrder.ordered_by_name ||
                       selectedOrder.name}
                   </Text>
-                  <Text className="text-xs text-textSecondary">
+                  <Text className="text-[14px] text-textSecondary">
                     📞{" "}
                     {selectedOrder.customer_phone ||
                       selectedOrder.ordered_by_phone ||
                       selectedOrder.phone}
                   </Text>
-                  <Text className="mt-1 text-xs leading-relaxed text-textSecondary">
+                  <Text className="mt-2 text-[14px] leading-relaxed text-textSecondary">
                     {[
                       selectedOrder.street_address,
                       selectedOrder.city,
@@ -1095,7 +1233,7 @@ export default function OrdersScreen() {
 
                 {/* Items List */}
                 <View className="mb-4">
-                  <Text className="mb-2 text-xs font-black uppercase text-textSecondary">
+                  <Text className="mb-3 text-[14px] font-black uppercase text-textSecondary">
                     Dishes Ordered
                   </Text>
                   {selectedOrder.items?.map((it: any, index: number) => {
@@ -1105,7 +1243,7 @@ export default function OrdersScreen() {
                     return (
                       <View
                         key={index}
-                        className="mb-2 flex-row items-center gap-3 rounded-2xl border border-borderLight p-2.5"
+                        className="mb-3 flex-row items-center gap-3 rounded-2xl border border-borderLight bg-[#FFF8F2] p-3"
                       >
                         <View className="h-12 w-12 overflow-hidden rounded-xl bg-gray">
                           {img ? (
@@ -1126,17 +1264,17 @@ export default function OrdersScreen() {
                         </View>
                         <View className="flex-1">
                           <Text
-                            className="text-xs font-bold text-text"
+                            className="text-[15px] font-bold text-text"
                             numberOfLines={1}
                           >
                             {it.name || it.product_name}
                           </Text>
-                          <Text className="text-[11px] text-textSecondary">
+                          <Text className="text-[13px] text-textSecondary">
                             Qty {it.quantity || 1} × ₹
                             {parseFloat(it.price || 0).toFixed(0)}
                           </Text>
                         </View>
-                        <Text className="text-xs font-black text-text">
+                        <Text className="text-[14px] font-black text-primary">
                           ₹{itemTotal.toFixed(0)}
                         </Text>
                       </View>
@@ -1146,7 +1284,7 @@ export default function OrdersScreen() {
 
                 {/* Bill Summary */}
                 <View className="mb-4 rounded-2xl border border-borderLight p-3.5">
-                  <Text className="mb-2 text-xs font-black uppercase text-textSecondary">
+                  <Text className="mb-3 text-[14px] font-black uppercase text-textSecondary">
                     Bill Summary
                   </Text>
                   <View className="mb-1.5 flex-row justify-between">
