@@ -178,7 +178,8 @@ export default function RegisterScreen() {
                     : 0,
               },
             ]}
-            scrollEnabled={keyboardHeight > 0}
+            scrollEnabled
+            automaticallyAdjustKeyboardInsets
             showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
