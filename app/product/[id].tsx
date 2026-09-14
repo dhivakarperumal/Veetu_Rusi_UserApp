@@ -672,7 +672,9 @@ export default function ProductDetailScreen() {
                 size={18}
                 color={colors.primary}
               />
-              <Text className="text-[13px] font-bold text-primary">Cart</Text>
+              <Text className="text-[13px] font-bold text-primary">
+                Add To Cart
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
