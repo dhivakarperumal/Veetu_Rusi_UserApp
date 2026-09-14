@@ -19,23 +19,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PROFILE_FIELDS = [
-  { key: "username", label: "Username", placeholder: "Username" },
   { key: "name", label: "Name", placeholder: "Full name" },
+  { key: "username", label: "Username", placeholder: "Username" },
   { key: "email", label: "Email", placeholder: "Email" },
-  { key: "phone", label: "Phone", placeholder: "Phone" },
-  { key: "mobile", label: "Mobile", placeholder: "Mobile" },
-  {
-    key: "mobile_number",
-    label: "Mobile Number",
-    placeholder: "Mobile number",
-  },
-  { key: "address", label: "Address", placeholder: "Address" },
-  { key: "area", label: "Area", placeholder: "Area" },
-  { key: "district", label: "District", placeholder: "District" },
-  { key: "city", label: "City", placeholder: "City" },
-  { key: "state", label: "State", placeholder: "State" },
-  { key: "pincode", label: "Pincode", placeholder: "Pincode" },
-  { key: "role", label: "Role", placeholder: "Role" },
+  { key: "phone", label: "Phone Number", placeholder: "Phone number" },
 ];
 
 export default function ProfileScreen() {
@@ -127,9 +114,6 @@ export default function ProfileScreen() {
               </View>
               <Text className="mt-3 text-[22px] font-black text-text">
                 {form?.username || form?.name || "Foodie User"}
-              </Text>
-              <Text className="mt-1 text-[13px] font-medium text-textSecondary">
-                {form?.role || "Customer"}
               </Text>
             </View>
           </View>
