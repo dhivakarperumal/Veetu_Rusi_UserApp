@@ -378,7 +378,6 @@ export default function RegisterScreen() {
               </Link>
             </View>
               </View>
-              <Text style={styles.bottomText}>Homemade • Fresh • Local</Text>
             </Pressable>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -430,6 +429,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 30,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     borderWidth: 1,
     borderColor: "#F2C4A5",
     marginTop: 20,
@@ -523,11 +524,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 8,
     textDecorationLine: "underline",
-  },
-  bottomText: {
-    color: "#D1D1D1",
-    fontSize: 11.5,
-    marginTop: 16,
-    marginBottom: 35,
   },
 });
