@@ -1264,11 +1264,7 @@ export default function HomeScreen() {
             <Text className="mt-2 mb-2 text-[18px] font-black text-text">
               Customer Reviews
             </Text>
-            <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
-            </Pressable>
+            
           </View>
 
           {reviewsLoading ? (
