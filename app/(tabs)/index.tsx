@@ -726,7 +726,7 @@ export default function HomeScreen() {
 
         {/* Promo Banner */}
         <ImageBackground
-          source={require("../../assets/images/offer banner.png")}
+          source={require("../../assets/images/offerbanner.png")}
           resizeMode="cover"
           className="mx-4 mt-1 h-[190px] overflow-hidden rounded-[20px]"
         />
