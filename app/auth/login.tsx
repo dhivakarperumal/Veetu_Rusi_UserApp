@@ -495,17 +495,95 @@ const styles = StyleSheet.create({
    * FORM
    */
 
-  formContainer: {
-    width: "100%",
-    maxWidth: 430,
+formContainer: {
+  width: "100%",
+  maxWidth: 430,
+  marginTop: 30,
+  paddingHorizontal: 18,
+  paddingTop: 28,
+  paddingBottom: 26,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 30,
 
-    marginTop: 30,
-    paddingHorizontal: 18,
-    paddingTop: 28,
-    paddingBottom: 26,
-    backgroundColor: "#050505",
-    borderRadius: 30,
+  shadowColor: "#E85D04",
+  shadowOffset: {
+    width: 0,
+    height: 6,
   },
+  shadowOpacity: 0.15,
+  shadowRadius: 12,
+  elevation: 6,
+},
+
+label: {
+  color: "#5A4030",
+  fontSize: 13,
+  fontWeight: "700",
+  marginBottom: 8,
+},
+
+inputText: {
+  flex: 1,
+  color: "#3A2A22",
+  fontSize: 15,
+  marginLeft: 12,
+  paddingVertical: 0,
+},
+
+forgotText: {
+  color: "#E85D04",
+  fontSize: 12.5,
+  fontWeight: "700",
+  marginBottom: 8,
+},
+
+inputWrapper: {
+  width: "100%",
+  height: 58,
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 18,
+
+  backgroundColor: "#FFF8F3",
+  borderWidth: 1,
+  borderColor: "#F2C4A5",
+  borderRadius: 30,
+},
+
+loginButton: {
+  width: "100%",
+  height: 58,
+  borderRadius: 30,
+
+  backgroundColor: "#E85D04",
+
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  marginTop: 8,
+
+  shadowColor: "#E85D04",
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 7,
+  elevation: 5,
+},
+
+registerText: {
+  color: "#6B5B52",
+  fontSize: 13,
+},
+
+registerLink: {
+  color: "#E85D04",
+  fontSize: 13,
+  fontWeight: "800",
+  marginLeft: 5,
+},
 
   fieldContainer: {
     width: "100%",
@@ -517,20 +595,7 @@ const styles = StyleSheet.create({
    * LABEL
    */
 
- label: {
-  color: "#BDBDBD",
-  fontSize: 13,
-  fontWeight: "700",
-  marginBottom: 8,
-},
 
-inputText: {
-  flex: 1,
-  color: "#202020",
-  fontSize: 15,
-  marginLeft: 12,
-  paddingVertical: 0,
-},
 
   passwordHeader: {
     flexDirection: "row",
@@ -540,38 +605,13 @@ inputText: {
     justifyContent: "space-between",
   },
 
-  forgotText: {
-    color: "#F06464",
-
-    fontSize: 12.5,
-    fontWeight: "700",
-
-    marginBottom: 8,
-  },
+  
 
   /*
    * INPUT
    */
 
-  inputWrapper: {
-    width: "100%",
-    height: 58,
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    paddingHorizontal: 18,
-
-    backgroundColor: "#F4F5F8",
-    opacity: 1,
-
-    borderWidth: 1,
-
-    borderColor: "#FFFFFF",
-
-    borderRadius: 30,
-  },
+  
 
 
 
@@ -584,37 +624,7 @@ inputText: {
    * SIGN IN
    */
 
-  loginButton: {
-    width: "100%",
-    height: 58,
-
-    borderRadius: 30,
-
-    backgroundColor: "#EF2027",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    gap: 8,
-
-    marginTop: 8,
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
-    shadowOpacity: 0.25,
-
-    shadowRadius: 7,
-
-    elevation: 5,
-  },
+ 
 
   loginText: {
     color: "#FFFFFF",
@@ -640,22 +650,6 @@ inputText: {
     justifyContent: "center",
 
     marginTop: 26,
-  },
-
-  registerText: {
-    color: "#A7A7A7",
-
-    fontSize: 13,
-  },
-
-  registerLink: {
-    color: "#EF4E55",
-
-    fontSize: 13,
-
-    fontWeight: "800",
-
-    marginLeft: 5,
   },
 
   /*
