@@ -72,7 +72,8 @@ export default function FoodScreen({
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-  const [priceRange, setPriceRange] = useState(10000);
+  const [minimumPrice, setMinimumPrice] = useState("");
+  const [maximumPrice, setMaximumPrice] = useState("10000");
   const [offerFilter, setOfferFilter] = useState(0);
   const [ratingFilter, setRatingFilter] = useState(0);
   const [sortOption, setSortOption] = useState("");
@@ -276,12 +277,17 @@ export default function FoodScreen({
       );
     }
 
-    // Price filter
-    updated = updated.filter(
-      (p) =>
-        Number(p.final_price ?? p.offer_price ?? p.mrp ?? 0) <=
-        Number(priceRange),
-    );
+    // Price range filter
+    const minimumPriceValue = minimumPrice ? Number(minimumPrice) : 0;
+    const maximumPriceValue = maximumPrice
+      ? Number(maximumPrice)
+      : Number.POSITIVE_INFINITY;
+    updated = updated.filter((p) => {
+      const productPrice = Number(p.final_price ?? p.offer_price ?? p.mrp ?? 0);
+      return (
+        productPrice >= minimumPriceValue && productPrice <= maximumPriceValue
+      );
+    });
 
     // Offer filter
     if (offerFilter) {
@@ -328,7 +334,8 @@ export default function FoodScreen({
     selectedSubCategory,
     selectedColor,
     selectedSize,
-    priceRange,
+    minimumPrice,
+    maximumPrice,
     offerFilter,
     ratingFilter,
     sortOption,
@@ -344,7 +351,8 @@ export default function FoodScreen({
     setSelectedSubCategory("");
     setSelectedColor("");
     setSelectedSize("");
-    setPriceRange(10000);
+    setMinimumPrice("");
+    setMaximumPrice("10000");
     setOfferFilter(0);
     setRatingFilter(0);
   };
@@ -697,16 +705,28 @@ export default function FoodScreen({
                     <Text className="mb-2 text-[15px] font-black text-secondary">
                       Price
                     </Text>
-                    <View className="mb-2 flex-row gap-2">
+                    <View className="mb-2 flex-row gap-3">
                       <TextInput
                         className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
-                        value={String(priceRange)}
-                        onChangeText={(val) => setPriceRange(Number(val))}
+                        value={minimumPrice}
+                        onChangeText={setMinimumPrice}
                         keyboardType="numeric"
+                        placeholder="Min price"
+                        placeholderTextColor={colors.grayDark}
+                        accessibilityLabel="Minimum price"
+                      />
+                      <TextInput
+                        className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
+                        value={maximumPrice}
+                        onChangeText={setMaximumPrice}
+                        keyboardType="numeric"
+                        placeholder="Max price"
+                        placeholderTextColor={colors.grayDark}
+                        accessibilityLabel="Maximum price"
                       />
                     </View>
                     <Text className="text-[13px] font-medium text-textSecondary">
-                      Up to ₹{Number(priceRange).toLocaleString()}
+                      ₹{minimumPrice || "0"} - ₹{maximumPrice || "Any"}
                     </Text>
                   </View>
 
