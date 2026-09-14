@@ -895,17 +895,19 @@ export default function OrdersScreen() {
                   Boolean(order.delivery_partner_name);
 
                 return (
-                  <View
+                  <TouchableOpacity
                     key={order.id}
+                    activeOpacity={0.96}
+                    onPress={() => openOrder(order)}
                     className="overflow-hidden rounded-3xl border border-borderLight bg-white shadow-sm"
                   >
                     {/* Header */}
                     <View className="flex-row items-center justify-between border-b border-borderLight bg-[#FAFAFA] px-4 py-3.5">
                       <View>
-                        <Text className="text-[10px] font-black uppercase tracking-wider text-textSecondary">
+                        <Text className="text-[12px] font-black uppercase tracking-wider text-textSecondary">
                           Order #{order.order_id || order.id}
                         </Text>
-                        <Text className="mt-0.5 text-xs font-semibold text-text">
+                        <Text className="mt-0.5 text-[14px] font-semibold text-text">
                           {formatDateTime(order.ordered_at)}
                         </Text>
                       </View>
@@ -913,7 +915,7 @@ export default function OrdersScreen() {
                         className={`rounded-full px-3 py-1 ${statusTheme.bg}`}
                       >
                         <Text
-                          className={`text-[11px] font-bold ${statusTheme.text}`}
+                          className={`text-[13px] font-bold ${statusTheme.text}`}
                         >
                           {order.status === "Pending"
                             ? "New Order"
@@ -927,16 +929,16 @@ export default function OrdersScreen() {
                       {/* Delivery Slot & Chef */}
                       <View className="mb-3 flex-row gap-2.5">
                         <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                          <Text className="text-[10px] uppercase font-bold text-textSecondary">
+                          <Text className="text-[12px] uppercase font-bold text-textSecondary">
                             Delivery Slot
                           </Text>
                           <Text
-                            className="mt-1 text-xs font-bold text-text"
+                            className="mt-1 text-[14px] font-bold text-text"
                             numberOfLines={1}
                           >
                             {order.delivery_date || "-"}
                           </Text>
-                          <Text className="text-[11px] text-textSecondary">
+                          <Text className="text-[13px] text-textSecondary">
                             {order.delivery_time
                               ? `at ${order.delivery_time}`
                               : ""}
@@ -944,16 +946,16 @@ export default function OrdersScreen() {
                         </View>
 
                         <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                          <Text className="text-[10px] uppercase font-bold text-textSecondary">
+                          <Text className="text-[12px] uppercase font-bold text-textSecondary">
                             Home Chef
                           </Text>
                           <Text
-                            className="mt-1 text-xs font-bold text-primary"
+                            className="mt-1 text-[14px] font-bold text-primary"
                             numberOfLines={1}
                           >
                             {getChefNames(order.items, order.chef_name)}
                           </Text>
-                          <Text className="text-[11px] text-textSecondary">
+                          <Text className="text-[13px] text-textSecondary">
                             {itemsCount} {itemsCount === 1 ? "dish" : "dishes"}
                           </Text>
                         </View>
@@ -966,7 +968,7 @@ export default function OrdersScreen() {
                           .map((item: any, idx: number) => (
                             <Text
                               key={idx}
-                              className="text-xs text-textSecondary"
+                              className="text-[14px] text-textSecondary"
                               numberOfLines={1}
                             >
                               • {item.name || item.product_name} (×
@@ -974,7 +976,7 @@ export default function OrdersScreen() {
                             </Text>
                           ))}
                         {order.items?.length > 2 && (
-                          <Text className="mt-0.5 text-[11px] font-semibold text-primary">
+                          <Text className="mt-0.5 text-[13px] font-semibold text-primary">
                             +{order.items.length - 2} more items
                           </Text>
                         )}
@@ -982,11 +984,11 @@ export default function OrdersScreen() {
 
                       {/* Amount */}
                       <View className="flex-row items-center justify-between border-t border-borderLight pt-2.5">
-                        <Text className="text-xs font-semibold text-textSecondary">
+                        <Text className="text-[14px] font-semibold text-textSecondary">
                           Total Paid
                         </Text>
                         <View className="flex-row items-baseline gap-1.5">
-                          <Text className="text-base font-black text-text">
+                          <Text className="text-[18px] font-black text-text">
                             ₹{totalAmount.toFixed(0)}
                           </Text>
                           {parseFloat(order.discount_amount || 0) > 0 && (
@@ -1044,20 +1046,6 @@ export default function OrdersScreen() {
 
                     {/* Action buttons */}
                     <View className="flex-row flex-wrap items-center gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
-                      <TouchableOpacity
-                        onPress={() => openOrder(order)}
-                        className="flex-row items-center gap-1 rounded-xl bg-primary px-3.5 py-2 active:opacity-90"
-                      >
-                        <MaterialCommunityIcons
-                          name="file-document-outline"
-                          size={14}
-                          color="#FFF"
-                        />
-                        <Text className="text-xs font-bold text-white">
-                          View Details
-                        </Text>
-                      </TouchableOpacity>
-
                       {isDelivered && (
                         <>
                           <TouchableOpacity
@@ -1106,7 +1094,7 @@ export default function OrdersScreen() {
                         </>
                       )}
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
