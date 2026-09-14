@@ -8,7 +8,10 @@
     "scheme": "userapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": ["tez", "phonepe", "paytmmp"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +21,8 @@
         "monochromeImage": "./assets/images/logos.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.veeturusi"
+      "package": "com.anonymous.veeturusi",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",

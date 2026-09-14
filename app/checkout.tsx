@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "@/app/api";
 import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
+import { RAZORPAY_KEY } from "@/config/payment";
 import { useAuth } from "@/context/AuthContext";
 import { CartItem, useStore } from "@/context/StoreContext";
 import {
@@ -27,6 +28,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import RazorpayCheckout from "react-native-razorpay";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const INDIAN_STATES = [
@@ -558,23 +560,7 @@ export default function CheckoutScreen() {
     }
 
     if (paymentMethod === "Online Payment") {
-      // Prompt online payment confirmation
-      Alert.alert(
-        "Online Payment",
-        `Proceed to pay ₹${grandTotal.toFixed(0)} online?`,
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Pay Now",
-            onPress: () => {
-              const dummyPaymentId = `pay_${Date.now()}_${Math.random()
-                .toString(36)
-                .substring(2, 8)}`;
-              finalizeOrder(dummyPaymentId);
-            },
-          },
-        ]
-      );
+      await handleRazorpayPayment();
       return;
     }
 
@@ -590,6 +576,54 @@ export default function CheckoutScreen() {
         },
       ]
     );
+  };
+
+  const handleRazorpayPayment = async () => {
+    if (!RAZORPAY_KEY) {
+      Alert.alert("Payment Setup Error", "Razorpay is not configured yet.");
+      return;
+    }
+
+    if (
+      Platform.OS === "web" ||
+      !RazorpayCheckout ||
+      typeof RazorpayCheckout.open !== "function"
+    ) {
+      Alert.alert(
+        "Razorpay Requires a New App Build",
+        "This installed app does not include the Razorpay native module. Close Expo Go, run `npx expo prebuild`, then install the app with `npx expo run:android`.",
+      );
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const payment = await RazorpayCheckout.open({
+        key: RAZORPAY_KEY,
+        amount: String(Math.round(grandTotal * 100)),
+        currency: "INR",
+        name: "Veetu Rusi",
+        description: `Food order for ${name.trim() || "customer"}`,
+        prefill: {
+          name: name.trim(),
+          email: email.trim(),
+          contact: phone.trim(),
+        },
+        theme: { color: colors.primary },
+      });
+
+      if (!payment?.razorpay_payment_id) {
+        throw new Error("Razorpay did not return a payment ID.");
+      }
+
+      await finalizeOrder(payment.razorpay_payment_id);
+    } catch (error: any) {
+      const description =
+        error?.description || error?.message || "Payment was cancelled or failed.";
+      Alert.alert("Payment Not Completed", description);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredStates = useMemo(() => {
