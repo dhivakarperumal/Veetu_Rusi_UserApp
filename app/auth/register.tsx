@@ -4,18 +4,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    ImageBackground,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  ImageBackground,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
@@ -156,42 +156,52 @@ export default function RegisterScreen() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <ImageBackground
+        source={require("../../assets/images/register_image.jpg")}
+        resizeMode="cover"
+        style={styles.background}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom:
-                Platform.OS === "android" && keyboardHeight > 0
-                  ? keyboardHeight + 100
-                  : 120,
-            },
-          ]}
+        <View style={styles.overlay} />
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              {
+                paddingBottom:
+                  Platform.OS === "android" && keyboardHeight > 0
+                    ? keyboardHeight + 60
+                    : 0,
+              },
+            ]}
+            scrollEnabled={keyboardHeight > 0}
+            showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
-          nestedScrollEnabled
-          showsVerticalScrollIndicator={false}
-          bounces={true}
-          overScrollMode="always"
-        >
-          <Pressable onPress={Keyboard.dismiss} style={styles.hero}>
-            <ImageBackground
-              source={require("../../assets/images/login banner.png")}
-              resizeMode="stretch"
-              style={StyleSheet.absoluteFill}
-            />
-          </Pressable>
+            bounces={false}
+          >
+            <Pressable onPress={Keyboard.dismiss} style={styles.container}>
+              <View style={styles.logoContainer}>
+                <ImageBackground
+                  source={require("../../assets/images/logo.png")}
+                  resizeMode="contain"
+                  style={styles.logo}
+                />
+              </View>
+              <Text style={styles.brandName}>Veetu Rusi</Text>
+              <Text style={styles.tagline}>Homemade food. Freshly delivered.</Text>
 
-          <View style={styles.card}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join Veetu Rusi today</Text>
+              <View style={styles.card}>
+                <Text style={styles.kicker}>JOIN THE TABLE</Text>
+                <Text style={styles.title}>Create your account</Text>
+                <Text style={styles.subtitle}>Bring homemade goodness closer to you.</Text>
+
             {/* Username Field */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Username</Text>
@@ -366,118 +376,151 @@ export default function RegisterScreen() {
                 </TouchableOpacity>
               </Link>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+              </View>
+              <Text style={styles.bottomText}>Homemade • Fresh • Local</Text>
+            </Pressable>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff7e8" },
+  root: { flex: 1, backgroundColor: "#111" },
+  background: { flex: 1, height: "100%", width: "100%" },
+  overlay: {
+    backgroundColor: "rgba(8, 15, 13, 0.52)",
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
   keyboardView: { flex: 1 },
   scrollView: { flex: 1 },
-  scrollContent: { flexGrow: 1, backgroundColor: "#fff7e8" },
-  hero: { height: 300, position: "relative" },
-  card: {
-    backgroundColor: "rgba(255, 255, 255, 0.98)",
-    borderColor: "rgba(190, 130, 55, 0.14)",
-    borderRadius: 28,
-    borderWidth: 1,
-    marginHorizontal: 10,
-    marginTop: -90,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    shadowColor: "#b47729",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    elevation: 7,
+  scrollContent: { flexGrow: 1, justifyContent: "center" },
+  container: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    minHeight: "100%",
+    paddingBottom: 20,
+    paddingHorizontal: 22,
+    paddingTop: 26,
   },
+  logoContainer: {
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 28,
+    elevation: 6,
+    height: 78,
+    justifyContent: "center",
+    marginBottom: 9,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    width: 78,
+  },
+  logo: { height: 72, width: 72 },
+  brandName: { color: "#FFFFFF", fontSize: 28, fontWeight: "800" },
+  tagline: { color: "rgba(255,255,255,0.88)", fontSize: 13, marginTop: 5 },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#F2C4A5",
+    marginTop: 26,
+    maxWidth: 430,
+    paddingHorizontal: 18,
+    paddingTop: 24,
+    paddingBottom: 24,
+    width: "100%",
+  },
+  kicker: { color: "#E85D04", fontSize: 11, fontWeight: "800", letterSpacing: 1.4 },
   title: {
-    color: "#17202b",
-    fontSize: 28,
+    color: "#3A2A22",
+    fontSize: 26,
     fontWeight: "800",
-    textAlign: "center",
+    marginTop: 5,
   },
   subtitle: {
-    color: "#737a82",
-    fontSize: 16,
-    marginBottom: 12,
-    marginTop: 5,
-    textAlign: "center",
-  },
-  fieldGroup: { marginBottom: 7 },
-  fieldLabel: {
-    color: "#27313b",
+    color: "#6B5B52",
     fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 3,
+    marginBottom: 20,
+    marginTop: 5,
+  },
+  fieldGroup: { marginBottom: 13 },
+  fieldLabel: {
+    color: "#5A4030",
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 7,
   },
   input: {
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderColor: "#d5d8dc",
-    borderRadius: 14,
+    backgroundColor: "#F4F5F8",
+    borderColor: "#FFFFFF",
+    borderRadius: 30,
     borderWidth: 1,
     flexDirection: "row",
-    height: 48,
-    paddingHorizontal: 10,
+    height: 54,
+    paddingHorizontal: 16,
   },
-  inputText: { color: "#17202b", flex: 1, fontSize: 15, marginLeft: 7 },
+  inputText: { color: "#202020", flex: 1, fontSize: 15, marginLeft: 10 },
   passwordRow: { flexDirection: "column", marginBottom: 6 },
-  passwordColumn: { marginBottom: 7, width: "100%" },
+  passwordColumn: { marginBottom: 12, width: "100%" },
   passwordInput: {
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderColor: "#d5d8dc",
-    borderRadius: 14,
+    backgroundColor: "#F4F5F8",
+    borderColor: "#FFFFFF",
+    borderRadius: 30,
     borderWidth: 1,
     flexDirection: "row",
-    height: 48,
-    paddingHorizontal: 10,
+    height: 54,
+    paddingHorizontal: 16,
   },
   passwordText: {
-    color: "#17202b",
+    color: "#202020",
     flex: 1,
-    fontSize: 14,
-    marginLeft: 3,
+    fontSize: 15,
+    marginLeft: 8,
     minWidth: 0,
   },
   passwordToggle: {
     alignItems: "center",
-    height: 32,
+    height: 34,
     justifyContent: "center",
-    width: 28,
+    width: 30,
   },
   submitButton: {
     alignItems: "center",
-    backgroundColor: "#ff650d",
-    borderColor: "#ff7b2c",
-    borderRadius: 14,
-    borderWidth: 1,
-    height: 50,
+    backgroundColor: "#E85D04",
+    borderRadius: 30,
+    height: 56,
     justifyContent: "center",
-    shadowColor: "#d94b00",
+    shadowColor: "#E85D04",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.16,
     shadowRadius: 5,
     elevation: 2,
   },
   disabled: { opacity: 0.65 },
-  submitText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  submitText: { color: "#fff", fontSize: 17, fontWeight: "800" },
   loginRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 10,
+    marginTop: 22,
   },
-  loginPrompt: { color: "#737a82", fontSize: 14 },
+  loginPrompt: { color: "#6B5B52", fontSize: 13 },
   loginLink: {
-    color: "#f15b23",
+    color: "#E85D04",
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 8,
     textDecorationLine: "underline",
   },
+  bottomText: { color: "#D1D1D1", fontSize: 11.5, marginTop: 24 },
 });
