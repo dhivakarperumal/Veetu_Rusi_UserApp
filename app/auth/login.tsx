@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
    * Strong overlay makes every word readable.
    */
   overlay: {
-    backgroundColor: "rgba(8, 15, 13, 0.35)",
+    backgroundColor: "rgba(8, 15, 13, 0.52)",
     bottom: 0,
     left: 0,
     position: "absolute",
@@ -428,9 +428,9 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    paddingHorizontal: 28,
-    paddingTop: 38,
-    paddingBottom: 25,
+    paddingHorizontal: 22,
+    paddingTop: 32,
+    paddingBottom: 20,
   },
 
   /*
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
 
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "#FFFFFF",
 
     borderRadius: 28,
 
@@ -499,7 +499,12 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 430,
 
-    marginTop: 34,
+    marginTop: 30,
+    paddingHorizontal: 18,
+    paddingTop: 28,
+    paddingBottom: 26,
+    backgroundColor: "#050505",
+    borderRadius: 30,
   },
 
   fieldContainer: {
@@ -513,7 +518,7 @@ const styles = StyleSheet.create({
    */
 
  label: {
-  color: "#FFFFFF",
+  color: "#BDBDBD",
   fontSize: 13,
   fontWeight: "700",
   marginBottom: 8,
@@ -521,7 +526,7 @@ const styles = StyleSheet.create({
 
 inputText: {
   flex: 1,
-  color: "#FFFFFF",
+  color: "#202020",
   fontSize: 15,
   marginLeft: 12,
   paddingVertical: 0,
@@ -536,7 +541,7 @@ inputText: {
   },
 
   forgotText: {
-    color: "#FFB08A",
+    color: "#F06464",
 
     fontSize: 12.5,
     fontWeight: "700",
@@ -556,16 +561,16 @@ inputText: {
 
     alignItems: "center",
 
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
 
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "#F4F5F8",
     opacity: 1,
 
     borderWidth: 1,
 
-    borderColor: "rgba(255,255,255,0.55)",
+    borderColor: "#FFFFFF",
 
-    borderRadius: 12,
+    borderRadius: 30,
   },
 
 
@@ -583,9 +588,9 @@ inputText: {
     width: "100%",
     height: 58,
 
-    borderRadius: 12,
+    borderRadius: 30,
 
-    backgroundColor: "#E85D2A",
+    backgroundColor: "#EF2027",
 
     flexDirection: "row",
 
@@ -595,7 +600,7 @@ inputText: {
 
     gap: 8,
 
-    marginTop: 2,
+    marginTop: 8,
 
     shadowColor: "#000",
 
@@ -638,13 +643,13 @@ inputText: {
   },
 
   registerText: {
-    color: "rgba(255,255,255,0.88)",
+    color: "#A7A7A7",
 
     fontSize: 13,
   },
 
   registerLink: {
-    color: "#FFB08A",
+    color: "#EF4E55",
 
     fontSize: 13,
 
@@ -658,7 +663,7 @@ inputText: {
    */
 
   bottomText: {
-    color: "rgba(255,255,255,0.70)",
+    color: "#D1D1D1",
 
     fontSize: 11.5,
 
