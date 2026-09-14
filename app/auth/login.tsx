@@ -4,18 +4,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    ImageBackground,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
@@ -24,6 +24,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
+
   const scrollViewRef = useRef<ScrollView>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const activeOffsetRef = useRef<number>(0);
@@ -33,18 +34,21 @@ export default function LoginScreen() {
     identifier: "",
     password: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const showEvent =
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+
     const hideEvent =
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
 
     const showSub = Keyboard.addListener(showEvent, (e) => {
       const height = e.endCoordinates.height;
       setKeyboardHeight(height);
+
       if (activeOffsetRef.current > 0) {
         setTimeout(() => {
           scrollViewRef.current?.scrollTo({
@@ -68,9 +72,13 @@ export default function LoginScreen() {
 
   const handleFocus = (yOffset: number) => {
     activeOffsetRef.current = yOffset;
+
     setTimeout(
       () => {
-        scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
+        scrollViewRef.current?.scrollTo({
+          y: yOffset,
+          animated: true,
+        });
       },
       Platform.OS === "android" ? 150 : 60
     );
@@ -82,25 +90,26 @@ export default function LoginScreen() {
 
   const handleSubmit = async () => {
     Keyboard.dismiss();
+
     if (!form.identifier || !form.password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
     setLoading(true);
+
     try {
       const res = await api.post("/auth/login", form);
 
       const userData = res.data.user || res.data;
       const authToken = res.data.token;
 
-      // Update AuthContext, storage, and API token
       await login(userData, authToken);
 
       Alert.alert("Success", "Login successful!");
 
-      // Navigate based on role
       const userRole = res.data.user.role;
+
       setTimeout(() => {
         if (userRole === "superadmin") {
           router.replace("/superadmin" as any);
@@ -116,277 +125,378 @@ export default function LoginScreen() {
       }, 500);
     } catch (error: any) {
       console.error("Login Error:", error);
+
       const errorMessage =
         error.response?.data?.message || error.message || "Login failed";
+
       Alert.alert("Login Error", errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+return (
+  <View style={[styles.root, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView
+      style={styles.keyboardView}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom:
+              Platform.OS === "android" && keyboardHeight > 0
+                ? keyboardHeight + 60
+                : 30,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={
+          Platform.OS === "ios" ? "interactive" : "on-drag"
+        }
+        bounces={false}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom:
-                Platform.OS === "android" && keyboardHeight > 0
-                  ? keyboardHeight + 100
-                  : 120,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={
-            Platform.OS === "ios" ? "interactive" : "on-drag"
-          }
-          bounces={true}
-          overScrollMode="always"
+        <Pressable
+          onPress={Keyboard.dismiss}
+          style={styles.container}
         >
-          <Pressable onPress={Keyboard.dismiss} style={styles.hero}>
-            <ImageBackground
-              source={require("../../assets/images/login banner.png")}
-              resizeMode="stretch"
-              style={StyleSheet.absoluteFill}
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              resizeMode="contain"
+              style={styles.logo}
             />
-          </Pressable>
+          </View>
 
-          <View style={styles.card}>
-            <Text style={styles.title}>Welcome Back!</Text>
-            <Text style={styles.subtitle}>Login to continue to Veetu Rusi</Text>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Email or Phone Number</Text>
-              <View style={styles.input}>
+          {/* Brand */}
+          <Text style={styles.brandName}>Veetu Rusi</Text>
+
+          <Text style={styles.tagline}>
+            Homemade food. Freshly delivered.
+          </Text>
+
+          {/* Login Form */}
+          <View style={styles.formContainer}>
+            {/* Email / Phone */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                Email or Phone Number
+              </Text>
+
+              <View style={styles.inputWrapper}>
                 <MaterialCommunityIcons
-                  name="account"
-                  size={24}
-                  color="#858b91"
+                  name="account-outline"
+                  size={21}
+                  color="#777"
                 />
+
                 <TextInput
                   placeholder="Email or Phone Number"
-                  placeholderTextColor="#a0a4aa"
+                  placeholderTextColor="#999"
                   value={form.identifier}
-                  onChangeText={(value) => handleChange("identifier", value)}
+                  onChangeText={(value) =>
+                    handleChange("identifier", value)
+                  }
                   style={styles.inputText}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   returnKeyType="next"
-                  onSubmitEditing={() => passwordInputRef.current?.focus()}
-                  onFocus={() => handleFocus(180)}
+                  onSubmitEditing={() =>
+                    passwordInputRef.current?.focus()
+                  }
+                  onFocus={() => handleFocus(120)}
                 />
               </View>
             </View>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Password</Text>
-              <View style={styles.input}>
-                <MaterialCommunityIcons name="lock" size={23} color="#858b91" />
+
+            {/* Password */}
+            <View style={styles.fieldContainer}>
+              <View style={styles.passwordHeader}>
+                <Text style={styles.label}>Password</Text>
+
+                <Link
+                  href="/auth/forgot-password"
+                  asChild
+                >
+                  <TouchableOpacity>
+                    <Text style={styles.forgotText}>
+                      Forgot Password?
+                    </Text>
+                  </TouchableOpacity>
+                </Link>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <MaterialCommunityIcons
+                  name="lock-outline"
+                  size={21}
+                  color="#777"
+                />
+
                 <TextInput
                   ref={passwordInputRef}
                   placeholder="Password"
-                  placeholderTextColor="#a0a4aa"
+                  placeholderTextColor="#999"
                   value={form.password}
-                  onChangeText={(value) => handleChange("password", value)}
+                  onChangeText={(value) =>
+                    handleChange("password", value)
+                  }
                   secureTextEntry={!showPassword}
                   style={styles.inputText}
                   returnKeyType="done"
                   onSubmitEditing={handleSubmit}
-                  onFocus={() => handleFocus(260)}
+                  onFocus={() => handleFocus(200)}
                 />
+
                 <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
+                  onPress={() =>
+                    setShowPassword(!showPassword)
+                  }
                   hitSlop={10}
                 >
                   <MaterialCommunityIcons
-                    name={showPassword ? "eye-off-outline" : "eye-off"}
-                    size={24}
-                    color="#858b91"
+                    name={
+                      showPassword
+                        ? "eye-off-outline"
+                        : "eye-outline"
+                    }
+                    size={22}
+                    color="#777"
                   />
                 </TouchableOpacity>
               </View>
             </View>
-            <Link href="/auth/forgot-password" asChild>
-              <TouchableOpacity style={styles.forgotButton}>
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
-            </Link>
+
+            {/* Sign In */}
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={loading}
-              style={[styles.loginButton, loading && styles.disabled]}
+              activeOpacity={0.85}
+              style={[
+                styles.loginButton,
+                loading && styles.disabled,
+              ]}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <>
-                  <Text style={styles.loginText}>Login Now</Text>
-                </>
+                <Text style={styles.loginText}>
+                  Sign In
+                </Text>
               )}
             </TouchableOpacity>
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.dividerLine} />
-            </View>
 
-            <View style={styles.createRow}>
-              <Text style={styles.createPrompt}>
-                Don&apos;t have an account?
+            {/* Register */}
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>
+                Don't Have An Account?
               </Text>
+
               <Link href="/auth/register" asChild>
-                <TouchableOpacity style={styles.createLinkButton}>
-                  <Text style={styles.createLink}>Create Account</Text>
+                <TouchableOpacity>
+                  <Text style={styles.registerLink}>
+                    Sign Up
+                  </Text>
                 </TouchableOpacity>
               </Link>
             </View>
-            <View style={styles.newUserMessage}>
-              <Text style={styles.newUserText}>Welcome! New users</Text>
-            </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
-  );
+
+          {/* Bottom */}
+          <Text style={styles.bottomText}>
+            Homemade • Fresh • Local
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </View>
+);  
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff7e8" },
-  keyboardView: { flex: 1 },
-  scrollView: { flex: 1 },
-  scrollContent: { flexGrow: 1, backgroundColor: "#fff7e8" },
-  hero: { height: 300, position: "relative" },
-
-  card: {
-    backgroundColor: "rgba(255, 255, 255, 0.97)",
-    borderRadius: 28,
-    borderColor: "rgba(190, 130, 55, 0.14)",
-    borderWidth: 1,
-    marginHorizontal: 10,
-    marginTop: -60,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 24,
-    shadowColor: "#b47729",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    elevation: 7,
+  root: {
+    flex: 1,
+    backgroundColor: "#f8f5f0",
   },
-  title: {
-    color: "#17202b",
-    fontSize: 28,
+
+  keyboardView: {
+    flex: 1,
+  },
+
+  scrollView: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+  },
+
+  /*
+   * SINGLE SIMPLE LAYOUT
+   */
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: 28,
+    paddingTop: 55,
+    paddingBottom: 25,
+    alignItems: "center",
+  },
+
+  /*
+   * LOGO
+   */
+  logoContainer: {
+    width: 105,
+    height: 105,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  logo: {
+    width: 100,
+    height: 100,
+  },
+
+  /*
+   * BRAND
+   */
+  brandName: {
+    color: "#213447",
+    fontSize: 27,
     fontWeight: "800",
     textAlign: "center",
   },
-  subtitle: {
-    color: "#737a82",
-    fontSize: 16,
+
+  tagline: {
+    color: "#8b8580",
+    fontSize: 12.5,
     marginTop: 5,
-    marginBottom: 13,
     textAlign: "center",
   },
-  fieldGroup: { marginBottom: 9 },
-  fieldLabel: {
-    color: "#27313b",
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 5,
+
+  /*
+   * FORM
+   */
+  formContainer: {
+    width: "100%",
+    maxWidth: 430,
+    marginTop: 42,
   },
-  input: {
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderColor: "#d5d8dc",
-    borderRadius: 14,
-    borderWidth: 1,
-    flexDirection: "row",
-    height: 52,
-    paddingHorizontal: 17,
+
+  fieldContainer: {
+    width: "100%",
+    marginBottom: 20,
   },
-  inputText: {
-    color: "#17202b",
-    flex: 1,
-    fontSize: 16,
-    marginLeft: 13,
-  },
-  forgotButton: { alignSelf: "flex-end", marginBottom: 13, marginTop: -1 },
-  forgotText: { color: "#fb5b0b", fontSize: 15, fontWeight: "500" },
-  loginButton: {
-    alignItems: "center",
-    backgroundColor: "#ff650d",
-    borderColor: "#ff7b2c",
-    borderRadius: 14,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 6,
-    height: 54,
-    justifyContent: "center",
-    shadowColor: "#d94b00",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.16,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  disabled: { opacity: 0.65 },
-  loginText: { color: "#fff", fontSize: 18, fontWeight: "700" },
-  divider: { alignItems: "center", flexDirection: "row", marginVertical: 12 },
-  dividerLine: { backgroundColor: "#d9dadd", flex: 1, height: 1 },
-  orText: { color: "#858b91", fontSize: 15, marginHorizontal: 16 },
-  socialRow: { flexDirection: "row", gap: 14 },
-  socialButton: {
-    alignItems: "center",
-    borderColor: "#d9dadd",
-    borderRadius: 16,
-    borderWidth: 1,
-    flex: 1,
-    flexDirection: "row",
-    height: 48,
-    justifyContent: "center",
-    paddingHorizontal: 8,
-  },
-  socialText: {
-    color: "#17202b",
+
+  label: {
+    color: "#354650",
     fontSize: 12,
-    fontWeight: "500",
-    marginLeft: 10,
+    fontWeight: "700",
+    marginBottom: 8,
   },
-  createRow: {
-    alignItems: "center",
+
+  passwordHeader: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-  createPrompt: { color: "#737a82", fontSize: 14 },
-  createLinkButton: {
     alignItems: "center",
-    flexDirection: "column",
+    justifyContent: "space-between",
   },
-  createLink: {
-    color: "#f15b23",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 9,
-    textDecorationLine: "underline",
+
+  forgotText: {
+    color: "#e85d2a",
+    fontSize: 12,
+    fontWeight: "700",
+    marginBottom: 8,
   },
-  createHint: {
-    color: "#9b9fa4",
-    fontSize: 10,
-    marginLeft: 9,
-    marginTop: 1,
+
+  /*
+   * INPUT
+   */
+  inputWrapper: {
+    width: "100%",
+    height: 56,
+
+    flexDirection: "row",
+    alignItems: "center",
+
+    paddingHorizontal: 15,
+
+    backgroundColor: "rgba(255,255,255,0.65)",
+
+    borderBottomWidth: 1.5,
+    borderBottomColor: "#d8cec3",
   },
-  newUserMessage: {
+
+  inputText: {
+    flex: 1,
+    color: "#213447",
+    fontSize: 15,
+    marginLeft: 11,
+    paddingVertical: 0,
+  },
+
+  /*
+   * SIGN IN
+   */
+  loginButton: {
+    width: "100%",
+    height: 56,
+
+    borderRadius: 10,
+
+    backgroundColor: "#e85d2a",
+
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
+
+    marginTop: 3,
   },
-  newUserText: {
-    color: "#737a82",
-    fontSize: 13,
+
+  loginText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  disabled: {
+    opacity: 0.6,
+  },
+
+  /*
+   * SIGN UP
+   */
+  registerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+
+    marginTop: 27,
+  },
+
+  registerText: {
+    color: "#777",
+    fontSize: 12.5,
+  },
+
+  registerLink: {
+    color: "#e85d2a",
+    fontSize: 12.5,
+    fontWeight: "800",
+    marginLeft: 5,
+  },
+
+  /*
+   * FOOTER
+   */
+  bottomText: {
+    color: "#aaa099",
+    fontSize: 11,
+    marginTop: 35,
     textAlign: "center",
   },
 });
