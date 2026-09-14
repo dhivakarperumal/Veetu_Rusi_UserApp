@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "https://veeturusi.qtechx.com/api";
-  // process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.5:5000/api";
+// process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.5:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -55,6 +55,13 @@ export function isNewOrderStatus(status) {
 
 export function getApiErrorMessage(error, fallback = "Something went wrong") {
   return error?.message || error?.response?.data?.message || fallback;
+}
+
+export function isBotProtectionError(error) {
+  return (
+    error?.status === 403 &&
+    /imunify360|bot-protection|whitelisted/i.test(String(error?.message || ""))
+  );
 }
 
 api.interceptors.request.use(async (config) => {

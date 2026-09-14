@@ -1,4 +1,4 @@
-import api from "@/app/api";
+import api, { isBotProtectionError } from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import QuickViewModal from "@/components/QuickViewModal";
 import { colors } from "@/config/colors";
@@ -236,7 +236,11 @@ export default function HomeScreen() {
         setCategories(mapped);
         setCategoriesCache(mapped);
       } catch (error) {
-        console.error("Error fetching home chef categories:", error);
+        if (isBotProtectionError(error)) {
+          console.warn("Home chef categories are blocked by API protection.");
+        } else {
+          console.error("Error fetching home chef categories:", error);
+        }
         if (!categories.length) setCategories([]);
       } finally {
         setLoading(false);
@@ -252,24 +256,50 @@ export default function HomeScreen() {
     setReviewsError(null);
 
     try {
-      const [foodsRes, productsRes, reviewsRes] = await Promise.all([
-        api.get("/chef-foods"),
-        api.get("/products", {
-          params: { source: "chef_products" },
-        }),
-        api.get("/reviews").catch(() => ({ data: { reviews: [] } })),
-      ]);
+      const [foodsResult, productsResult, reviewsResult] =
+        await Promise.allSettled([
+          api.get("/chef-foods"),
+          api.get("/products", {
+            params: { source: "chef_products" },
+          }),
+          api.get("/reviews").catch(() => ({ data: { reviews: [] } })),
+        ]);
 
-      const foodsFromApi = Array.isArray(foodsRes.data) ? foodsRes.data : [];
-      const productsFromApi = Array.isArray(productsRes.data)
-        ? productsRes.data
-        : [];
-
-      const reviewItems = Array.isArray(reviewsRes?.data?.reviews)
-        ? reviewsRes.data.reviews
-        : Array.isArray(reviewsRes?.data)
-          ? reviewsRes.data
+      const foodsFromApi =
+        foodsResult.status === "fulfilled" &&
+        Array.isArray(foodsResult.value.data)
+          ? foodsResult.value.data
           : [];
+      const productsFromApi =
+        productsResult.status === "fulfilled" &&
+        Array.isArray(productsResult.value.data)
+          ? productsResult.value.data
+          : [];
+      const reviewsData =
+        reviewsResult.status === "fulfilled" ? reviewsResult.value.data : [];
+
+      const reviewItems = Array.isArray(reviewsData?.reviews)
+        ? reviewsData.reviews
+        : Array.isArray(reviewsData)
+          ? reviewsData
+          : [];
+
+      if (
+        foodsResult.status === "rejected" &&
+        productsResult.status === "rejected"
+      ) {
+        if (
+          isBotProtectionError(foodsResult.reason) ||
+          isBotProtectionError(productsResult.reason)
+        ) {
+          console.warn("Home menu requests are blocked by API protection.");
+        } else {
+          console.error("Error fetching chef foods:", foodsResult.reason);
+        }
+        setFoodsError(
+          "The menu is temporarily unavailable. Please try again later.",
+        );
+      }
 
       const allItems = [...foodsFromApi, ...productsFromApi];
 
