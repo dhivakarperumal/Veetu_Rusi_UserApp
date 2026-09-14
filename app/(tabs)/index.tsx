@@ -8,17 +8,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    Image,
+    ImageBackground,
+    Modal,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -1228,6 +1228,103 @@ export default function HomeScreen() {
               ))}
             </View>
           )}
+        </View>
+
+        {/* Section 6: Plan Your Week */}
+        <View className="mt-1 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="mt-2 mb-2 text-[18px] font-black text-text">
+              Plan Your Week
+            </Text>
+            <Text className="text-[14px] font-bold text-primary">Explore</Text>
+          </View>
+          <View className="flex-row justify-between">
+            {[
+              { label: "Breakfast", icon: "cafe-outline", category: "Tiffin" },
+              { label: "Lunch", icon: "restaurant-outline", category: "Meals" },
+              { label: "Evening Bites", icon: "ice-cream-outline", category: "Snacks" },
+            ].map((item) => (
+              <Pressable
+                key={item.label}
+                className="w-[31.5%] items-center rounded-[16px] border border-border bg-white px-2 py-4"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { category: item.category },
+                  })
+                }
+              >
+                <View className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                  <Ionicons
+                    name={item.icon as keyof typeof Ionicons.glyphMap}
+                    size={23}
+                    color={colors.primary}
+                  />
+                </View>
+                <Text className="mt-2 text-center text-[12px] font-bold text-text">
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Section 7: Fresh From Home Kitchens */}
+        <View className="mt-5 px-4">
+          <View className="mb-3 flex-row items-center justify-between">
+            <View>
+              <Text className="mt-2 text-[18px] font-black text-text">
+                Fresh From Home Kitchens
+              </Text>
+              <Text className="mt-1 text-[12px] font-semibold text-textSecondary">
+                Made with care by local chefs
+              </Text>
+            </View>
+            <Pressable onPress={() => router.push("/(tabs)/food")}>
+              <Text className="text-[14px] font-bold text-primary">See all</Text>
+            </Pressable>
+          </View>
+          <Pressable
+            className="overflow-hidden rounded-[18px] border border-border bg-white"
+            onPress={() => router.push("/(tabs)/food")}
+          >
+            <ImageBackground
+              source={{
+                uri: "https://images.unsplash.com/photo-1556910103-1c02745?auto=format&fit=crop&w=900&q=80",
+              }}
+              resizeMode="cover"
+              className="h-[145px] justify-end"
+            >
+              <View className="bg-black/45 px-4 py-3">
+                <Text className="text-[17px] font-black text-white">
+                  Comfort food, made nearby
+                </Text>
+                <Text className="mt-1 text-[12px] font-semibold text-white/90">
+                  Discover the taste of a real home kitchen
+                </Text>
+              </View>
+            </ImageBackground>
+          </Pressable>
+        </View>
+
+        {/* Section 8: Delivery Promise */}
+        <View className="mt-5 mb-2 px-4">
+          <View className="rounded-[18px] bg-secondary px-4 py-4">
+            <View className="flex-row items-center">
+              <View className="h-11 w-11 items-center justify-center rounded-full bg-white/15">
+                <Ionicons name="bicycle-outline" size={25} color={colors.white} />
+              </View>
+              <View className="ml-3 flex-1">
+                <Text className="text-[16px] font-black text-white">
+                  Good food is on the way
+                </Text>
+                <Text className="mt-1 text-[12px] font-medium text-white/80">
+                  Freshly packed and delivered with care.
+                </Text>
+              </View>
+              <Ionicons name="arrow-forward-circle" size={26} color={colors.white} />
+            </View>
+          </View>
         </View>
       </ScrollView>
 
