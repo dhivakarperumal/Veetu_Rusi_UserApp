@@ -2,10 +2,11 @@ import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
     ActivityIndicator,
     ImageBackground,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,6 +14,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,6 +23,9 @@ import api from "../api";
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const passwordInputRef = useRef<TextInput>(null);
+
   const [form, setForm] = useState({
     identifier: "",
     password: "",
@@ -28,11 +33,18 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleFocus = (yOffset: number) => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
+    }, 100);
+  };
+
   const handleChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async () => {
+    Keyboard.dismiss();
     if (!form.identifier || !form.password) {
       Alert.alert("Error", "Please fill in all fields");
       return;
@@ -78,20 +90,27 @@ export default function LoginScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#fff7e8]" edges={["top"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={
+            Platform.OS === "ios" ? "interactive" : "on-drag"
+          }
         >
-          <View style={styles.hero}>
-            <ImageBackground
-              source={require("../../assets/images/login banner.png")}
-              resizeMode="stretch"
-              style={StyleSheet.absoluteFill}
-            />
-          </View>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.hero}>
+              <ImageBackground
+                source={require("../../assets/images/login banner.png")}
+                resizeMode="stretch"
+                style={StyleSheet.absoluteFill}
+              />
+            </View>
+          </TouchableWithoutFeedback>
 
           <View style={styles.card}>
             <Text style={styles.title}>Welcome Back!</Text>
@@ -112,6 +131,9 @@ export default function LoginScreen() {
                   style={styles.inputText}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordInputRef.current?.focus()}
+                  onFocus={() => handleFocus(80)}
                 />
               </View>
             </View>
@@ -120,12 +142,16 @@ export default function LoginScreen() {
               <View style={styles.input}>
                 <MaterialCommunityIcons name="lock" size={23} color="#858b91" />
                 <TextInput
+                  ref={passwordInputRef}
                   placeholder="Password"
                   placeholderTextColor="#a0a4aa"
                   value={form.password}
                   onChangeText={(value) => handleChange("password", value)}
                   secureTextEntry={!showPassword}
                   style={styles.inputText}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSubmit}
+                  onFocus={() => handleFocus(150)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -184,7 +210,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flexGrow: 1, paddingBottom: 22, backgroundColor: "#fff7e8" },
+  scrollContent: { flexGrow: 1, paddingBottom: 80, backgroundColor: "#fff7e8" },
   hero: { height: 300, position: "relative" },
 
   card: {

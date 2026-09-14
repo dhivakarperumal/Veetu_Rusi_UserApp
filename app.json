@@ -18,7 +18,8 @@
         "monochromeImage": "./assets/images/logos.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.veeturusi"
+      "package": "com.anonymous.veeturusi",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",

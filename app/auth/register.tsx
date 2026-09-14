@@ -2,10 +2,11 @@ import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     ImageBackground,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,6 +14,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,6 +23,11 @@ import api from "../api";
 export default function RegisterScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const emailRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const initialReferral = (
     Array.isArray(params.referral_code)
@@ -43,6 +50,12 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleFocus = (yOffset: number) => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
+    }, 100);
+  };
+
   useEffect(() => {
     const rawRef = params.ref || params.referral_code;
     if (rawRef) {
@@ -57,6 +70,7 @@ export default function RegisterScreen() {
   };
 
   const handleSubmit = async () => {
+    Keyboard.dismiss();
     if (
       !form.username ||
       !form.email ||
@@ -106,26 +120,28 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#fff7e8]" edges={["top"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
-          automaticallyAdjustKeyboardInsets
           nestedScrollEnabled
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.hero}>
-            <ImageBackground
-              source={require("../../assets/images/login banner.png")}
-              resizeMode="stretch"
-              style={StyleSheet.absoluteFill}
-            />
-          </View>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.hero}>
+              <ImageBackground
+                source={require("../../assets/images/login banner.png")}
+                resizeMode="stretch"
+                style={StyleSheet.absoluteFill}
+              />
+            </View>
+          </TouchableWithoutFeedback>
 
           <View style={styles.card}>
             <Text style={styles.title}>Create Account</Text>
@@ -147,6 +163,9 @@ export default function RegisterScreen() {
                   onChangeText={(value) => handleChange("username", value)}
                   style={styles.inputText}
                   autoCapitalize="none"
+                  returnKeyType="next"
+                  onSubmitEditing={() => emailRef.current?.focus()}
+                  onFocus={() => handleFocus(60)}
                 />
               </View>
             </View>
@@ -162,6 +181,7 @@ export default function RegisterScreen() {
                   className="mr-2"
                 />
                 <TextInput
+                  ref={emailRef}
                   placeholder="e.g. awesome@user.com"
                   placeholderTextColor={colors.textSecondary}
                   value={form.email}
@@ -169,6 +189,9 @@ export default function RegisterScreen() {
                   keyboardType="email-address"
                   style={styles.inputText}
                   autoCapitalize="none"
+                  returnKeyType="next"
+                  onSubmitEditing={() => phoneRef.current?.focus()}
+                  onFocus={() => handleFocus(120)}
                 />
               </View>
             </View>
@@ -184,12 +207,16 @@ export default function RegisterScreen() {
                   className="mr-2"
                 />
                 <TextInput
+                  ref={phoneRef}
                   placeholder="e.g. +1 234 567 890"
                   placeholderTextColor={colors.textSecondary}
                   value={form.phone}
                   onChangeText={(value) => handleChange("phone", value)}
                   keyboardType="phone-pad"
                   style={styles.inputText}
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                  onFocus={() => handleFocus(180)}
                 />
               </View>
             </View>
@@ -207,12 +234,16 @@ export default function RegisterScreen() {
                     className="mr-1.5"
                   />
                   <TextInput
+                    ref={passwordRef}
                     placeholder="••••••••"
                     placeholderTextColor={colors.textSecondary}
                     value={form.password}
                     onChangeText={(value) => handleChange("password", value)}
                     secureTextEntry={!showPassword}
                     style={styles.passwordText}
+                    returnKeyType="next"
+                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                    onFocus={() => handleFocus(250)}
                   />
                   <TouchableOpacity
                     style={styles.passwordToggle}
@@ -238,6 +269,7 @@ export default function RegisterScreen() {
                     className="mr-1.5"
                   />
                   <TextInput
+                    ref={confirmPasswordRef}
                     placeholder="••••••••"
                     placeholderTextColor={colors.textSecondary}
                     value={form.confirmPassword}
@@ -246,6 +278,9 @@ export default function RegisterScreen() {
                     }
                     secureTextEntry={!showConfirmPassword}
                     style={styles.passwordText}
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit}
+                    onFocus={() => handleFocus(250)}
                   />
                   <TouchableOpacity
                     style={styles.passwordToggle}
@@ -293,7 +328,7 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flexGrow: 1, paddingBottom: 22, backgroundColor: "#fff7e8" },
+  scrollContent: { flexGrow: 1, paddingBottom: 80, backgroundColor: "#fff7e8" },
   hero: { height: 300, position: "relative" },
   card: {
     backgroundColor: "rgba(255, 255, 255, 0.98)",
