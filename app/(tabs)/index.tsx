@@ -8,17 +8,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    Modal,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
-    useWindowDimensions,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -1328,10 +1328,10 @@ export default function HomeScreen() {
         </View>
 
         {/* Section 8: Delivery Promise */}
-        <View className="mt-5 mb-2 px-4">
-          <View className="rounded-[20px] bg-secondary px-4 py-5">
+        <View className="mt-5 mb-10 px-4">
+          <View className="rounded-[20px] border border-primary/20 bg-[#FFF4EA] px-4 py-5">
             <View className="flex-row items-center">
-              <View className="h-12 w-12 items-center justify-center rounded-full bg-white/15">
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-primary">
                 <Ionicons
                   name="bicycle-outline"
                   size={27}
@@ -1339,20 +1339,20 @@ export default function HomeScreen() {
                 />
               </View>
               <View className="ml-3 flex-1">
-                <Text className="text-[18px] font-black text-white">
+                <Text className="text-[18px] font-black text-secondary">
                   Good food is on the way
                 </Text>
-                <Text className="mt-1 text-[13px] font-medium text-white/80">
+                <Text className="mt-1 text-[13px] font-medium text-textSecondary">
                   Freshly packed and delivered with care.
                 </Text>
               </View>
               <Ionicons
                 name="arrow-forward-circle"
                 size={28}
-                color={colors.white}
+                color={colors.primary}
               />
             </View>
-            <View className="mt-5 flex-row border-t border-white/15 pt-4">
+            <View className="mt-5 flex-row border-t border-primary/20 pt-4">
               {[
                 { icon: "shield-checkmark-outline", label: "Safe packing" },
                 { icon: "time-outline", label: "On-time delivery" },
@@ -1362,9 +1362,9 @@ export default function HomeScreen() {
                   <Ionicons
                     name={item.icon as keyof typeof Ionicons.glyphMap}
                     size={20}
-                    color={colors.primaryLight}
+                    color={colors.primary}
                   />
-                  <Text className="mt-1 text-center text-[11px] font-bold text-white/85">
+                  <Text className="mt-1 text-center text-[11px] font-bold text-secondary">
                     {item.label}
                   </Text>
                 </View>
