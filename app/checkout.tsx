@@ -1182,8 +1182,11 @@ export default function CheckoutScreen() {
         animationType="slide"
         onRequestClose={() => setShowSavedAddressesModal(false)}
       >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="max-h-[80%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/50 px-5"
+        >
+          <View className="w-full max-h-[80%] rounded-[32px] bg-white p-5 shadow-2xl">
             <View className="mb-3 flex-row items-center justify-between">
               <Text className="text-lg font-black text-text">Saved Addresses</Text>
               <TouchableOpacity
@@ -1212,7 +1215,7 @@ export default function CheckoutScreen() {
               ))}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* State Picker Modal */}
@@ -1222,8 +1225,11 @@ export default function CheckoutScreen() {
         animationType="slide"
         onRequestClose={() => setShowStatePickerModal(false)}
       >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="max-h-[80%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/50 px-5"
+        >
+          <View className="w-full max-h-[80%] rounded-[32px] bg-white p-5 shadow-2xl">
             <View className="mb-3 flex-row items-center justify-between">
               <Text className="text-lg font-black text-text">Select State / UT</Text>
               <TouchableOpacity
@@ -1268,7 +1274,7 @@ export default function CheckoutScreen() {
               ))}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </KeyboardAvoidingView>
   );

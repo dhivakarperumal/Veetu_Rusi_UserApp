@@ -7,7 +7,9 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
     Image,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     Pressable,
     ScrollView,
     Text,
@@ -192,10 +194,13 @@ export default function QuickViewModal({
       transparent
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end bg-black/60">
-        <Pressable className="flex-1" onPress={onClose} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 items-center justify-center bg-black/60 px-5"
+      >
+        <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View className="max-h-[90%] rounded-t-[32px] bg-white px-5 pt-3 pb-7 shadow-2xl">
+        <View className="w-full max-h-[90%] rounded-[32px] bg-white px-5 pt-3 pb-7 shadow-2xl">
           {/* Grab Handle */}
           <View className="mb-2 h-1.5 w-12 self-center rounded-full bg-grayDark/30" />
 
@@ -439,7 +444,7 @@ export default function QuickViewModal({
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -830,12 +830,15 @@ export default function Address() {
         transparent
         onRequestClose={() => setShowStatePicker(false)}
       >
-        <View className="flex-1 justify-end bg-black/60">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/60 px-5"
+        >
           <Pressable
-            className="flex-1"
+            className="absolute inset-0"
             onPress={() => setShowStatePicker(false)}
           />
-          <View className="max-h-[80%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+          <View className="w-full max-h-[80%] rounded-[32px] bg-white p-5 shadow-2xl">
             {/* Grab Handle */}
             <View className="mb-3 h-1.5 w-12 self-center rounded-full bg-grayDark/30" />
 
@@ -916,7 +919,7 @@ export default function Address() {
               })}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </KeyboardAvoidingView>
   );

@@ -6,7 +6,9 @@ import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     Pressable,
     ScrollView,
     Text,
@@ -690,8 +692,11 @@ export default function OrdersScreen() {
         animationType="slide"
         onRequestClose={() => setShowPopup(false)}
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="max-h-[88%] rounded-t-[28px] bg-white">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full max-h-[88%] rounded-[28px] bg-white">
             <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
               <Text className="flex-1 text-[20px] font-black text-white">
                 {selectedOrder?.order_number ||
@@ -870,7 +875,7 @@ export default function OrdersScreen() {
               </ScrollView>
             ) : null}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
       <Modal
         visible={showFilters}
@@ -878,8 +883,11 @@ export default function OrdersScreen() {
         animationType="slide"
         onRequestClose={() => setShowFilters(false)}
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="max-h-[70%] rounded-t-[28px] bg-white">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full max-h-[70%] rounded-[28px] bg-white">
             <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
               <Text className="text-[20px] font-black text-white">
                 Filter Orders
@@ -925,7 +933,7 @@ export default function OrdersScreen() {
               ))}
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
       <Modal
         visible={reviewType !== null}
@@ -933,8 +941,11 @@ export default function OrdersScreen() {
         animationType="fade"
         onRequestClose={() => setReviewType(null)}
       >
-        <View className="flex-1 justify-center bg-black/40 px-5">
-          <View className="rounded-[24px] bg-white p-5">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full rounded-[24px] bg-white p-5">
             <Text className="text-[20px] font-black text-text">
               {reviewMessage
                 ? "Review"
@@ -1045,7 +1056,7 @@ export default function OrdersScreen() {
               </View>
             ) : null}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

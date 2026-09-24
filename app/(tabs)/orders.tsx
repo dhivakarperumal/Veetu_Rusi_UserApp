@@ -1120,8 +1120,11 @@ export default function OrdersScreen() {
         animationType="slide"
         onRequestClose={() => setShowFilters(false)}
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="max-h-[70%] rounded-t-[28px] bg-white">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            className="flex-1 items-center justify-center bg-black/40 px-5"
+          >
+            <View className="w-full max-h-[70%] rounded-[28px] bg-white">
             <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
               <Text className="text-[20px] font-black text-white">Filter Orders</Text>
               <View className="flex-row items-center">
@@ -1164,8 +1167,8 @@ export default function OrdersScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
-        </View>
+            </View>
+          </KeyboardAvoidingView>
       </Modal>
 
       {/* Order Details Modal */}
@@ -1176,8 +1179,11 @@ export default function OrdersScreen() {
           transparent
           onRequestClose={() => setSelectedOrder(null)}
         >
-          <View className="flex-1 justify-end bg-black/60">
-            <View className="max-h-[90%] rounded-t-[32px] bg-white shadow-2xl">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            className="flex-1 items-center justify-center bg-black/60 px-5"
+          >
+            <View className="w-full max-h-[90%] rounded-[32px] bg-white shadow-2xl">
               {/* Modal Header */}
               <View className="flex-row items-center justify-between rounded-t-[32px] bg-primary px-5 py-4">
                 <View>
@@ -1397,7 +1403,7 @@ export default function OrdersScreen() {
                 )}
               </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       )}
 
@@ -1410,7 +1416,7 @@ export default function OrdersScreen() {
           onRequestClose={() => setCancelOrder(null)}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             className="flex-1 items-center justify-center bg-black/60 p-5"
           >
             <View className="w-full rounded-3xl bg-white p-5 shadow-2xl">
@@ -1479,10 +1485,10 @@ export default function OrdersScreen() {
           onRequestClose={() => setShowReviewModal(false)}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-            className="flex-1 justify-end bg-black/60"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            className="flex-1 items-center justify-center bg-black/60 px-5"
           >
-            <View className="max-h-[85%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+            <View className="w-full max-h-[85%] rounded-[28px] bg-white p-5 shadow-2xl">
               <View className="mb-3 flex-row items-center justify-between">
                 <Text className="text-lg font-black text-text">
                   Review Food Quality
@@ -1495,7 +1501,11 @@ export default function OrdersScreen() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ paddingBottom: 4 }}
+              >
                 {/* Select Dish */}
                 <Text className="mb-1.5 text-xs font-bold text-textSecondary">
                   Select Item to Review:
@@ -1598,9 +1608,9 @@ export default function OrdersScreen() {
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
-            className="flex-1 justify-end bg-black/60"
+            className="flex-1 items-center justify-center bg-black/60 px-5"
           >
-            <View className="max-h-[85%] rounded-t-[32px] bg-white p-5 shadow-2xl">
+            <View className="w-full max-h-[85%] rounded-[32px] bg-white p-5 shadow-2xl">
               <View className="mb-3 flex-row items-center justify-between">
                 <Text className="text-lg font-black text-text">
                   Review Delivery Partner

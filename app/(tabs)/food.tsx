@@ -10,7 +10,9 @@ import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     RefreshControl,
     ScrollView,
     Text,
@@ -671,8 +673,11 @@ export default function FoodScreen({
             animationType="slide"
             onRequestClose={() => setShowFilters(false)}
           >
-            <View className="flex-1 justify-end bg-black/40">
-              <View className="max-h-[82%] rounded-t-[26px] bg-white">
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              className="flex-1 items-center justify-center bg-black/40 px-5"
+            >
+              <View className="w-full max-h-[82%] rounded-[26px] bg-white">
                 <View className="flex-row items-center justify-between rounded-t-[26px] bg-primary px-5 py-4">
                   <Text className="text-[20px] font-black text-white">Filters</Text>
                   <View className="flex-row items-center">
@@ -941,7 +946,7 @@ export default function FoodScreen({
                   </View>
                 </ScrollView>
               </View>
-            </View>
+            </KeyboardAvoidingView>
           </Modal>
 
           {/* Products Grid */}

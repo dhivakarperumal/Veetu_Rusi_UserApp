@@ -8,17 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    Image,
+    ImageBackground,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -1384,8 +1386,11 @@ export default function HomeScreen() {
         animationType="slide"
         onRequestClose={() => setFilterSheetVisible(false)}
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="rounded-t-[28px] bg-white px-5 pb-8 pt-4">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full rounded-[28px] bg-white px-5 pb-8 pt-4">
             <View className="mb-4 flex-row items-center justify-between">
               <View>
                 <Text className="text-[20px] font-black text-text">
@@ -1460,7 +1465,7 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

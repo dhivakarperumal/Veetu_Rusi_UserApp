@@ -13,7 +13,9 @@ import {
     ActivityIndicator,
     Dimensions,
     Image,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     ScrollView,
     Text,
     TextInput,
@@ -714,8 +716,11 @@ export default function ProductDetailScreen() {
         animationType="slide"
         onRequestClose={() => setShowReviewModal(false)}
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="max-h-[88%] rounded-t-[26px] bg-white px-5 pb-8 pt-5">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full max-h-[88%] rounded-[26px] bg-white px-5 pb-8 pt-5">
             <View className="mb-5 flex-row items-center justify-between">
               <Text className="text-lg font-extrabold text-text">
                 Share your experience
@@ -800,7 +805,7 @@ export default function ProductDetailScreen() {
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
