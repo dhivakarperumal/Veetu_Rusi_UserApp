@@ -3,7 +3,6 @@ import AppHeader from "@/components/AppHeader";
 import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
-import { useStore } from "@/context/StoreContext";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -199,7 +198,6 @@ export default function OrdersScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ newOrderId?: string }>();
   const { user, logout, updateUser } = useAuth();
-  const { addToFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -365,7 +363,7 @@ export default function OrdersScreen() {
     }
   };
 
-  // Reorder
+  // Reorder directly into checkout without changing the saved cart.
   const handleReorder = async (order: any) => {
     try {
       setLoading(true);
@@ -375,65 +373,56 @@ export default function OrdersScreen() {
         return;
       }
 
-      await Promise.all(
-        orderItems.map(async (item: any) => {
-          const product = item?.product || item?.food || item;
-          const productId =
-            product?.product_id ||
-            product?.id ||
-            product?._id ||
-            item?.product_id ||
-            item?.food_id ||
-            item?.id;
-          const price =
-            item?.price ??
+      const checkoutItems = orderItems.map((item: any) => {
+        const product = item?.product || item?.food || item;
+        const productId =
+          product?.product_id ||
+          product?.id ||
+          product?._id ||
+          item?.product_id ||
+          item?.food_id ||
+          item?.id;
+        const price = Number(
+          item?.price ??
             item?.unit_price ??
             item?.final_price ??
             product?.final_price ??
             product?.offer_price ??
             product?.mrp ??
-            0;
+            0,
+        ) || 0;
+        const quantity = Number(item?.quantity || item?.qty || 1);
 
-          await addToFoodCart(
-            {
-              ...product,
-              id: String(productId || ""),
-              product_id: String(productId || ""),
-              name:
-                product?.name || product?.product_name || item?.name || "Food item",
-              final_price: price,
-              image: product?.image || product?.image_url || item?.image || "",
-              chef_user_id:
-                product?.chef_user_id || item?.chef_user_id || item?.created_by || "",
-              chef_id: product?.chef_id || item?.chef_id || "",
-              chef_name:
-                product?.chef_name ||
-                item?.chef_name ||
-                item?.chef ||
-                item?.created_by_name ||
-                "",
-              chef_phone: product?.chef_phone || item?.chef_phone || "",
-              chef_email: product?.chef_email || item?.chef_email || "",
-            },
-            null,
-            null,
-            Number(item?.quantity || item?.qty || 1),
-          );
-        }),
-      );
-      Alert.alert(
-        "Items Added to Cart! 🛒",
-        "Your favorite items have been added to your cart.",
-        [
-          {
-            text: "Go to Cart",
-            onPress: () => router.push("/(tabs)/cart"),
-          },
-        ],
-      );
+        return {
+          id: String(productId || ""),
+          product_id: String(productId || ""),
+          name:
+            product?.name || product?.product_name || item?.name || "Food item",
+          image: product?.image || product?.image_url || item?.image || "",
+          price,
+          total_price: price * quantity,
+          quantity,
+          chef_user_id:
+            product?.chef_user_id || item?.chef_user_id || item?.created_by || "",
+          chef_id: product?.chef_id || item?.chef_id || "",
+          chef_name:
+            product?.chef_name ||
+            item?.chef_name ||
+            item?.chef ||
+            item?.created_by_name ||
+            "",
+          chef_phone: product?.chef_phone || item?.chef_phone || "",
+          chef_email: product?.chef_email || item?.chef_email || "",
+        };
+      });
+
+      router.push({
+        pathname: "/checkout",
+        params: { reorderItems: JSON.stringify(checkoutItems) },
+      });
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "Failed to reorder items. Please try again.");
+      Alert.alert("Error", "Failed to open checkout for these items. Please try again.");
     } finally {
       setLoading(false);
     }

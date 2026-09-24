@@ -111,6 +111,7 @@ export default function CheckoutScreen() {
   const { userFoodCart, placeFoodOrder } = useStore();
   const params = useLocalSearchParams<{
     buyNowItem?: string;
+    reorderItems?: string;
     appliedCoupon?: string;
   }>();
 
@@ -123,6 +124,16 @@ export default function CheckoutScreen() {
       return null;
     }
   }, [params.buyNowItem]);
+
+  const reorderItems = useMemo(() => {
+    if (!params.reorderItems) return null;
+    try {
+      const parsed = JSON.parse(params.reorderItems);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }, [params.reorderItems]);
 
   const appliedCoupon = useMemo(() => {
     if (!params.appliedCoupon) return null;
@@ -230,8 +241,9 @@ export default function CheckoutScreen() {
         } as CartItem,
       ];
     }
+    if (reorderItems) return reorderItems;
     return userFoodCart;
-  }, [buyNowItem, userFoodCart]);
+  }, [buyNowItem, reorderItems, userFoodCart]);
 
   const subtotal = useMemo(() => {
     return checkoutItems.reduce((total, item) => {
