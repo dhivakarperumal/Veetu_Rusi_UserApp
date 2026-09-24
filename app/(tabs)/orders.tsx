@@ -10,22 +10,22 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Linking,
-  Modal,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Linking,
+    Modal,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const CANCEL_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
@@ -199,7 +199,7 @@ export default function OrdersScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ newOrderId?: string }>();
   const { user, logout, updateUser } = useAuth();
-  const { fetchUserFoodCart } = useStore();
+  const { addToFoodCart } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -369,35 +369,58 @@ export default function OrdersScreen() {
   const handleReorder = async (order: any) => {
     try {
       setLoading(true);
-      const userId = user?.id || user?.user_id;
-      const promises = (order.items || []).map((item: any) => {
-        const payload = {
-          user_id: userId,
-          product_id: item.product_id || item.food_id || item.id,
-          name: item.name || item.product_name,
-          image: item.image || "",
-          price: parseFloat(item.price || 0),
-          total_price: parseFloat(item.price || 0) * (item.quantity || 1),
-          quantity: item.quantity || 1,
-          chef_user_id: item.chef_user_id || item.created_by || "",
-          chef_id: item.chef_id || "",
-          chef_name: item.chef_name || item.chef || item.created_by_name || "",
-          chef_phone: item.chef_phone || "",
-          chef_email: item.chef_email || "",
-          franchise_id: item.franchise_id || "",
-          franchise_user_id: item.franchise_user_id || "",
-          franchise_email: item.franchise_email || "",
-          franchise_name: item.franchise_name || "",
-          franchise_phone: item.franchise_phone || "",
-          ordered_by_name: user?.name || user?.username || "",
-          ordered_by_user_id: userId,
-          ordered_by_email: user?.email || "",
-          ordered_by_phone: user?.phone || user?.mobile || "",
-        };
-        return api.post("/user-food", payload);
-      });
-      await Promise.all(promises);
-      await fetchUserFoodCart();
+      const orderItems = order?.items || order?.order_items || order?.food_items || [];
+      if (!Array.isArray(orderItems) || orderItems.length === 0) {
+        Alert.alert("Reorder", "No food items were found in this order.");
+        return;
+      }
+
+      await Promise.all(
+        orderItems.map(async (item: any) => {
+          const product = item?.product || item?.food || item;
+          const productId =
+            product?.product_id ||
+            product?.id ||
+            product?._id ||
+            item?.product_id ||
+            item?.food_id ||
+            item?.id;
+          const price =
+            item?.price ??
+            item?.unit_price ??
+            item?.final_price ??
+            product?.final_price ??
+            product?.offer_price ??
+            product?.mrp ??
+            0;
+
+          await addToFoodCart(
+            {
+              ...product,
+              id: String(productId || ""),
+              product_id: String(productId || ""),
+              name:
+                product?.name || product?.product_name || item?.name || "Food item",
+              final_price: price,
+              image: product?.image || product?.image_url || item?.image || "",
+              chef_user_id:
+                product?.chef_user_id || item?.chef_user_id || item?.created_by || "",
+              chef_id: product?.chef_id || item?.chef_id || "",
+              chef_name:
+                product?.chef_name ||
+                item?.chef_name ||
+                item?.chef ||
+                item?.created_by_name ||
+                "",
+              chef_phone: product?.chef_phone || item?.chef_phone || "",
+              chef_email: product?.chef_email || item?.chef_email || "",
+            },
+            null,
+            null,
+            Number(item?.quantity || item?.qty || 1),
+          );
+        }),
+      );
       Alert.alert(
         "Items Added to Cart! 🛒",
         "Your favorite items have been added to your cart.",
