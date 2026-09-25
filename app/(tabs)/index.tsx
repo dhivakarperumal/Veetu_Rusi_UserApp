@@ -269,12 +269,12 @@ export default function HomeScreen() {
 
       const foodsFromApi =
         foodsResult.status === "fulfilled" &&
-          Array.isArray(foodsResult.value.data)
+        Array.isArray(foodsResult.value.data)
           ? foodsResult.value.data
           : [];
       const productsFromApi =
         productsResult.status === "fulfilled" &&
-          Array.isArray(productsResult.value.data)
+        Array.isArray(productsResult.value.data)
           ? productsResult.value.data
           : [];
       const reviewsData =
@@ -420,27 +420,27 @@ export default function HomeScreen() {
     (location?.area && location?.district
       ? `${location.area}, ${location.district}`
       : location?.area ||
-      location?.district ||
-      location?.city ||
-      location?.pincode ||
-      "Set your location");
+        location?.district ||
+        location?.city ||
+        location?.pincode ||
+        "Set your location");
 
   const visibleCategories =
     categories.length > 0
       ? categories.slice(0, 8).map((category, index) => ({
-        key: category.name || category.c_name || String(index),
-        name: category.name || category.c_name || "Food",
-        image: getCategoryImageUrl(category),
-        icon: getIconByCategory(category.name || category.c_name || "Food"),
-        index,
-      }))
+          key: category.name || category.c_name || String(index),
+          name: category.name || category.c_name || "Food",
+          image: getCategoryImageUrl(category),
+          icon: getIconByCategory(category.name || category.c_name || "Food"),
+          index,
+        }))
       : staticCategories.map((category, index) => ({
-        key: category.label,
-        name: category.label,
-        image: "",
-        icon: category.icon,
-        index,
-      }));
+          key: category.label,
+          name: category.label,
+          image: "",
+          icon: category.icon,
+          index,
+        }));
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
@@ -465,9 +465,9 @@ export default function HomeScreen() {
                 (location?.area && location?.district
                   ? `${location.area}, ${location.district}`
                   : location?.area ||
-                  location?.district ||
-                  location?.pincode ||
-                  "Set your location")}
+                    location?.district ||
+                    location?.pincode ||
+                    "Set your location")}
             </Text>
           </View>
         </Pressable>
@@ -678,9 +678,18 @@ export default function HomeScreen() {
               <Text className="mt-2 mb-2 text-[18px] font-black text-text">
                 Top Home Chefs
               </Text>
-              <Text className="text-[14px] font-bold text-primary">
-                See all
-              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { homeChefOnly: "1" },
+                  })
+                }
+              >
+                <Text className="text-[14px] font-bold text-primary">
+                  See all
+                </Text>
+              </Pressable>
             </View>
 
             <ScrollView
@@ -689,9 +698,18 @@ export default function HomeScreen() {
               className="mb-4"
             >
               {homeChefs.map((chef: Record<string, any>, idx: number) => (
-                <View
+                <Pressable
                   key={chef.id || chef.name || idx}
                   className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/food" as any,
+                      params: {
+                        homeChefId: String(chef.id || chef.name || ""),
+                        chefName: chef.name || "Home Chef",
+                      },
+                    })
+                  }
                 >
                   <View className="items-center">
                     <Image
@@ -720,7 +738,7 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </Pressable>
               ))}
             </ScrollView>
           </View>
@@ -958,8 +976,6 @@ export default function HomeScreen() {
           className="mx-4 mt-4 h-[190px] overflow-hidden rounded-[20px]"
         />
 
-
-
         {/* Section 5: Best Offers for You (Filtered by fetched location) */}
         <View className="mt-4 px-4 pb-6">
           <View className="mb-3 flex-row items-center justify-between">
@@ -1173,9 +1189,17 @@ export default function HomeScreen() {
           </View>
           <View className="flex-row justify-between">
             {[
-              { label: "Breakfast", icon: "cafe-outline", category: "Break Fast" },
+              {
+                label: "Breakfast",
+                icon: "cafe-outline",
+                category: "Break Fast",
+              },
               { label: "Lunch", icon: "restaurant-outline", category: "Lunch" },
-              { label: "Evening Bites", icon: "ice-cream-outline", category: "Evening Bites" },
+              {
+                label: "Evening Bites",
+                icon: "ice-cream-outline",
+                category: "Evening Bites",
+              },
               { label: "Dinner", icon: "moon-outline", category: "Dinner" },
             ].map((item) => (
               <Pressable
@@ -1215,7 +1239,9 @@ export default function HomeScreen() {
               </Text>
             </View>
             <Pressable onPress={() => router.push("/(tabs)/food")}>
-              <Text className="text-[14px] font-bold text-primary">See all</Text>
+              <Text className="text-[14px] font-bold text-primary">
+                See all
+              </Text>
             </Pressable>
           </View>
           <Pressable
@@ -1266,7 +1292,6 @@ export default function HomeScreen() {
             <Text className="mt-2 mb-2 text-[18px] font-black text-text">
               Customer Reviews
             </Text>
-            
           </View>
 
           {reviewsLoading ? (

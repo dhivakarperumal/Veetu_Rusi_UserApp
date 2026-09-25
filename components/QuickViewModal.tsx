@@ -16,6 +16,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -31,6 +32,7 @@ export default function QuickViewModal({
   const router = useRouter();
   const { user } = useAuth();
   const { addToFoodCart, toggleWishlist, isInWishlist } = useStore();
+  const insets = useSafeAreaInsets();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
@@ -196,13 +198,16 @@ export default function QuickViewModal({
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 items-center justify-center bg-black/60 px-5"
+        className="flex-1 justify-end bg-black/60"
       >
         <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View className="w-full max-h-[90%] rounded-[32px] bg-white px-5 pt-3 pb-7 shadow-2xl">
+        <View 
+          className="w-full max-h-[90%] rounded-t-[32px] bg-white px-5 pt-3 shadow-2xl"
+          style={{ paddingBottom: Math.max(insets.bottom, 20) }}
+        >
           {/* Grab Handle */}
-          <View className="mb-2 h-1.5 w-12 self-center rounded-full bg-grayDark/30" />
+          <View className="mb-4 h-1.5 w-12 self-center rounded-full bg-grayDark/30" />
 
           {/* Top Bar: Category Pill, Wishlist & Close Button */}
           <View className="mb-3 flex-row items-center justify-between">

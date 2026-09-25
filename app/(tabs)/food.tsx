@@ -38,6 +38,9 @@ export default function FoodScreen({
     category?: string;
     search?: string;
     offer?: string;
+    homeChefId?: string;
+    homeChefOnly?: string;
+    chefName?: string;
   }>();
   const { user } = useAuth();
   const {
@@ -64,12 +67,10 @@ export default function FoodScreen({
     !chefFoodsCache || chefFoodsCache.length === 0,
   );
   const [search, setSearch] = useState("");
-  const [showFilters, setShowFilters] = useState(
-    defaultCategory ? true : false,
-  );
 
   // Filter State
   const [selectedType, setSelectedType] = useState("");
+  const [selectedHomeChefId, setSelectedHomeChefId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory);
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -98,10 +99,27 @@ export default function FoodScreen({
     }
     if (params.offer) {
       setOfferFilter(Number(params.offer));
-      setShowFilters(true);
+    }
+    if (params.homeChefId) {
+      setSelectedHomeChefId(String(params.homeChefId));
+    } else {
+      setSelectedHomeChefId("");
+    }
+    if (params.chefName) {
+      // chefName is kept only for compatibility with old route usage
+      const chefName = String(params.chefName).trim();
+      if (chefName) {
+        setSearch(chefName);
+      }
     }
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [params.category, params.search, params.offer]);
+  }, [
+    params.category,
+    params.search,
+    params.offer,
+    params.homeChefId,
+    params.chefName,
+  ]);
 
   // Fetch categories
   useEffect(() => {
@@ -159,7 +177,7 @@ export default function FoodScreen({
 
       try {
         setLoading(true);
-        const [foodsRes, productsRes] = await Promise.all([
+            const [foodsRes, productsRes] = await Promise.all([
           api.get("/chef-foods").catch((err) => {
             console.error(err);
             return { data: [] };
@@ -178,10 +196,28 @@ export default function FoodScreen({
           : [];
         const data = [...foodsData, ...productsData];
 
+        const scopedData = selectedHomeChefId
+          ? data.filter((product) => {
+              const ids = [
+                product.home_chef_id,
+                product.homeChefId,
+                product.chef_id,
+                product.chefId,
+                product.vendor_id,
+                product.vendorId,
+                product.id_in_home_chefs,
+              ];
+
+              return ids.some(
+                (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
+              );
+            })
+          : data;
+
         setChefFoodsCache(data);
         setLastChefFoodsFetchTime(Date.now());
 
-        const myProducts = data.filter((product) =>
+        const myProducts = scopedData.filter((product) =>
           isProductDeliverable(product, activeLoc),
         );
 
@@ -197,6 +233,7 @@ export default function FoodScreen({
     },
     [
       location,
+      selectedHomeChefId,
       chefFoodsCache,
       lastChefFoodsFetchTime,
       isProductDeliverable,
@@ -244,6 +281,24 @@ export default function FoodScreen({
           categoriesForType.has(p.category?.trim().toLowerCase()),
         );
       }
+    }
+
+    if (selectedHomeChefId) {
+      updated = updated.filter((product) => {
+        const ids = [
+          product.home_chef_id,
+          product.homeChefId,
+          product.chef_id,
+          product.chefId,
+          product.vendor_id,
+          product.vendorId,
+          product.id_in_home_chefs,
+        ];
+
+        return ids.some(
+          (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
+        );
+      });
     }
 
     // Category filter
@@ -340,6 +395,7 @@ export default function FoodScreen({
     maximumPrice,
     offerFilter,
     ratingFilter,
+    selectedHomeChefId,
     sortOption,
     products,
     selectedType,
@@ -350,6 +406,7 @@ export default function FoodScreen({
   const clearFilters = () => {
     setSelectedType("");
     setSelectedCategory("");
+    setSelectedHomeChefId("");
     setSelectedSubCategory("");
     setSelectedColor("");
     setSelectedSize("");
@@ -561,17 +618,6 @@ export default function FoodScreen({
             ) : null}
           </View>
 
-          <TouchableOpacity
-            className="h-[52px] flex-row items-center gap-1.5 rounded-xl bg-gray px-3"
-            onPress={() => setShowFilters(true)}
-          >
-            <MaterialCommunityIcons
-              name="filter"
-              size={20}
-              color={colors.text}
-            />
-            <Text className="text-[13px] font-semibold text-text">Filters</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Sort Options */}
@@ -665,291 +711,8 @@ export default function FoodScreen({
           </View>
         </View>
 
-        {/* Filter Sidebar + Products Grid */}
+        {/* Products Grid */}
         <View className="mb-4">
-          <Modal
-            visible={showFilters}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setShowFilters(false)}
-          >
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              className="flex-1 items-center justify-center bg-black/40 px-5"
-            >
-              <View className="w-full max-h-[82%] rounded-[26px] bg-white">
-                <View className="flex-row items-center justify-between rounded-t-[26px] bg-primary px-5 py-4">
-                  <Text className="text-[20px] font-black text-white">Filters</Text>
-                  <View className="flex-row items-center">
-                    <TouchableOpacity
-                      onPress={clearFilters}
-                      className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
-                    >
-                      <Text className="text-[13px] font-bold text-white">
-                        Clear
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowFilters(false)}>
-                      <MaterialCommunityIcons
-                        name="close"
-                        size={22}
-                        color={colors.white}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <ScrollView
-                  className="shrink px-5"
-                  contentContainerStyle={{ paddingBottom: 20, paddingTop: 16 }}
-                  showsVerticalScrollIndicator={true}
-                  nestedScrollEnabled
-                >
-                  {/* Price Filter */}
-                  <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-[15px] font-black text-secondary">
-                      Price
-                    </Text>
-                    <View className="mb-2 flex-row gap-3">
-                      <TextInput
-                        className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
-                        value={minimumPrice}
-                        onChangeText={setMinimumPrice}
-                        keyboardType="numeric"
-                        placeholder="Min price"
-                        placeholderTextColor={colors.grayDark}
-                        accessibilityLabel="Minimum price"
-                      />
-                      <TextInput
-                        className="flex-1 rounded-md border border-borderLight px-3 py-2 text-[14px] text-text"
-                        value={maximumPrice}
-                        onChangeText={setMaximumPrice}
-                        keyboardType="numeric"
-                        placeholder="Max price"
-                        placeholderTextColor={colors.grayDark}
-                        accessibilityLabel="Maximum price"
-                      />
-                    </View>
-                    <Text className="text-[13px] font-medium text-textSecondary">
-                      ₹{minimumPrice || "0"} - ₹{maximumPrice || "Any"}
-                    </Text>
-                  </View>
-
-                  {/* Type Filter */}
-                  <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-[15px] font-black text-secondary">
-                      Type
-                    </Text>
-                    {["Food", "Products"].map((type) => (
-                      <TouchableOpacity
-                        key={type}
-                        className="flex-row items-center gap-2 py-2"
-                        onPress={() => {
-                          setSelectedType(type);
-                          if (selectedCategory) {
-                            const allowed = (groupedCategories[type] || []).map(
-                              (cat) => cat.name?.trim().toLowerCase(),
-                            );
-                            if (
-                              !allowed.includes(
-                                selectedCategory.trim().toLowerCase(),
-                              )
-                            ) {
-                              setSelectedCategory("");
-                              setSelectedSubCategory("");
-                            }
-                          }
-                        }}
-                      >
-                        <View
-                          className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                            selectedType === type
-                              ? "border-primary"
-                              : "border-borderLight"
-                          }`}
-                        >
-                          {selectedType === type && (
-                            <View className="h-2 w-2 rounded-full bg-primary" />
-                          )}
-                        </View>
-                        <Text className="text-[14px] font-medium text-text">{type}</Text>
-                      </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity
-                      className="flex-row items-center gap-2 py-2"
-                      onPress={() => setSelectedType("")}
-                    >
-                      <View
-                        className={`h-4 w-4 items-center justify-center rounded-full border-2 ${
-                          selectedType === ""
-                            ? "border-primary"
-                            : "border-borderLight"
-                        }`}
-                      >
-                        {selectedType === "" && (
-                          <View className="h-2 w-2 rounded-full bg-primary" />
-                        )}
-                      </View>
-                      <Text className="text-[14px] font-medium text-text">All Types</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Category Filter */}
-                  {categories.length > 0 && (
-                    <View className="mb-3 border-b border-borderLight pb-3">
-                      <Text className="mb-2 text-[15px] font-black text-secondary">
-                        Category
-                      </Text>
-                      <TouchableOpacity
-                        className="flex-row items-center gap-2 py-2"
-                        onPress={() => setSelectedCategory("")}
-                      >
-                        <View
-                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                            selectedCategory === ""
-                              ? "border-primary"
-                              : "border-borderLight"
-                          }`}
-                        >
-                          {selectedCategory === "" && (
-                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                          )}
-                        </View>
-                        <Text className="text-[14px] font-medium text-text">
-                          All Categories
-                        </Text>
-                      </TouchableOpacity>
-                      {categories.map((cat) => {
-                        const isCatSelected =
-                          cat?.trim().toLowerCase() ===
-                          decodeURIComponent(selectedCategory || "")
-                            .trim()
-                            .toLowerCase();
-                        return (
-                          <TouchableOpacity
-                            key={cat}
-                            className="flex-row items-center gap-2 py-2"
-                            onPress={() => setSelectedCategory(cat)}
-                          >
-                            <View
-                              className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                                isCatSelected
-                                  ? "border-primary"
-                                  : "border-borderLight"
-                              }`}
-                            >
-                              {isCatSelected && (
-                                <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                              )}
-                            </View>
-                            <Text className="text-[14px] font-medium text-text">{cat}</Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  )}
-
-                  {/* Offers Filter */}
-                  <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-[15px] font-black text-secondary">
-                      Offers
-                    </Text>
-                    <TouchableOpacity
-                      className="flex-row items-center gap-2 py-2"
-                      onPress={() => setOfferFilter(0)}
-                    >
-                      <View
-                        className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                          offerFilter === 0
-                            ? "border-primary"
-                            : "border-borderLight"
-                        }`}
-                      >
-                        {offerFilter === 0 && (
-                          <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                        )}
-                      </View>
-                      <Text className="text-[14px] font-medium text-text">
-                        All Offers
-                      </Text>
-                    </TouchableOpacity>
-                    {[10, 20, 30, 40, 50].map((offer) => (
-                      <TouchableOpacity
-                        key={offer}
-                        className="flex-row items-center gap-2 py-2"
-                        onPress={() => setOfferFilter(offer)}
-                      >
-                        <View
-                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                            offerFilter === offer
-                              ? "border-primary"
-                              : "border-borderLight"
-                          }`}
-                        >
-                          {offerFilter === offer && (
-                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                          )}
-                        </View>
-                        <Text className="text-[14px] font-medium text-text">
-                          {offer}% and above
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  {/* Rating Filter */}
-                  <View className="mb-3 border-b border-borderLight pb-3">
-                    <Text className="mb-2 text-[15px] font-black text-secondary">
-                      Rating
-                    </Text>
-                    <TouchableOpacity
-                      className="flex-row items-center gap-2 py-2"
-                      onPress={() => setRatingFilter(0)}
-                    >
-                      <View
-                        className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                          ratingFilter === 0
-                            ? "border-primary"
-                            : "border-borderLight"
-                        }`}
-                      >
-                        {ratingFilter === 0 && (
-                          <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                        )}
-                      </View>
-                      <Text className="text-[14px] font-medium text-text">
-                        All Ratings
-                      </Text>
-                    </TouchableOpacity>
-                    {[4, 3, 2].map((rating) => (
-                      <TouchableOpacity
-                        key={rating}
-                        className="flex-row items-center gap-2 py-2"
-                        onPress={() => setRatingFilter(rating)}
-                      >
-                        <View
-                          className={`h-5 w-5 items-center justify-center rounded-full border-2 ${
-                            ratingFilter === rating
-                              ? "border-primary"
-                              : "border-borderLight"
-                          }`}
-                        >
-                          {ratingFilter === rating && (
-                            <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                          )}
-                        </View>
-                        <Text className="text-[14px] font-medium text-text">
-                          {rating}.0 and above
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-            </KeyboardAvoidingView>
-          </Modal>
-
-          {/* Products Grid */}
           <View className="flex-1">
             {currentProducts.length > 0 ? (
               viewMode === "card" ? (
