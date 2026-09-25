@@ -296,9 +296,21 @@ export default function FoodScreen({
 
     // Search filter
     if (search) {
-      updated = updated.filter((p) =>
-        p.name?.toLowerCase().includes(search.toLowerCase()),
-      );
+      // Normalize common spelling variations
+      const normalize = (str: string) => str.replace(/b(iriyani|iryani|riyani)/g, "biryani");
+      const searchLower = normalize(search.toLowerCase());
+      
+      updated = updated.filter((p) => {
+        const pName = normalize(p.name?.toLowerCase() || "");
+        const pCat = normalize(p.category?.toLowerCase() || "");
+        const pSub = normalize(p.subcategory?.toLowerCase() || "");
+        const pDesc = normalize(p.description?.toLowerCase() || "");
+        
+        return pName.includes(searchLower) ||
+               pCat.includes(searchLower) ||
+               pSub.includes(searchLower) ||
+               pDesc.includes(searchLower);
+      });
     }
 
     // Type filter
