@@ -15,7 +15,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
@@ -89,7 +89,7 @@ export default function RegisterScreen() {
       () => {
         scrollViewRef.current?.scrollTo({ y: yOffset, animated: true });
       },
-      Platform.OS === "android" ? 150 : 60
+      Platform.OS === "android" ? 150 : 60,
     );
   };
 
@@ -181,10 +181,10 @@ export default function RegisterScreen() {
             scrollEnabled
             automaticallyAdjustKeyboardInsets
             showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={
-            Platform.OS === "ios" ? "interactive" : "on-drag"
-          }
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={
+              Platform.OS === "ios" ? "interactive" : "on-drag"
+            }
             bounces={false}
           >
             <Pressable onPress={Keyboard.dismiss} style={styles.container}>
@@ -196,187 +196,173 @@ export default function RegisterScreen() {
                 />
               </View>
               <Text style={styles.brandName}>Veetu Rusi</Text>
-              <Text style={styles.tagline}>Homemade food. Freshly delivered.</Text>
+              <Text style={styles.tagline}>
+                Homemade food. Freshly delivered.
+              </Text>
 
               <View style={styles.card}>
                 <Text style={styles.kicker}>JOIN THE TABLE</Text>
                 <Text style={styles.title}>Create your account</Text>
-                <Text style={styles.subtitle}>Bring homemade goodness closer to you.</Text>
+                <Text style={styles.subtitle}>
+                  Bring homemade goodness closer to you.
+                </Text>
 
-            {/* Username Field */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Username</Text>
-              <View style={styles.input}>
-                <MaterialCommunityIcons
-                  name="account-outline"
-                  size={18}
-                  color={colors.textSecondary}
-                  className="mr-2"
-                />
-                <TextInput
-                  placeholder="e.g. johndoe"
-                  placeholderTextColor={colors.textSecondary}
-                  value={form.username}
-                  onChangeText={(value) => handleChange("username", value)}
-                  style={styles.inputText}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  onSubmitEditing={() => emailRef.current?.focus()}
-                  onFocus={() => handleFocus(120)}
-                />
-              </View>
-            </View>
-
-            {/* Email Field */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Email Address</Text>
-              <View style={styles.input}>
-                <MaterialCommunityIcons
-                  name="email-outline"
-                  size={18}
-                  color={colors.textSecondary}
-                  className="mr-2"
-                />
-                <TextInput
-                  ref={emailRef}
-                  placeholder="e.g. awesome@user.com"
-                  placeholderTextColor={colors.textSecondary}
-                  value={form.email}
-                  onChangeText={(value) => handleChange("email", value)}
-                  keyboardType="email-address"
-                  style={styles.inputText}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  onSubmitEditing={() => phoneRef.current?.focus()}
-                  onFocus={() => handleFocus(190)}
-                />
-              </View>
-            </View>
-
-            {/* Phone Field */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Phone Number</Text>
-              <View style={styles.input}>
-                <MaterialCommunityIcons
-                  name="phone-outline"
-                  size={18}
-                  color={colors.textSecondary}
-                  className="mr-2"
-                />
-                <TextInput
-                  ref={phoneRef}
-                  placeholder="e.g. +1 234 567 890"
-                  placeholderTextColor={colors.textSecondary}
-                  value={form.phone}
-                  onChangeText={(value) => handleChange("phone", value)}
-                  keyboardType="phone-pad"
-                  style={styles.inputText}
-                  returnKeyType="next"
-                  onSubmitEditing={() => passwordRef.current?.focus()}
-                  onFocus={() => handleFocus(260)}
-                />
-              </View>
-            </View>
-
-            {/* Password Fields Row */}
-            <View style={styles.passwordRow}>
-              {/* Password Field */}
-              <View style={styles.passwordColumn}>
-                <Text style={styles.fieldLabel}>Password</Text>
-                <View style={styles.passwordInput}>
-                  <MaterialCommunityIcons
-                    name="lock-outline"
-                    size={16}
-                    color={colors.textSecondary}
-                    className="mr-1.5"
-                  />
-                  <TextInput
-                    ref={passwordRef}
-                    placeholder="••••••••"
-                    placeholderTextColor={colors.textSecondary}
-                    value={form.password}
-                    onChangeText={(value) => handleChange("password", value)}
-                    secureTextEntry={!showPassword}
-                    style={styles.passwordText}
-                    returnKeyType="next"
-                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                    onFocus={() => handleFocus(330)}
-                  />
-                  <TouchableOpacity
-                    style={styles.passwordToggle}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    <MaterialCommunityIcons
-                      name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={16}
-                      color={colors.textSecondary}
+                {/* Username Field */}
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.fieldLabel}>Username</Text>
+                  <View style={styles.input}>
+                    <TextInput
+                      placeholder="Enter Your Username"
+                      placeholderTextColor={colors.textSecondary}
+                      value={form.username}
+                      onChangeText={(value) => handleChange("username", value)}
+                      style={styles.inputText}
+                      autoCapitalize="none"
+                      returnKeyType="next"
+                      onSubmitEditing={() => emailRef.current?.focus()}
+                      onFocus={() => handleFocus(120)}
                     />
-                  </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
 
-              {/* Confirm Password Field */}
-              <View style={styles.passwordColumn}>
-                <Text style={styles.fieldLabel}>Confirm</Text>
-                <View style={styles.passwordInput}>
-                  <MaterialCommunityIcons
-                    name="lock-outline"
-                    size={16}
-                    color={colors.textSecondary}
-                    className="mr-1.5"
-                  />
-                  <TextInput
-                    ref={confirmPasswordRef}
-                    placeholder="••••••••"
-                    placeholderTextColor={colors.textSecondary}
-                    value={form.confirmPassword}
-                    onChangeText={(value) =>
-                      handleChange("confirmPassword", value)
-                    }
-                    secureTextEntry={!showConfirmPassword}
-                    style={styles.passwordText}
-                    returnKeyType="done"
-                    onSubmitEditing={handleSubmit}
-                    onFocus={() => handleFocus(400)}
-                  />
-                  <TouchableOpacity
-                    style={styles.passwordToggle}
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    <MaterialCommunityIcons
-                      name={
-                        showConfirmPassword ? "eye-off-outline" : "eye-outline"
-                      }
-                      size={16}
-                      color={colors.textSecondary}
+                {/* Email Field */}
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.fieldLabel}>Email Address</Text>
+                  <View style={styles.input}>
+                    <TextInput
+                      ref={emailRef}
+                      placeholder="Enter Your Email"
+                      placeholderTextColor={colors.textSecondary}
+                      value={form.email}
+                      onChangeText={(value) => handleChange("email", value)}
+                      keyboardType="email-address"
+                      style={styles.inputText}
+                      autoCapitalize="none"
+                      returnKeyType="next"
+                      onSubmitEditing={() => phoneRef.current?.focus()}
+                      onFocus={() => handleFocus(190)}
                     />
-                  </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </View>
 
-            {/* Sign Up Button */}
-            <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={loading}
-              style={[styles.submitButton, loading && styles.disabled]}
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.white} size="small" />
-              ) : (
-                <Text style={styles.submitText}>Sign Up</Text>
-              )}
-            </TouchableOpacity>
+                {/* Phone Field */}
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.fieldLabel}>Phone Number</Text>
+                  <View style={styles.input}>
+                    <TextInput
+                      ref={phoneRef}
+                      placeholder="Enter Your Phone Number"
+                      placeholderTextColor={colors.textSecondary}
+                      value={form.phone}
+                      onChangeText={(value) => handleChange("phone", value)}
+                      keyboardType="phone-pad"
+                      style={styles.inputText}
+                      returnKeyType="next"
+                      onSubmitEditing={() => passwordRef.current?.focus()}
+                      onFocus={() => handleFocus(260)}
+                    />
+                  </View>
+                </View>
 
-            {/* Login Link */}
-            <View style={styles.loginRow}>
-              <Text style={styles.loginPrompt}>Already have an account? </Text>
-              <Link href="/auth/login" asChild>
-                <TouchableOpacity>
-                  <Text style={styles.loginLink}>Log In</Text>
+                {/* Password Fields Row */}
+                <View style={styles.passwordRow}>
+                  {/* Password Field */}
+                  <View style={styles.passwordColumn}>
+                    <Text style={styles.fieldLabel}>Password</Text>
+                    <View style={styles.passwordInput}>
+                      <TextInput
+                        ref={passwordRef}
+                        placeholder="Enter Your Password"
+                        placeholderTextColor={colors.textSecondary}
+                        value={form.password}
+                        onChangeText={(value) =>
+                          handleChange("password", value)
+                        }
+                        secureTextEntry={!showPassword}
+                        style={styles.passwordText}
+                        returnKeyType="next"
+                        onSubmitEditing={() =>
+                          confirmPasswordRef.current?.focus()
+                        }
+                        onFocus={() => handleFocus(330)}
+                      />
+                      <TouchableOpacity
+                        style={styles.passwordToggle}
+                        onPress={() => setShowPassword(!showPassword)}
+                      >
+                        <MaterialCommunityIcons
+                          name={
+                            showPassword ? "eye-off-outline" : "eye-outline"
+                          }
+                          size={16}
+                          color={colors.textSecondary}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  {/* Confirm Password Field */}
+                  <View style={styles.passwordColumn}>
+                    <Text style={styles.fieldLabel}>Confirm</Text>
+                    <View style={styles.passwordInput}>
+                      <TextInput
+                        ref={confirmPasswordRef}
+                        placeholder="Confirm Your Password"
+                        placeholderTextColor={colors.textSecondary}
+                        value={form.confirmPassword}
+                        onChangeText={(value) =>
+                          handleChange("confirmPassword", value)
+                        }
+                        secureTextEntry={!showConfirmPassword}
+                        style={styles.passwordText}
+                        returnKeyType="done"
+                        onSubmitEditing={handleSubmit}
+                        onFocus={() => handleFocus(400)}
+                      />
+                      <TouchableOpacity
+                        style={styles.passwordToggle}
+                        onPress={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        <MaterialCommunityIcons
+                          name={
+                            showConfirmPassword
+                              ? "eye-off-outline"
+                              : "eye-outline"
+                          }
+                          size={16}
+                          color={colors.textSecondary}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Sign Up Button */}
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  disabled={loading}
+                  style={[styles.submitButton, loading && styles.disabled]}
+                >
+                  {loading ? (
+                    <ActivityIndicator color={colors.white} size="small" />
+                  ) : (
+                    <Text style={styles.submitText}>Sign Up</Text>
+                  )}
                 </TouchableOpacity>
-              </Link>
-            </View>
+
+                {/* Login Link */}
+                <View style={styles.loginRow}>
+                  <Text style={styles.loginPrompt}>
+                    Already have an account?{" "}
+                  </Text>
+                  <Link href="/auth/login" asChild>
+                    <TouchableOpacity>
+                      <Text style={styles.loginLink}>Log In</Text>
+                    </TouchableOpacity>
+                  </Link>
+                </View>
               </View>
             </Pressable>
           </ScrollView>
@@ -434,14 +420,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F2C4A5",
     marginTop: 20,
-    
+
     maxWidth: 430,
     paddingHorizontal: 18,
     paddingTop: 18,
     paddingBottom: 18,
     width: "100%",
   },
-  kicker: { color: "#E85D04", fontSize: 11, fontWeight: "800", letterSpacing: 1.4 },
+  kicker: {
+    color: "#E85D04",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+  },
   title: {
     color: "#3A2A22",
     fontSize: 26,
@@ -457,15 +448,15 @@ const styles = StyleSheet.create({
   fieldGroup: { marginBottom: 9 },
   fieldLabel: {
     color: "#5A4030",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     marginBottom: 5,
   },
   input: {
     alignItems: "center",
     backgroundColor: "#F4F5F8",
-    borderColor: "#FFFFFF",
-    borderRadius: 30,
+    borderColor: "#F7B88A",
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: "row",
     height: 48,
@@ -477,8 +468,8 @@ const styles = StyleSheet.create({
   passwordInput: {
     alignItems: "center",
     backgroundColor: "#F4F5F8",
-    borderColor: "#FFFFFF",
-    borderRadius: 30,
+    borderColor: "#F7B88A",
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: "row",
     height: 48,
