@@ -2,7 +2,7 @@ import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { AuthContext } from "@/context/AuthContext";
 import { useStore } from "@/context/StoreContext";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -155,9 +155,13 @@ export default function AppHeader({ title }: AppHeaderProps) {
             onPress={() => setMenuOpen((prev) => !prev)}
             hitSlop={8}
           >
-            <Text className="text-[16px] font-bold text-white">
-              {initialLetter}
-            </Text>
+            {activeUser ? (
+              <Text className="text-[16px] font-bold text-white">
+                {initialLetter}
+              </Text>
+            ) : (
+              <Ionicons name="person" size={20} color={colors.white} />
+            )}
           </Pressable>
 
           {menuOpen && (
