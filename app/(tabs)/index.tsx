@@ -327,7 +327,7 @@ export default function HomeScreen() {
             item.chef_id ||
             item.home_chef_id ||
             item.vendor_id ||
-            item.id ||
+            item.id_in_home_chefs ||
             chefName,
           name: chefName,
           image: getFoodImage(item),

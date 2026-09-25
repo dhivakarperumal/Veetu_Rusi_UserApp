@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLocation, UserLocation } from "@/context/LocationContext";
 import { Product, useStore } from "@/context/StoreContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -34,6 +34,7 @@ export default function FoodScreen({
 }: {
   defaultCategory?: string;
 }) {
+  const router = useRouter();
   const params = useLocalSearchParams<{
     category?: string;
     search?: string;
@@ -88,6 +89,8 @@ export default function FoodScreen({
   >({});
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [selectedChefName, setSelectedChefName] = useState("");
+
   // Sync route params when navigated from other screens
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -106,11 +109,14 @@ export default function FoodScreen({
       setSelectedHomeChefId("");
     }
     if (params.chefName) {
-      // chefName is kept only for compatibility with old route usage
       const chefName = String(params.chefName).trim();
       if (chefName) {
-        setSearch(chefName);
+        setSelectedChefName(chefName);
+      } else {
+        setSelectedChefName("");
       }
+    } else {
+      setSelectedChefName("");
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [
@@ -161,6 +167,7 @@ export default function FoodScreen({
         locationOverride !== undefined ? locationOverride : location;
       const isCacheValid =
         !forceRefresh &&
+        !selectedHomeChefId &&
         lastChefFoodsFetchTime &&
         Date.now() - lastChefFoodsFetchTime < 5 * 60 * 1000;
 
@@ -178,12 +185,19 @@ export default function FoodScreen({
       try {
         setLoading(true);
             const [foodsRes, productsRes] = await Promise.all([
-          api.get("/chef-foods").catch((err) => {
+          api.get("/chef-foods", { 
+            params: selectedHomeChefId ? { homeChefId: selectedHomeChefId } : {} 
+          }).catch((err) => {
             console.error(err);
             return { data: [] };
           }),
           api
-            .get("/products", { params: { source: "chef_products" } })
+            .get("/products", { 
+              params: { 
+                source: "chef_products", 
+                ...(selectedHomeChefId ? { homeChefId: selectedHomeChefId } : {}) 
+              } 
+            })
             .catch((err) => {
               console.error(err);
               return { data: [] };
@@ -208,14 +222,31 @@ export default function FoodScreen({
                 product.id_in_home_chefs,
               ];
 
-              return ids.some(
+              const isIdMatch = ids.some(
                 (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
               );
+
+              const names = [
+                product.chef_name,
+                product.homeChefName,
+                product.vendor_name,
+                product.chef,
+                product.homeChef,
+                product.provider_name,
+              ];
+              
+              const isNameMatch = selectedChefName && names.some(
+                (name) => name && String(name).trim() === selectedChefName
+              );
+
+              return isIdMatch || isNameMatch;
             })
           : data;
 
-        setChefFoodsCache(data);
-        setLastChefFoodsFetchTime(Date.now());
+        if (!selectedHomeChefId) {
+          setChefFoodsCache(data);
+          setLastChefFoodsFetchTime(Date.now());
+        }
 
         const myProducts = scopedData.filter((product) =>
           isProductDeliverable(product, activeLoc),
@@ -234,6 +265,7 @@ export default function FoodScreen({
     [
       location,
       selectedHomeChefId,
+      selectedChefName,
       chefFoodsCache,
       lastChefFoodsFetchTime,
       isProductDeliverable,
@@ -295,9 +327,24 @@ export default function FoodScreen({
           product.id_in_home_chefs,
         ];
 
-        return ids.some(
+        const isIdMatch = ids.some(
           (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
         );
+
+        const names = [
+          product.chef_name,
+          product.homeChefName,
+          product.vendor_name,
+          product.chef,
+          product.homeChef,
+          product.provider_name,
+        ];
+
+        const isNameMatch = selectedChefName && names.some(
+          (name) => name && String(name).trim() === selectedChefName
+        );
+
+        return isIdMatch || isNameMatch;
       });
     }
 
@@ -396,6 +443,7 @@ export default function FoodScreen({
     offerFilter,
     ratingFilter,
     selectedHomeChefId,
+    selectedChefName,
     sortOption,
     products,
     selectedType,
@@ -407,6 +455,7 @@ export default function FoodScreen({
     setSelectedType("");
     setSelectedCategory("");
     setSelectedHomeChefId("");
+    setSelectedChefName("");
     setSelectedSubCategory("");
     setSelectedColor("");
     setSelectedSize("");
@@ -414,6 +463,7 @@ export default function FoodScreen({
     setMaximumPrice("10000");
     setOfferFilter(0);
     setRatingFilter(0);
+    router.setParams({ homeChefId: "", chefName: "", category: "", search: "", offer: "" });
   };
 
   // Derived filter data
@@ -591,6 +641,30 @@ export default function FoodScreen({
             )}
           </TouchableOpacity>
         </View>
+        {/* Home Chef Badge */}
+        {selectedHomeChefId ? (
+          <View className="mb-3 flex-row items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
+            <View className="flex-row items-center gap-2">
+              <MaterialCommunityIcons name="chef-hat" size={20} color={colors.primary} />
+              <View>
+                <Text className="text-[11px] font-semibold text-primary">Home Chef</Text>
+                <Text className="text-[14px] font-bold text-text">
+                  {selectedChefName || "Selected Chef"}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedHomeChefId("");
+                setSelectedChefName("");
+                router.setParams({ homeChefId: "", chefName: "" });
+              }}
+              className="rounded-full bg-white p-1.5"
+            >
+              <MaterialCommunityIcons name="close" size={16} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         {/* Toolbar */}
         <View className="mb-3 flex-row items-center gap-2.5">
@@ -749,22 +823,25 @@ export default function FoodScreen({
                   color={colors.grayDark}
                 />
                 <Text className="mt-3 text-base font-bold text-text">
-                  No products found
+                  {selectedHomeChefId ? "No products available from this Home Chef" : "No products found"}
                 </Text>
                 <Text className="mb-3 mt-1 text-center text-xs text-textSecondary">
-                  {search ||
-                  selectedCategory ||
-                  selectedType ||
-                  offerFilter ||
-                  ratingFilter ||
-                  selectedSubCategory ||
-                  selectedColor ||
-                  selectedSize
-                    ? "No products matched your search or filters. Try clearing your filters."
-                    : `No home chef products currently delivering to your location (${user?.area || user?.pincode || "your area"}).`}
+                  {selectedHomeChefId
+                    ? `No food/products available from ${selectedChefName || "this Home Chef"} for your location.`
+                    : search ||
+                      selectedCategory ||
+                      selectedType ||
+                      offerFilter ||
+                      ratingFilter ||
+                      selectedSubCategory ||
+                      selectedColor ||
+                      selectedSize
+                      ? "No products matched your search or filters. Try clearing your filters."
+                      : `No home chef products currently delivering to your location (${user?.area || user?.pincode || "your area"}).`}
                 </Text>
 
-                {(search ||
+                {(selectedHomeChefId ||
+                  search ||
                   selectedCategory ||
                   selectedType ||
                   offerFilter ||
