@@ -10,21 +10,21 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
 import {
-    ActivityIndicator,
-    Dimensions,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -637,7 +637,7 @@ export default function ProductDetailScreen() {
       {/* Bottom bar */}
       {!loading && (
         <View
-          className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between border-t border-borderLight bg-white px-4 pt-3 shadow-lg shadow-black"
+          className="absolute bottom-0 left-0 right-0 mb-8 flex-row items-center justify-between border-t border-borderLight bg-white px-4 pt-3 shadow-lg shadow-black"
           style={{ paddingBottom: Math.max(insets.bottom, 16) }}
         >
           <View className="mr-3">
@@ -649,7 +649,7 @@ export default function ProductDetailScreen() {
 
           <View className="flex-row items-center gap-2">
             <TouchableOpacity
-              className="flex-row items-center gap-1.5 rounded-xl border border-primary bg-white px-3.5 py-2.5 active:bg-primary/10"
+              className="h-12 flex-none flex-row items-center justify-center gap-2 rounded-xl border border-primary bg-white px-2.5 active:bg-primary/10"
               onPress={async () => {
                 if (!product) return;
                 await addToFoodCart(
@@ -673,16 +673,16 @@ export default function ProductDetailScreen() {
             >
               <MaterialCommunityIcons
                 name="cart-plus"
-                size={18}
+                size={25}
                 color={colors.primary}
               />
-              <Text className="text-[13px] font-bold text-primary">
+              <Text className="text-md font-bold text-primary">
                 Add To Cart
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-row items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 shadow-md shadow-primary/30 active:opacity-90"
+              className="h-12 flex-none flex-row items-center justify-center gap-2 rounded-xl bg-primary px-2.5 shadow-md shadow-primary/30 active:opacity-90"
               onPress={() => {
                 if (!product) return;
                 const buyNowData = {
@@ -701,10 +701,10 @@ export default function ProductDetailScreen() {
             >
               <MaterialCommunityIcons
                 name="lightning-bolt"
-                size={18}
+                size={25}
                 color={colors.white}
               />
-              <Text className="text-[13px] font-bold text-white">Buy Now</Text>
+              <Text className="text-md font-bold text-white">Buy Now</Text>
             </TouchableOpacity>
           </View>
         </View>

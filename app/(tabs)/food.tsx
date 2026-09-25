@@ -185,19 +185,25 @@ export default function FoodScreen({
 
       try {
         setLoading(true);
-            const [foodsRes, productsRes] = await Promise.all([
-          api.get("/chef-foods", { 
-            params: selectedHomeChefId ? { homeChefId: selectedHomeChefId } : {} 
-          }).catch((err) => {
-            console.error(err);
-            return { data: [] };
-          }),
+        const [foodsRes, productsRes] = await Promise.all([
           api
-            .get("/products", { 
-              params: { 
-                source: "chef_products", 
-                ...(selectedHomeChefId ? { homeChefId: selectedHomeChefId } : {}) 
-              } 
+            .get("/chef-foods", {
+              params: selectedHomeChefId
+                ? { homeChefId: selectedHomeChefId }
+                : {},
+            })
+            .catch((err) => {
+              console.error(err);
+              return { data: [] };
+            }),
+          api
+            .get("/products", {
+              params: {
+                source: "chef_products",
+                ...(selectedHomeChefId
+                  ? { homeChefId: selectedHomeChefId }
+                  : {}),
+              },
             })
             .catch((err) => {
               console.error(err);
@@ -224,7 +230,10 @@ export default function FoodScreen({
               ];
 
               const isIdMatch = ids.some(
-                (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
+                (id) =>
+                  id !== undefined &&
+                  id !== null &&
+                  String(id) === selectedHomeChefId,
               );
 
               const names = [
@@ -235,10 +244,12 @@ export default function FoodScreen({
                 product.homeChef,
                 product.provider_name,
               ];
-              
-              const isNameMatch = selectedChefName && names.some(
-                (name) => name && String(name).trim() === selectedChefName
-              );
+
+              const isNameMatch =
+                selectedChefName &&
+                names.some(
+                  (name) => name && String(name).trim() === selectedChefName,
+                );
 
               return isIdMatch || isNameMatch;
             })
@@ -298,19 +309,22 @@ export default function FoodScreen({
     // Search filter
     if (search) {
       // Normalize common spelling variations
-      const normalize = (str: string) => str.replace(/b(iriyani|iryani|riyani)/g, "biryani");
+      const normalize = (str: string) =>
+        str.replace(/b(iriyani|iryani|riyani)/g, "biryani");
       const searchLower = normalize(search.toLowerCase());
-      
+
       updated = updated.filter((p) => {
         const pName = normalize(p.name?.toLowerCase() || "");
         const pCat = normalize(p.category?.toLowerCase() || "");
         const pSub = normalize(p.subcategory?.toLowerCase() || "");
         const pDesc = normalize(p.description?.toLowerCase() || "");
-        
-        return pName.includes(searchLower) ||
-               pCat.includes(searchLower) ||
-               pSub.includes(searchLower) ||
-               pDesc.includes(searchLower);
+
+        return (
+          pName.includes(searchLower) ||
+          pCat.includes(searchLower) ||
+          pSub.includes(searchLower) ||
+          pDesc.includes(searchLower)
+        );
       });
     }
 
@@ -341,7 +355,10 @@ export default function FoodScreen({
         ];
 
         const isIdMatch = ids.some(
-          (id) => id !== undefined && id !== null && String(id) === selectedHomeChefId,
+          (id) =>
+            id !== undefined &&
+            id !== null &&
+            String(id) === selectedHomeChefId,
         );
 
         const names = [
@@ -353,9 +370,11 @@ export default function FoodScreen({
           product.provider_name,
         ];
 
-        const isNameMatch = selectedChefName && names.some(
-          (name) => name && String(name).trim() === selectedChefName
-        );
+        const isNameMatch =
+          selectedChefName &&
+          names.some(
+            (name) => name && String(name).trim() === selectedChefName,
+          );
 
         return isIdMatch || isNameMatch;
       });
@@ -476,7 +495,13 @@ export default function FoodScreen({
     setMaximumPrice("10000");
     setOfferFilter(0);
     setRatingFilter(0);
-    router.setParams({ homeChefId: "", chefName: "", category: "", search: "", offer: "" });
+    router.setParams({
+      homeChefId: "",
+      chefName: "",
+      category: "",
+      search: "",
+      offer: "",
+    });
   };
 
   // Derived filter data
@@ -658,9 +683,15 @@ export default function FoodScreen({
         {selectedHomeChefId ? (
           <View className="mb-3 flex-row items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
             <View className="flex-row items-center gap-2">
-              <MaterialCommunityIcons name="chef-hat" size={20} color={colors.primary} />
+              <MaterialCommunityIcons
+                name="chef-hat"
+                size={20}
+                color={colors.primary}
+              />
               <View>
-                <Text className="text-[11px] font-semibold text-primary">Home Chef</Text>
+                <Text className="text-[11px] font-semibold text-primary">
+                  Home Chef
+                </Text>
                 <Text className="text-[14px] font-bold text-text">
                   {selectedChefName || "Selected Chef"}
                 </Text>
@@ -674,7 +705,11 @@ export default function FoodScreen({
               }}
               className="rounded-full bg-white p-1.5"
             >
-              <MaterialCommunityIcons name="close" size={16} color={colors.primary} />
+              <MaterialCommunityIcons
+                name="close"
+                size={16}
+                color={colors.primary}
+              />
             </TouchableOpacity>
           </View>
         ) : null}
@@ -846,19 +881,21 @@ export default function FoodScreen({
                   color={colors.grayDark}
                 />
                 <Text className="mt-3 text-base font-bold text-text">
-                  {selectedHomeChefId ? "No products available from this Home Chef" : "No products found"}
+                  {selectedHomeChefId
+                    ? "No products available from this Home Chef"
+                    : "No products found"}
                 </Text>
                 <Text className="mb-3 mt-1 text-center text-xs text-textSecondary">
                   {selectedHomeChefId
                     ? `No food/products available from ${selectedChefName || "this Home Chef"} for your location.`
                     : search ||
-                      selectedCategory ||
-                      selectedType ||
-                      offerFilter ||
-                      ratingFilter ||
-                      selectedSubCategory ||
-                      selectedColor ||
-                      selectedSize
+                        selectedCategory ||
+                        selectedType ||
+                        offerFilter ||
+                        ratingFilter ||
+                        selectedSubCategory ||
+                        selectedColor ||
+                        selectedSize
                       ? "No products matched your search or filters. Try clearing your filters."
                       : `No home chef products currently delivering to your location (${user?.area || user?.pincode || "your area"}).`}
                 </Text>
@@ -1069,7 +1106,9 @@ export default function FoodScreen({
                 onPress={() => setSelectedCategory("")}
               >
                 <MaterialCommunityIcons
-                  name={!selectedCategory ? "radiobox-marked" : "radiobox-blank"}
+                  name={
+                    !selectedCategory ? "radiobox-marked" : "radiobox-blank"
+                  }
                   size={21}
                   color={!selectedCategory ? colors.primary : colors.grayDark}
                 />

@@ -1,4 +1,4 @@
-import api, { isBotProtectionError } from "@/app/api";
+import api, { API_BASE_URL, isBotProtectionError } from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import QuickViewModal from "@/components/QuickViewModal";
 import { colors } from "@/config/colors";
@@ -100,22 +100,41 @@ const getFirstImageUrl = (value: unknown): string | null => {
   return null;
 };
 
+const resolveCategoryImageUrl = (value: string | null) => {
+  if (!value) return null;
+  if (value.startsWith("data:") || /^https?:\/\//i.test(value)) return value;
+
+  const apiOrigin = API_BASE_URL.replace(/\/api\/?$/, "");
+  return `${apiOrigin}/${value.replace(/^\/+/, "")}`;
+};
+
 const getCategoryImageUrl = (category: CategoryItem) => {
-  const raw =
-    category.image ?? category.images ?? category.image_url ?? category.photo;
-  return getFirstImageUrl(raw) || null;
+  const raw = [
+    category.image,
+    category.images,
+    category.image_url,
+    category.category_image,
+    category.photo,
+  ].find((value) => {
+    if (Array.isArray(value)) return value.length > 0;
+    return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
+  });
+
+  return resolveCategoryImageUrl(getFirstImageUrl(raw));
 };
 
 const getIconByCategory = (label: string) => {
   const lower = String(label).toLowerCase();
-  if (lower.includes("snack")) return "restaurant";
+  if (lower.includes("snack")) return "fast-food";
   if (lower.includes("healthy")) return "leaf";
   if (lower.includes("combo")) return "fast-food";
   if (lower.includes("box")) return "bag";
   if (lower.includes("party")) return "sparkles";
   if (lower.includes("offer")) return "pricetag";
-  if (lower.includes("tiff")) return "food";
-  return "silverware-fork-knife";
+  if (lower.includes("tiff")) return "cafe";
+  if (lower.includes("dessert")) return "ice-cream";
+  if (lower.includes("beverage")) return "wine";
+  return "restaurant";
 };
 
 const parseJsonField = (value: unknown) => {
