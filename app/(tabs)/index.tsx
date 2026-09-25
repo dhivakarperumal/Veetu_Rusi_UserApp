@@ -426,6 +426,19 @@ export default function HomeScreen() {
     });
   };
 
+  const openProductDetails = (item: Record<string, any>) => {
+    const productId = item.id || item._id || item.product_id;
+    if (!productId) {
+      setSelectedProduct(item as Product);
+      return;
+    }
+
+    router.push({
+      pathname: "/product/[id]",
+      params: { id: String(productId) },
+    });
+  };
+
   // Products with offers deliverable to the current location
   const offerFoods = foods.filter((item) => {
     const offer = Number(item.offer || 0);
@@ -853,9 +866,7 @@ export default function HomeScreen() {
                 return (
                   <Pressable
                     key={productId || food.name || i}
-                    onPress={() => {
-                      setSelectedProduct(food as Product);
-                    }}
+                    onPress={() => openProductDetails(food)}
                     className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
                   >
                     <View className="relative">
@@ -1038,9 +1049,7 @@ export default function HomeScreen() {
                 return (
                   <Pressable
                     key={productId || idx}
-                    onPress={() => {
-                      setSelectedProduct(offerItem);
-                    }}
+                    onPress={() => openProductDetails(offerItem)}
                     className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
                   >
                     <View className="relative">
