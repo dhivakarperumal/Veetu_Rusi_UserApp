@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,6 +8,13 @@ import { colors } from "@/config/colors";
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
+  const { userFoodCart, activeOrdersCount } = useStore();
+
+  // Total item count (sum of quantities) in cart
+  const cartCount = userFoodCart.reduce(
+    (total, item) => total + (Number(item.quantity) || 1),
+    0,
+  );
 
   return (
     <Tabs
@@ -27,6 +35,15 @@ export default function TabLayout() {
         },
         tabBarIconStyle: {
           marginBottom: 1,
+        },
+        tabBarBadgeStyle: {
+          backgroundColor: colors.primary,
+          color: colors.white,
+          fontSize: 10,
+          fontWeight: "bold",
+          minWidth: 16,
+          height: 16,
+          lineHeight: 16,
         },
         headerShown: false,
       }}
@@ -59,7 +76,7 @@ export default function TabLayout() {
           tabBarLabel: "Food",
         }}
       />
-      
+
       <Tabs.Screen
         name="cart"
         options={{
@@ -72,6 +89,7 @@ export default function TabLayout() {
             />
           ),
           tabBarLabel: "Cart",
+          tabBarBadge: cartCount > 0 ? (cartCount > 99 ? "99+" : cartCount) : undefined,
         }}
       />
       <Tabs.Screen
@@ -86,6 +104,12 @@ export default function TabLayout() {
             />
           ),
           tabBarLabel: "Orders",
+          tabBarBadge:
+            activeOrdersCount > 0
+              ? activeOrdersCount > 99
+                ? "99+"
+                : activeOrdersCount
+              : undefined,
         }}
       />
       <Tabs.Screen

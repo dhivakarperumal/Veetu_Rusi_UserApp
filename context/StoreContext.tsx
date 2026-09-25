@@ -128,6 +128,9 @@ interface StoreContextType {
   fetchUserFoodCart: () => Promise<void>;
   placeFoodOrder: (orderData: Record<string, any>) => Promise<any>;
 
+  activeOrdersCount: number;
+  refreshActiveOrdersCount: () => Promise<void>;
+
   wishlist: WishlistItem[];
   loadingWishlist: boolean;
   fetchWishlist: () => Promise<void>;
@@ -152,6 +155,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [userFoodCart, setUserFoodCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState<boolean>(false);
+  const [activeOrdersCount, setActiveOrdersCount] = useState<number>(0);
 
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
@@ -270,6 +274,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUserFoodCart();
       fetchWishlist();
+    } else {
+      setActiveOrdersCount(0);
     }
   }, [user, fetchUserFoodCart, fetchWishlist]);
 
@@ -692,6 +698,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [user, wishlist],
   );
 
+  // Active orders count for tab badge
+  const refreshActiveOrdersCount = useCallback(async () => {
+    if (!user) {
+      setActiveOrdersCount(0);
+      return;
+    }
+    try {
+      const res = await api.get("/user-food-orders/my-orders");
+      const all = Array.isArray(res.data) ? res.data : [];
+      const terminalStatuses = ["delivered", "cancelled", "completed"];
+      const active = all.filter(
+        (o: any) =>
+          !terminalStatuses.includes(String(o.status || "").toLowerCase()),
+      );
+      setActiveOrdersCount(active.length);
+    } catch {
+      // silently ignore – badge just won't update
+    }
+  }, [user]);
+
+  // Refresh active orders count badge whenever user changes (after function is defined)
+  useEffect(() => {
+    if (user?.id || user?.user_id) {
+      refreshActiveOrdersCount();
+    }
+  }, [user, refreshActiveOrdersCount]);
+
   // Place food order
   const placeFoodOrder = useCallback(
     async (orderData: Record<string, any>) => {
@@ -699,9 +732,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!orderData.isBuyNow) {
         await clearUserFoodCart();
       }
+      // Refresh badge count after placing an order
+      refreshActiveOrdersCount().catch(() => {});
       return res.data;
     },
-    [clearUserFoodCart],
+    [clearUserFoodCart, refreshActiveOrdersCount],
   );
 
   return (
@@ -720,6 +755,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         clearUserFoodCart,
         fetchUserFoodCart,
         placeFoodOrder,
+        activeOrdersCount,
+        refreshActiveOrdersCount,
         wishlist,
         loadingWishlist,
         fetchWishlist,

@@ -3,6 +3,7 @@ import AppHeader from "@/components/AppHeader";
 import { customAlert as Alert } from "@/components/CustomAlertHost";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
+import { useStore } from "@/context/StoreContext";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -198,6 +199,7 @@ export default function OrdersScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ newOrderId?: string }>();
   const { user, logout, updateUser } = useAuth();
+  const { refreshActiveOrdersCount } = useStore();
 
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -274,7 +276,16 @@ export default function OrdersScreen() {
     try {
       setSessionExpired(false);
       const res = await api.get("/user-food-orders/my-orders");
-      setOrders(Array.isArray(res.data) ? res.data : []);
+      const data = Array.isArray(res.data) ? res.data : [];
+      setOrders(data);
+      // Keep tab badge in sync
+      const terminalStatuses = ["delivered", "cancelled", "completed"];
+      const activeCount = data.filter(
+        (o: any) =>
+          !terminalStatuses.includes(String(o.status || "").toLowerCase()),
+      ).length;
+      // Refresh from store so the badge updates via StoreContext
+      refreshActiveOrdersCount().catch(() => {});
     } catch (err: any) {
       console.warn("Failed to load food orders:", err?.message || err);
       const is401 =
@@ -311,7 +322,7 @@ export default function OrdersScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user, localUser, logout, router]);
+  }, [user, localUser, logout, router, refreshActiveOrdersCount]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
