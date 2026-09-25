@@ -14,7 +14,7 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -38,7 +38,9 @@ export default function QuickViewModal({
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [adding, setAdding] = useState(false);
 
-  const productId = String(product?.id || product?._id || product?.product_id || "");
+  const productId = String(
+    product?.id || product?._id || product?.product_id || "",
+  );
   const isWishlisted = isInWishlist(productId);
 
   // Available sizes/variants
@@ -92,7 +94,7 @@ export default function QuickViewModal({
     return 0;
   }, [product, originalPrice, unitPrice]);
 
-  const totalPrice = (unitPrice * quantity).toFixed(0);
+  const totalPrice = (unitPrice * quantity).toFixed(2);
 
   // Parse image
   const imageUrl = useMemo(() => {
@@ -202,7 +204,7 @@ export default function QuickViewModal({
       >
         <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View 
+        <View
           className="w-full max-h-[90%] rounded-t-[32px] bg-white px-5 pt-3 shadow-2xl"
           style={{ paddingBottom: Math.max(insets.bottom, 20) }}
         >
@@ -239,7 +241,11 @@ export default function QuickViewModal({
                     );
                     return;
                   }
-                  await toggleWishlist(product, product.variants?.[0], selectedSize);
+                  await toggleWishlist(
+                    product,
+                    product.variants?.[0],
+                    selectedSize,
+                  );
                 }}
                 hitSlop={8}
               >
@@ -264,7 +270,10 @@ export default function QuickViewModal({
             </View>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} className="max-h-[460px]">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            className="max-h-[460px]"
+          >
             {/* Product Image Section */}
             <View className="relative mb-3 h-48 w-full overflow-hidden rounded-2xl bg-gray">
               {imageUrl ? (
@@ -293,7 +302,10 @@ export default function QuickViewModal({
             </View>
 
             {/* Product Title & Chef Name */}
-            <Text className="text-[20px] font-black text-text" numberOfLines={2}>
+            <Text
+              className="text-[20px] font-black text-text"
+              numberOfLines={2}
+            >
               {product.name || "Chef Dish"}
             </Text>
 
@@ -311,11 +323,11 @@ export default function QuickViewModal({
             {/* Price Row */}
             <View className="mt-2.5 flex-row items-baseline gap-2">
               <Text className="text-[24px] font-black text-text">
-                ₹{unitPrice.toFixed(0)}
+                ₹{unitPrice.toFixed(2)}
               </Text>
               {originalPrice > unitPrice && (
                 <Text className="text-[14px] font-semibold text-textSecondary line-through">
-                  ₹{originalPrice.toFixed(0)}
+                  ₹{originalPrice.toFixed(2)}
                 </Text>
               )}
             </View>
@@ -356,7 +368,10 @@ export default function QuickViewModal({
             {/* Description (if present) */}
             {Boolean(product.description) && (
               <View className="mt-3 border-t border-borderLight pt-2.5">
-                <Text className="text-[11px] leading-relaxed text-textSecondary" numberOfLines={3}>
+                <Text
+                  className="text-[11px] leading-relaxed text-textSecondary"
+                  numberOfLines={3}
+                >
                   {product.description}
                 </Text>
               </View>
@@ -434,9 +449,7 @@ export default function QuickViewModal({
                 size={19}
                 color={colors.white}
               />
-              <Text className="text-[14px] font-bold text-white">
-                Buy Now
-              </Text>
+              <Text className="text-[14px] font-bold text-white">Buy Now</Text>
             </TouchableOpacity>
           </View>
 

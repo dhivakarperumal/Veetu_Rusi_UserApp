@@ -160,7 +160,7 @@ export default function CartScreen() {
                   )}
 
                   <Text className="mt-1 text-[14px] font-black text-text">
-                    ₹{itemTotal.toFixed(0)}
+                    ₹{itemTotal.toFixed(2)}
                   </Text>
                 </View>
 
@@ -229,7 +229,7 @@ export default function CartScreen() {
             <View className="mb-2 flex-row justify-between">
               <Text className="text-xs text-textSecondary">Item Total</Text>
               <Text className="text-xs font-bold text-text">
-                ₹{itemsTotal.toFixed(0)}
+                ₹{itemsTotal.toFixed(2)}
               </Text>
             </View>
 
@@ -240,7 +240,7 @@ export default function CartScreen() {
                   deliveryFee === 0 ? "text-primary" : "text-text"
                 }`}
               >
-                {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
+                {deliveryFee === 0 ? "FREE" : `₹${deliveryFee.toFixed(2)}`}
               </Text>
             </View>
 
@@ -249,7 +249,7 @@ export default function CartScreen() {
                 Packaging & Handling
               </Text>
               <Text className="text-xs font-bold text-text">
-                ₹{packagingFee}
+                ₹{packagingFee.toFixed(2)}
               </Text>
             </View>
 
@@ -258,7 +258,7 @@ export default function CartScreen() {
             <View className="flex-row items-baseline justify-between">
               <Text className="text-sm font-black text-text">To Pay</Text>
               <Text className="text-lg font-black text-primary">
-                ₹{grandTotal.toFixed(0)}
+                ₹{grandTotal.toFixed(2)}
               </Text>
             </View>
           </View>
@@ -273,7 +273,7 @@ export default function CartScreen() {
                 Total Amount
               </Text>
               <Text className="text-lg font-black text-white">
-                ₹{grandTotal.toFixed(0)}
+                ₹{grandTotal.toFixed(2)}
               </Text>
             </View>
 

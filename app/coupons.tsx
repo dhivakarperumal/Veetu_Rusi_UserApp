@@ -24,7 +24,7 @@ export default function CouponsScreen() {
         <View className="rounded-[22px] border border-borderLight bg-white p-5 shadow-sm">
           <Text className="text-[16px] font-black text-text">WELCOME10</Text>
           <Text className="mt-2 text-[13px] font-medium text-textSecondary">
-            Flat ₹100 off on your first order above ₹499
+            Flat ₹100.00 off on your first order above ₹499.00
           </Text>
         </View>
       </ScrollView>

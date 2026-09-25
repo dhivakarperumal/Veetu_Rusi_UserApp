@@ -378,7 +378,8 @@ export default function OrdersScreen() {
   const handleReorder = async (order: any) => {
     try {
       setLoading(true);
-      const orderItems = order?.items || order?.order_items || order?.food_items || [];
+      const orderItems =
+        order?.items || order?.order_items || order?.food_items || [];
       if (!Array.isArray(orderItems) || orderItems.length === 0) {
         Alert.alert("Reorder", "No food items were found in this order.");
         return;
@@ -393,15 +394,16 @@ export default function OrdersScreen() {
           item?.product_id ||
           item?.food_id ||
           item?.id;
-        const price = Number(
-          item?.price ??
-            item?.unit_price ??
-            item?.final_price ??
-            product?.final_price ??
-            product?.offer_price ??
-            product?.mrp ??
-            0,
-        ) || 0;
+        const price =
+          Number(
+            item?.price ??
+              item?.unit_price ??
+              item?.final_price ??
+              product?.final_price ??
+              product?.offer_price ??
+              product?.mrp ??
+              0,
+          ) || 0;
         const quantity = Number(item?.quantity || item?.qty || 1);
 
         return {
@@ -414,7 +416,10 @@ export default function OrdersScreen() {
           total_price: price * quantity,
           quantity,
           chef_user_id:
-            product?.chef_user_id || item?.chef_user_id || item?.created_by || "",
+            product?.chef_user_id ||
+            item?.chef_user_id ||
+            item?.created_by ||
+            "",
           chef_id: product?.chef_id || item?.chef_id || "",
           chef_name:
             product?.chef_name ||
@@ -433,7 +438,10 @@ export default function OrdersScreen() {
       });
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "Failed to open checkout for these items. Please try again.");
+      Alert.alert(
+        "Error",
+        "Failed to open checkout for these items. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -805,7 +813,11 @@ export default function OrdersScreen() {
         <View className="border-b border-borderLight bg-white px-4 pb-3 pt-3">
           <View className="flex-row items-center gap-2">
             <View className="flex-1 flex-row items-center rounded-xl border border-borderLight bg-[#F9FAFB] px-3">
-              <Ionicons name="search-outline" size={20} color={colors.grayDark} />
+              <Ionicons
+                name="search-outline"
+                size={20}
+                color={colors.grayDark}
+              />
               <TextInput
                 className="ml-2 flex-1 py-3 text-[15px] text-text"
                 value={searchQuery}
@@ -815,7 +827,11 @@ export default function OrdersScreen() {
               />
               {searchQuery ? (
                 <TouchableOpacity onPress={() => setSearchQuery("")}>
-                  <Ionicons name="close-circle" size={19} color={colors.grayDark} />
+                  <Ionicons
+                    name="close-circle"
+                    size={19}
+                    color={colors.grayDark}
+                  />
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -829,7 +845,9 @@ export default function OrdersScreen() {
               <Ionicons
                 name="filter-outline"
                 size={21}
-                color={selectedStatus === "All Statuses" ? colors.text : colors.white}
+                color={
+                  selectedStatus === "All Statuses" ? colors.text : colors.white
+                }
               />
             </TouchableOpacity>
           </View>
@@ -888,7 +906,11 @@ export default function OrdersScreen() {
             <View className="gap-4">
               {filteredOrders.length === 0 ? (
                 <View className="items-center justify-center rounded-3xl bg-white px-6 py-16">
-                  <MaterialCommunityIcons name="file-search-outline" size={52} color={colors.grayDark} />
+                  <MaterialCommunityIcons
+                    name="file-search-outline"
+                    size={52}
+                    color={colors.grayDark}
+                  />
                   <Text className="mt-4 text-[18px] font-black text-text">
                     No matching orders
                   </Text>
@@ -896,230 +918,236 @@ export default function OrdersScreen() {
                     Try another search or clear the selected status filter.
                   </Text>
                 </View>
-              ) : filteredOrders.map((order) => {
-                const statusTheme = getStatusColor(order.status);
-                const itemsCount =
-                  order.items?.reduce(
-                    (sum: number, it: any) => sum + (Number(it.quantity) || 1),
-                    0,
-                  ) || 0;
-                const totalAmount = parseFloat(
-                  order.final_total != null
-                    ? order.final_total
-                    : order.total_amount || 0,
-                );
-                const isDelivered =
-                  order.status === "Delivered" || order.status === "Completed";
-                const hasDeliveryPartner =
-                  (order.status === "Delivery Partner Assigned" ||
-                    order.status === "Picked Up" ||
-                    order.status === "Out for Delivery" ||
-                    order.status === "Delivered") &&
-                  Boolean(order.delivery_partner_name);
+              ) : (
+                filteredOrders.map((order) => {
+                  const statusTheme = getStatusColor(order.status);
+                  const itemsCount =
+                    order.items?.reduce(
+                      (sum: number, it: any) =>
+                        sum + (Number(it.quantity) || 1),
+                      0,
+                    ) || 0;
+                  const totalAmount = parseFloat(
+                    order.final_total != null
+                      ? order.final_total
+                      : order.total_amount || 0,
+                  );
+                  const isDelivered =
+                    order.status === "Delivered" ||
+                    order.status === "Completed";
+                  const hasDeliveryPartner =
+                    (order.status === "Delivery Partner Assigned" ||
+                      order.status === "Picked Up" ||
+                      order.status === "Out for Delivery" ||
+                      order.status === "Delivered") &&
+                    Boolean(order.delivery_partner_name);
 
-                return (
-                  <TouchableOpacity
-                    key={order.id}
-                    activeOpacity={0.96}
-                    onPress={() => openOrder(order)}
-                    className="overflow-hidden rounded-3xl border border-borderLight bg-white shadow-sm"
-                  >
-                    {/* Header */}
-                    <View className="flex-row items-center justify-between border-b border-borderLight bg-[#FAFAFA] px-4 py-3.5">
-                      <View>
-                        <Text className="text-[12px] font-black uppercase tracking-wider text-textSecondary">
-                          Order #{order.order_id || order.id}
-                        </Text>
-                        <Text className="mt-0.5 text-[14px] font-semibold text-text">
-                          {formatDateTime(order.ordered_at)}
-                        </Text>
-                      </View>
-                      <View
-                        className={`rounded-full px-3 py-1 ${statusTheme.bg}`}
-                      >
-                        <Text
-                          className={`text-[13px] font-bold ${statusTheme.text}`}
+                  return (
+                    <TouchableOpacity
+                      key={order.id}
+                      activeOpacity={0.96}
+                      onPress={() => openOrder(order)}
+                      className="overflow-hidden rounded-3xl border border-borderLight bg-white shadow-sm"
+                    >
+                      {/* Header */}
+                      <View className="flex-row items-center justify-between border-b border-borderLight bg-[#FAFAFA] px-4 py-3.5">
+                        <View>
+                          <Text className="text-[12px] font-black uppercase tracking-wider text-textSecondary">
+                            Order #{order.order_id || order.id}
+                          </Text>
+                          <Text className="mt-0.5 text-[14px] font-semibold text-text">
+                            {formatDateTime(order.ordered_at)}
+                          </Text>
+                        </View>
+                        <View
+                          className={`rounded-full px-3 py-1 ${statusTheme.bg}`}
                         >
-                          {order.status === "Pending"
-                            ? "New Order"
-                            : order.status || "New Order"}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Details Body */}
-                    <View className="p-4">
-                      {/* Delivery Slot & Chef */}
-                      <View className="mb-3 flex-row gap-2.5">
-                        <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                          <Text className="text-[12px] uppercase font-bold text-textSecondary">
-                            Delivery Slot
-                          </Text>
                           <Text
-                            className="mt-1 text-[14px] font-bold text-text"
-                            numberOfLines={1}
+                            className={`text-[13px] font-bold ${statusTheme.text}`}
                           >
-                            {order.delivery_date || "-"}
-                          </Text>
-                          <Text className="text-[13px] text-textSecondary">
-                            {order.delivery_time
-                              ? `at ${order.delivery_time}`
-                              : ""}
-                          </Text>
-                        </View>
-
-                        <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                          <Text className="text-[12px] uppercase font-bold text-textSecondary">
-                            Home Chef
-                          </Text>
-                          <Text
-                            className="mt-1 text-[14px] font-bold text-primary"
-                            numberOfLines={1}
-                          >
-                            {getChefNames(order.items, order.chef_name)}
-                          </Text>
-                          <Text className="text-[13px] text-textSecondary">
-                            {itemsCount} {itemsCount === 1 ? "dish" : "dishes"}
+                            {order.status === "Pending"
+                              ? "New Order"
+                              : order.status || "New Order"}
                           </Text>
                         </View>
                       </View>
 
-                      {/* Items Preview */}
-                      <View className="mb-3">
-                        {order.items
-                          ?.slice(0, 2)
-                          .map((item: any, idx: number) => (
+                      {/* Details Body */}
+                      <View className="p-4">
+                        {/* Delivery Slot & Chef */}
+                        <View className="mb-3 flex-row gap-2.5">
+                          <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
+                            <Text className="text-[12px] uppercase font-bold text-textSecondary">
+                              Delivery Slot
+                            </Text>
                             <Text
-                              key={idx}
-                              className="text-[14px] text-textSecondary"
+                              className="mt-1 text-[14px] font-bold text-text"
                               numberOfLines={1}
                             >
-                              • {item.name || item.product_name} (×
-                              {item.quantity || 1})
+                              {order.delivery_date || "-"}
                             </Text>
-                          ))}
-                        {order.items?.length > 2 && (
-                          <Text className="mt-0.5 text-[13px] font-semibold text-primary">
-                            +{order.items.length - 2} more items
-                          </Text>
-                        )}
-                      </View>
+                            <Text className="text-[13px] text-textSecondary">
+                              {order.delivery_time
+                                ? `at ${order.delivery_time}`
+                                : ""}
+                            </Text>
+                          </View>
 
-                      {/* Amount */}
-                      <View className="flex-row items-center justify-between border-t border-borderLight pt-2.5">
-                        <Text className="text-[14px] font-semibold text-textSecondary">
-                          Total Paid
-                        </Text>
-                        <View className="flex-row items-baseline gap-1.5">
-                          <Text className="text-[18px] font-black text-text">
-                            ₹{totalAmount.toFixed(0)}
-                          </Text>
-                          {parseFloat(order.discount_amount || 0) > 0 && (
-                            <Text className="text-[11px] text-textSecondary line-through">
-                              ₹{parseFloat(order.total_amount || 0).toFixed(0)}
+                          <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
+                            <Text className="text-[12px] uppercase font-bold text-textSecondary">
+                              Home Chef
+                            </Text>
+                            <Text
+                              className="mt-1 text-[14px] font-bold text-primary"
+                              numberOfLines={1}
+                            >
+                              {getChefNames(order.items, order.chef_name)}
+                            </Text>
+                            <Text className="text-[13px] text-textSecondary">
+                              {itemsCount}{" "}
+                              {itemsCount === 1 ? "dish" : "dishes"}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Items Preview */}
+                        <View className="mb-3">
+                          {order.items
+                            ?.slice(0, 2)
+                            .map((item: any, idx: number) => (
+                              <Text
+                                key={idx}
+                                className="text-[14px] text-textSecondary"
+                                numberOfLines={1}
+                              >
+                                • {item.name || item.product_name} (×
+                                {item.quantity || 1})
+                              </Text>
+                            ))}
+                          {order.items?.length > 2 && (
+                            <Text className="mt-0.5 text-[13px] font-semibold text-primary">
+                              +{order.items.length - 2} more items
                             </Text>
                           )}
                         </View>
-                      </View>
 
-                      {/* Delivery Partner banner if assigned */}
-                      {hasDeliveryPartner && (
-                        <View className="mt-3 flex-row items-center justify-between rounded-2xl border border-blue-100 bg-blue-50 p-3">
-                          <View>
-                            <Text className="text-[10px] font-black uppercase text-blue-600">
-                              Delivery Partner
+                        {/* Amount */}
+                        <View className="flex-row items-center justify-between border-t border-borderLight pt-2.5">
+                          <Text className="text-[14px] font-semibold text-textSecondary">
+                            Total Paid
+                          </Text>
+                          <View className="flex-row items-baseline gap-1.5">
+                            <Text className="text-[18px] font-black text-text">
+                              ₹{totalAmount.toFixed(2)}
                             </Text>
-                            <Text className="mt-0.5 text-xs font-bold text-text">
-                              {order.delivery_partner_name}
-                            </Text>
-                            {Boolean(order.delivery_partner_phone) && (
-                              <Text className="text-[11px] text-textSecondary">
-                                📞 {order.delivery_partner_phone}
+                            {parseFloat(order.discount_amount || 0) > 0 && (
+                              <Text className="text-[11px] text-textSecondary line-through">
+                                ₹
+                                {parseFloat(order.total_amount || 0).toFixed(2)}
                               </Text>
                             )}
                           </View>
+                        </View>
 
-                          {!isDelivered && (
+                        {/* Delivery Partner banner if assigned */}
+                        {hasDeliveryPartner && (
+                          <View className="mt-3 flex-row items-center justify-between rounded-2xl border border-blue-100 bg-blue-50 p-3">
+                            <View>
+                              <Text className="text-[10px] font-black uppercase text-blue-600">
+                                Delivery Partner
+                              </Text>
+                              <Text className="mt-0.5 text-xs font-bold text-text">
+                                {order.delivery_partner_name}
+                              </Text>
+                              {Boolean(order.delivery_partner_phone) && (
+                                <Text className="text-[11px] text-textSecondary">
+                                  📞 {order.delivery_partner_phone}
+                                </Text>
+                              )}
+                            </View>
+
+                            {!isDelivered && (
+                              <TouchableOpacity
+                                onPress={() => handleTrack(order)}
+                                className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5"
+                              >
+                                <MaterialCommunityIcons
+                                  name="map-marker-outline"
+                                  size={14}
+                                  color="#FFF"
+                                />
+                                <Text className="text-[11px] font-bold text-white">
+                                  Track
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        )}
+                      </View>
+
+                      {/* Customer Cancellation countdown bar */}
+                      <CustomerCancelBar
+                        order={order}
+                        onCancel={() => {
+                          setCancelOrder(order);
+                          setCancellationReason("");
+                        }}
+                      />
+
+                      {/* Action buttons */}
+                      <View className="flex-row flex-wrap items-center gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
+                        {isDelivered && (
+                          <>
                             <TouchableOpacity
-                              onPress={() => handleTrack(order)}
-                              className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5"
+                              onPress={() => openReviewModal(order)}
+                              className="flex-row items-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2"
                             >
                               <MaterialCommunityIcons
-                                name="map-marker-outline"
+                                name="star-outline"
+                                size={14}
+                                color="#059669"
+                              />
+                              <Text className="text-xs font-bold text-emerald-700">
+                                Review Food
+                              </Text>
+                            </TouchableOpacity>
+
+                            {Boolean(order.delivery_partner_name) && (
+                              <TouchableOpacity
+                                onPress={() => openDeliveryReviewModal(order)}
+                                className="flex-row items-center gap-1 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2"
+                              >
+                                <MaterialCommunityIcons
+                                  name="moped"
+                                  size={14}
+                                  color="#2563EB"
+                                />
+                                <Text className="text-xs font-bold text-blue-700">
+                                  Review Partner
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+
+                            <TouchableOpacity
+                              onPress={() => handleReorder(order)}
+                              className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-2"
+                            >
+                              <MaterialCommunityIcons
+                                name="refresh"
                                 size={14}
                                 color="#FFF"
                               />
-                              <Text className="text-[11px] font-bold text-white">
-                                Track
+                              <Text className="text-xs font-bold text-white">
+                                Reorder
                               </Text>
                             </TouchableOpacity>
-                          )}
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Customer Cancellation countdown bar */}
-                    <CustomerCancelBar
-                      order={order}
-                      onCancel={() => {
-                        setCancelOrder(order);
-                        setCancellationReason("");
-                      }}
-                    />
-
-                    {/* Action buttons */}
-                    <View className="flex-row flex-wrap items-center gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
-                      {isDelivered && (
-                        <>
-                          <TouchableOpacity
-                            onPress={() => openReviewModal(order)}
-                            className="flex-row items-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2"
-                          >
-                            <MaterialCommunityIcons
-                              name="star-outline"
-                              size={14}
-                              color="#059669"
-                            />
-                            <Text className="text-xs font-bold text-emerald-700">
-                              Review Food
-                            </Text>
-                          </TouchableOpacity>
-
-                          {Boolean(order.delivery_partner_name) && (
-                            <TouchableOpacity
-                              onPress={() => openDeliveryReviewModal(order)}
-                              className="flex-row items-center gap-1 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2"
-                            >
-                              <MaterialCommunityIcons
-                                name="moped"
-                                size={14}
-                                color="#2563EB"
-                              />
-                              <Text className="text-xs font-bold text-blue-700">
-                                Review Partner
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-
-                          <TouchableOpacity
-                            onPress={() => handleReorder(order)}
-                            className="flex-row items-center gap-1 rounded-xl bg-blue-600 px-3 py-2"
-                          >
-                            <MaterialCommunityIcons
-                              name="refresh"
-                              size={14}
-                              color="#FFF"
-                            />
-                            <Text className="text-xs font-bold text-white">
-                              Reorder
-                            </Text>
-                          </TouchableOpacity>
-                        </>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
+                          </>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </View>
           )}
         </ScrollView>
@@ -1131,19 +1159,23 @@ export default function OrdersScreen() {
         animationType="slide"
         onRequestClose={() => setShowFilters(false)}
       >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 items-center justify-center bg-black/40 px-5"
-          >
-            <View className="w-full max-h-[70%] rounded-[28px] bg-white">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 items-center justify-center bg-black/40 px-5"
+        >
+          <View className="w-full max-h-[70%] rounded-[28px] bg-white">
             <View className="flex-row items-center justify-between rounded-t-[28px] bg-primary px-5 py-4">
-              <Text className="text-[20px] font-black text-white">Filter Orders</Text>
+              <Text className="text-[20px] font-black text-white">
+                Filter Orders
+              </Text>
               <View className="flex-row items-center">
                 <TouchableOpacity
                   onPress={() => setSelectedStatus("All Statuses")}
                   className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
                 >
-                  <Text className="text-[13px] font-bold text-white">Clear</Text>
+                  <Text className="text-[13px] font-bold text-white">
+                    Clear
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowFilters(false)}>
                   <Ionicons name="close" size={25} color={colors.white} />
@@ -1174,12 +1206,14 @@ export default function OrdersScreen() {
                       <View className="h-2.5 w-2.5 rounded-full bg-primary" />
                     )}
                   </View>
-                  <Text className="text-[15px] font-medium text-text">{status}</Text>
+                  <Text className="text-[15px] font-medium text-text">
+                    {status}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
-            </View>
-          </KeyboardAvoidingView>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Order Details Modal */}
@@ -1288,11 +1322,11 @@ export default function OrdersScreen() {
                           </Text>
                           <Text className="text-[13px] text-textSecondary">
                             Qty {it.quantity || 1} × ₹
-                            {parseFloat(it.price || 0).toFixed(0)}
+                            {parseFloat(it.price || 0).toFixed(2)}
                           </Text>
                         </View>
                         <Text className="text-[14px] font-black text-primary">
-                          ₹{itemTotal.toFixed(0)}
+                          ₹{itemTotal.toFixed(2)}
                         </Text>
                       </View>
                     );
@@ -1337,7 +1371,7 @@ export default function OrdersScreen() {
                         Discount
                       </Text>
                       <Text className="text-xs font-bold text-emerald-600">
-                        -₹{parseFloat(selectedOrder.discount_amount).toFixed(0)}
+                        -₹{parseFloat(selectedOrder.discount_amount).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -1351,7 +1385,7 @@ export default function OrdersScreen() {
                         selectedOrder.final_total ??
                           selectedOrder.total_amount ??
                           0,
-                      ).toFixed(0)}
+                      ).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -1372,7 +1406,7 @@ export default function OrdersScreen() {
                             {chef.name}
                           </Text>
                           <Text className="text-xs font-bold text-primary">
-                            ₹{chef.total_amount.toFixed(0)}
+                            ₹{chef.total_amount.toFixed(2)}
                           </Text>
                         </View>
                         <Text className="mt-1 text-[11px] text-textSecondary">

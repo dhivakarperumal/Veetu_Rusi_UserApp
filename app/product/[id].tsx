@@ -465,11 +465,11 @@ export default function ProductDetailScreen() {
             <View className="my-3 flex-row items-center justify-between">
               <View className="flex-row items-baseline gap-2">
                 <Text className="text-2xl font-extrabold text-text">
-                  ₹{price.toFixed(0)}
+                  ₹{price.toFixed(2)}
                 </Text>
                 {originalPrice > price && (
                   <Text className="text-base text-textSecondary line-through">
-                    ₹{originalPrice.toFixed(0)}
+                    ₹{originalPrice.toFixed(2)}
                   </Text>
                 )}
               </View>
@@ -643,7 +643,7 @@ export default function ProductDetailScreen() {
           <View className="mr-3">
             <Text className="text-xs text-textSecondary">Total Price</Text>
             <Text className="text-xl font-extrabold text-text">
-              ₹{(price * quantity).toFixed(0)}
+              ₹{(price * quantity).toFixed(2)}
             </Text>
           </View>
 

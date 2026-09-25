@@ -14,7 +14,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "./api";
@@ -234,7 +234,10 @@ export default function OrdersScreen() {
 
   const formatPrice = (value: any) => {
     const amount = Number(value ?? 0);
-    return `₹${amount.toLocaleString("en-IN")}`;
+    return `₹${amount.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   const availableStatuses = useMemo(() => {
@@ -500,7 +503,9 @@ export default function OrdersScreen() {
               <MaterialCommunityIcons
                 name="filter-variant"
                 size={22}
-                color={selectedStatus === "All Statuses" ? "#1F2937" : "#FFFFFF"}
+                color={
+                  selectedStatus === "All Statuses" ? "#1F2937" : "#FFFFFF"
+                }
               />
             </TouchableOpacity>
           </View>
@@ -529,7 +534,11 @@ export default function OrdersScreen() {
         >
           {filteredOrders.length === 0 ? (
             <View className="items-center justify-center py-16">
-              <MaterialCommunityIcons name="file-search-outline" size={52} color="#9CA3AF" />
+              <MaterialCommunityIcons
+                name="file-search-outline"
+                size={52}
+                color="#9CA3AF"
+              />
               <Text className="mt-4 text-[18px] font-black text-text">
                 No matching orders
               </Text>
@@ -537,152 +546,159 @@ export default function OrdersScreen() {
                 Try another search or clear the selected status filter.
               </Text>
             </View>
-          ) : filteredOrders.map((order: any, index: number) => {
-            const status = order.status || order.order_status || "Processing";
-            const statusStyle = getStatusStyle(status);
-            const actionButtons = getActionButtons(status, order);
-            const title =
-              order.restaurant_name ||
-              order.vendor_name ||
-              order.item_name ||
-              `Order ${order.order_number || order.id}`;
+          ) : (
+            filteredOrders.map((order: any, index: number) => {
+              const status = order.status || order.order_status || "Processing";
+              const statusStyle = getStatusStyle(status);
+              const actionButtons = getActionButtons(status, order);
+              const title =
+                order.restaurant_name ||
+                order.vendor_name ||
+                order.item_name ||
+                `Order ${order.order_number || order.id}`;
 
-            return (
-              <View
-                key={order.id ?? order.order_number ?? `order-${index}`}
-                className="mb-4"
-              >
-                <View className="mb-3 rounded-[22px] border border-borderLight bg-white p-5 shadow-sm shadow-black/5">
-                  <TouchableOpacity
-                    activeOpacity={0.9}
-                    onPress={() => openOrderDetails(order)}
-                  >
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-[16px] font-black text-text">
-                        {order.order_number || `Order #${order.id}`}
-                      </Text>
-                      <View
-                        className={`rounded-full px-3 py-1 ${statusStyle.badge}`}
-                      >
-                        <Text
-                          className={`text-[11px] font-bold ${statusStyle.text}`}
-                        >
-                          {status}
+              return (
+                <View
+                  key={order.id ?? order.order_number ?? `order-${index}`}
+                  className="mb-4"
+                >
+                  <View className="mb-3 rounded-[22px] border border-borderLight bg-white p-5 shadow-sm shadow-black/5">
+                    <TouchableOpacity
+                      activeOpacity={0.9}
+                      onPress={() => openOrderDetails(order)}
+                    >
+                      <View className="flex-row items-center justify-between">
+                        <Text className="text-[16px] font-black text-text">
+                          {order.order_number || `Order #${order.id}`}
                         </Text>
+                        <View
+                          className={`rounded-full px-3 py-1 ${statusStyle.badge}`}
+                        >
+                          <Text
+                            className={`text-[11px] font-bold ${statusStyle.text}`}
+                          >
+                            {status}
+                          </Text>
+                        </View>
                       </View>
+
+                      <Text className="mt-3 text-[15px] font-bold text-text">
+                        {title}
+                      </Text>
+                      <Text className="mt-1 text-[13px] font-medium text-textSecondary">
+                        {order.items?.length || order.total_items || 0} items ·{" "}
+                        {formatPrice(
+                          order.total_amount ||
+                            order.amount ||
+                            order.total ||
+                            0,
+                        )}
+                      </Text>
+                      <Text className="mt-2 text-[12px] font-semibold text-textSecondary">
+                        {order.created_at || order.order_date || "Recent order"}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <View className="mt-4 flex-row flex-wrap justify-between">
+                      {actionButtons.map((action) => {
+                        const isGreen = action.variant === "green";
+                        const isBlue = action.variant === "blue";
+                        const isLight = action.variant === "light";
+
+                        return (
+                          <TouchableOpacity
+                            key={action.label}
+                            onPress={() => action.action(order)}
+                            className={`mb-2 rounded-full border px-3 py-3 ${
+                              isGreen
+                                ? "border-[#1E7D5B] bg-[#1E7D5B]"
+                                : isBlue
+                                  ? "border-[#3B82F6] bg-[#3B82F6]"
+                                  : isLight
+                                    ? "border-[#D7E8DE] bg-[#F0F8F4]"
+                                    : "border-[#D0E7F8] bg-[#F3F9FF]"
+                            }`}
+                            style={{ width: "48%" }}
+                          >
+                            <View className="flex-row items-center justify-center">
+                              <MaterialCommunityIcons
+                                name={action.icon as any}
+                                size={18}
+                                color={
+                                  isGreen || isBlue ? "#FFFFFF" : "#1F2937"
+                                }
+                              />
+                              <Text
+                                className={`ml-2 text-[14px] font-bold ${
+                                  isGreen || isBlue ? "text-white" : "text-text"
+                                }`}
+                                numberOfLines={1}
+                              >
+                                {action.label}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
                     </View>
 
-                    <Text className="mt-3 text-[15px] font-bold text-text">
-                      {title}
-                    </Text>
-                    <Text className="mt-1 text-[13px] font-medium text-textSecondary">
-                      {order.items?.length || order.total_items || 0} items ·{" "}
-                      {formatPrice(
-                        order.total_amount || order.amount || order.total || 0,
-                      )}
-                    </Text>
-                    <Text className="mt-2 text-[12px] font-semibold text-textSecondary">
-                      {order.created_at || order.order_date || "Recent order"}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <View className="mt-4 flex-row flex-wrap justify-between">
-                    {actionButtons.map((action) => {
-                      const isGreen = action.variant === "green";
-                      const isBlue = action.variant === "blue";
-                      const isLight = action.variant === "light";
-
-                      return (
-                        <TouchableOpacity
-                          key={action.label}
-                          onPress={() => action.action(order)}
-                          className={`mb-2 rounded-full border px-3 py-3 ${
-                            isGreen
-                              ? "border-[#1E7D5B] bg-[#1E7D5B]"
-                              : isBlue
-                                ? "border-[#3B82F6] bg-[#3B82F6]"
-                                : isLight
-                                  ? "border-[#D7E8DE] bg-[#F0F8F4]"
-                                  : "border-[#D0E7F8] bg-[#F3F9FF]"
-                          }`}
-                          style={{ width: "48%" }}
-                        >
-                          <View className="flex-row items-center justify-center">
-                            <MaterialCommunityIcons
-                              name={action.icon as any}
-                              size={18}
-                              color={isGreen || isBlue ? "#FFFFFF" : "#1F2937"}
-                            />
-                            <Text
-                              className={`ml-2 text-[14px] font-bold ${
-                                isGreen || isBlue ? "text-white" : "text-text"
-                              }`}
-                              numberOfLines={1}
-                            >
-                              {action.label}
+                    {hasAssignedDeliveryPartner(order) ? (
+                      <View className="rounded-[22px] border border-[#CFE2FF] bg-[#F1F7FF] p-5">
+                        <View className="mb-3 flex-row items-center justify-between">
+                          <Text className="text-[12px] font-bold text-[#1558D6]">
+                            Delivery Partner Assigned
+                          </Text>
+                          <View className="rounded-full bg-[#DCEAFF] px-3 py-1">
+                            <Text className="text-[11px] font-bold text-[#1558D6]">
+                              ASSIGNED
                             </Text>
                           </View>
-                        </TouchableOpacity>
-                      );
-                    })}
+                        </View>
+                        <Text className="text-[13px] font-bold uppercase tracking-[3px] text-[#2872F0]">
+                          Delivery Partner
+                        </Text>
+                        <View className="mt-3 flex-row items-center justify-between">
+                          <View className="flex-1">
+                            <Text className="text-[16px] font-bold text-text">
+                              {getDeliveryPartnerDetails(order).name}
+                            </Text>
+                            <View className="mt-1 flex-row items-center">
+                              <MaterialCommunityIcons
+                                name="account-outline"
+                                size={16}
+                                color="#6B7A90"
+                              />
+                              <Text className="ml-1 text-[13px] text-textSecondary">
+                                {getDeliveryPartnerDetails(order).phone}
+                              </Text>
+                            </View>
+                          </View>
+                          <TouchableOpacity
+                            className="flex-row items-center rounded-[14px] bg-[#2167F5] px-4 py-3"
+                            onPress={() =>
+                              Alert.alert(
+                                "Track Delivery",
+                                "Your delivery partner is assigned. Live tracking will be available shortly.",
+                              )
+                            }
+                          >
+                            <MaterialCommunityIcons
+                              name="map-marker-outline"
+                              size={17}
+                              color="#FFFFFF"
+                            />
+                            <Text className="ml-2 text-[13px] font-bold text-white">
+                              TRACK
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ) : null}
                   </View>
-
-                  {hasAssignedDeliveryPartner(order) ? (
-                    <View className="rounded-[22px] border border-[#CFE2FF] bg-[#F1F7FF] p-5">
-                      <View className="mb-3 flex-row items-center justify-between">
-                        <Text className="text-[12px] font-bold text-[#1558D6]">
-                          Delivery Partner Assigned
-                        </Text>
-                        <View className="rounded-full bg-[#DCEAFF] px-3 py-1">
-                          <Text className="text-[11px] font-bold text-[#1558D6]">
-                            ASSIGNED
-                          </Text>
-                        </View>
-                      </View>
-                      <Text className="text-[13px] font-bold uppercase tracking-[3px] text-[#2872F0]">
-                        Delivery Partner
-                      </Text>
-                      <View className="mt-3 flex-row items-center justify-between">
-                        <View className="flex-1">
-                          <Text className="text-[16px] font-bold text-text">
-                            {getDeliveryPartnerDetails(order).name}
-                          </Text>
-                          <View className="mt-1 flex-row items-center">
-                            <MaterialCommunityIcons
-                              name="account-outline"
-                              size={16}
-                              color="#6B7A90"
-                            />
-                            <Text className="ml-1 text-[13px] text-textSecondary">
-                              {getDeliveryPartnerDetails(order).phone}
-                            </Text>
-                          </View>
-                        </View>
-                        <TouchableOpacity
-                          className="flex-row items-center rounded-[14px] bg-[#2167F5] px-4 py-3"
-                          onPress={() =>
-                            Alert.alert(
-                              "Track Delivery",
-                              "Your delivery partner is assigned. Live tracking will be available shortly.",
-                            )
-                          }
-                        >
-                          <MaterialCommunityIcons
-                            name="map-marker-outline"
-                            size={17}
-                            color="#FFFFFF"
-                          />
-                          <Text className="ml-2 text-[13px] font-bold text-white">
-                            TRACK
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ) : null}
                 </View>
-              </View>
-            );
-          })}
+              );
+            })
+          )}
         </ScrollView>
       )}
 
@@ -897,10 +913,16 @@ export default function OrdersScreen() {
                   className="mr-3 rounded-lg border border-white/80 px-3 py-1.5"
                   onPress={() => setSelectedStatus("All Statuses")}
                 >
-                  <Text className="text-[13px] font-bold text-white">Clear</Text>
+                  <Text className="text-[13px] font-bold text-white">
+                    Clear
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowFilters(false)}>
-                  <MaterialCommunityIcons name="close" size={24} color="#FFFFFF" />
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={24}
+                    color="#FFFFFF"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -928,7 +950,9 @@ export default function OrdersScreen() {
                       <View className="h-2.5 w-2.5 rounded-full bg-primary" />
                     )}
                   </View>
-                  <Text className="text-[15px] font-medium text-text">{status}</Text>
+                  <Text className="text-[15px] font-medium text-text">
+                    {status}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>

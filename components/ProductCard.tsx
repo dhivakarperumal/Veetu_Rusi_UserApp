@@ -175,11 +175,11 @@ export default function ProductCard({
 
           <View className="mb-1 flex-row items-center">
             <Text className="text-[15px] font-bold text-text">
-              ₹{price.toFixed(0)}
+              ₹{price.toFixed(2)}
             </Text>
             {originalPrice > price && (
               <Text className="ml-2 text-[12px] text-textSecondary line-through">
-                ₹{originalPrice.toFixed(0)}
+                ₹{originalPrice.toFixed(2)}
               </Text>
             )}
           </View>

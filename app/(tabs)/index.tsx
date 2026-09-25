@@ -8,19 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
-    useWindowDimensions,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -905,11 +905,11 @@ export default function HomeScreen() {
                       <View className="mt-2 flex-row items-center justify-between">
                         <View>
                           <Text className="text-[16px] font-black text-primary">
-                            ₹{Math.round(sellingPrice)}
+                            ₹{sellingPrice.toFixed(2)}
                           </Text>
                           {Number(food.offer) > 0 && mrp > 0 && (
                             <Text className="text-[11px] text-textSecondary line-through">
-                              ₹{Math.round(mrp)}
+                              ₹{mrp.toFixed(2)}
                             </Text>
                           )}
                         </View>
@@ -1091,11 +1091,11 @@ export default function HomeScreen() {
                       <View className="mt-2 flex-row items-center justify-between">
                         <View>
                           <Text className="text-[16px] font-black text-primary">
-                            ₹{Math.round(Number(price))}
+                            ₹{Number(price).toFixed(2)}
                           </Text>
                           {origPrice > Number(price) && (
                             <Text className="text-[11px] text-textSecondary line-through">
-                              ₹{origPrice}
+                              ₹{origPrice.toFixed(2)}
                             </Text>
                           )}
                         </View>
@@ -1119,7 +1119,7 @@ export default function HomeScreen() {
               {[
                 {
                   title: "Combo Meals",
-                  text: "Starting at ₹99",
+                  text: "Starting at ₹99.00",
                   button: "Order Now →",
                   category: "Combos",
                 },

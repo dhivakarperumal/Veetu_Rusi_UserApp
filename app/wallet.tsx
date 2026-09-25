@@ -25,7 +25,9 @@ export default function WalletScreen() {
           <Text className="text-[14px] font-black uppercase text-textSecondary">
             Wallet Balance
           </Text>
-          <Text className="mt-2 text-[30px] font-black text-primary">₹250</Text>
+          <Text className="mt-2 text-[30px] font-black text-primary">
+            ₹250.00
+          </Text>
           <Text className="mt-2 text-[13px] font-medium text-textSecondary">
             Available for your next order
           </Text>

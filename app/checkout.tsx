@@ -26,7 +26,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import RazorpayCheckout from "react-native-razorpay";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -198,10 +198,7 @@ export default function CheckoutScreen() {
         prod.mrp ||
         0;
       const image =
-        variant?.images?.[0] ||
-        prod.images?.[0] ||
-        prod.image ||
-        "";
+        variant?.images?.[0] || prod.images?.[0] || prod.image || "";
 
       return [
         {
@@ -221,18 +218,9 @@ export default function CheckoutScreen() {
             "",
           chef_id: prod.chef_id || "",
           chef_name:
-            prod.chef_name ||
-            prod.created_by_name ||
-            prod.homeChefName ||
-            "",
-          chef_email:
-            prod.chef_email ||
-            prod.created_by_email ||
-            "",
-          chef_phone:
-            prod.chef_phone ||
-            prod.created_by_phone ||
-            "",
+            prod.chef_name || prod.created_by_name || prod.homeChefName || "",
+          chef_email: prod.chef_email || prod.created_by_email || "",
+          chef_phone: prod.chef_phone || prod.created_by_phone || "",
           franchise_id: prod.franchise_id || "",
           franchise_user_id: prod.franchise_user_id || "",
           franchise_name: prod.franchise_name || "",
@@ -247,7 +235,9 @@ export default function CheckoutScreen() {
 
   const subtotal = useMemo(() => {
     return checkoutItems.reduce((total, item) => {
-      return total + (parseFloat(String(item.price)) || 0) * (item.quantity || 1);
+      return (
+        total + (parseFloat(String(item.price)) || 0) * (item.quantity || 1)
+      );
     }, 0);
   }, [checkoutItems]);
 
@@ -279,11 +269,14 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     if (userId) {
-      Promise.all([readUserAddresses(userId), readRemoteUserAddresses(userId)]).then(
-        ([localAddresses, remoteAddresses]) => {
-          const list = remoteAddresses.length > 0 ? remoteAddresses : localAddresses;
-          setSavedAddresses(list);
-          if (list.length > 0) {
+      Promise.all([
+        readUserAddresses(userId),
+        readRemoteUserAddresses(userId),
+      ]).then(([localAddresses, remoteAddresses]) => {
+        const list =
+          remoteAddresses.length > 0 ? remoteAddresses : localAddresses;
+        setSavedAddresses(list);
+        if (list.length > 0) {
           // Pre-fill with the first saved address if fields are empty
           const first = list[0];
           setStreetAddress((prev) => prev || first.street_address);
@@ -292,9 +285,8 @@ export default function CheckoutScreen() {
           setStateValue((prev) => prev || first.state || "Tamil Nadu");
           setZipCode((prev) => prev || first.zip_code);
           setCountry((prev) => prev || first.country || "India");
-          }
-        },
-      );
+        }
+      });
     }
   }, [userId]);
 
@@ -317,7 +309,7 @@ export default function CheckoutScreen() {
       if (status !== "granted") {
         Alert.alert(
           "Permission Denied",
-          "Please enable location permission in your settings to auto-detect your delivery address."
+          "Please enable location permission in your settings to auto-detect your delivery address.",
         );
         return;
       }
@@ -334,13 +326,19 @@ export default function CheckoutScreen() {
           headers: {
             "User-Agent": "VeetuRusiMobileApp/1.0",
           },
-        }
+        },
       );
       const data = await res.json();
 
       if (data && data.address) {
         const a = data.address;
-        setStreetAddress(a.road || a.suburb || a.neighbourhood || data.display_name?.split(",")[0] || "");
+        setStreetAddress(
+          a.road ||
+            a.suburb ||
+            a.neighbourhood ||
+            data.display_name?.split(",")[0] ||
+            "",
+        );
         setCity(a.city || a.town || a.village || a.suburb || "");
         setDistrict(a.state_district || a.county || a.city || "");
         setStateValue(a.state || "Tamil Nadu");
@@ -349,7 +347,10 @@ export default function CheckoutScreen() {
         Alert.alert("Location Detected", "Address fields have been populated!");
       } else {
         // Fallback to Expo reverse geocode
-        const expoGeo = await Location.reverseGeocodeAsync({ latitude, longitude });
+        const expoGeo = await Location.reverseGeocodeAsync({
+          latitude,
+          longitude,
+        });
         if (expoGeo && expoGeo[0]) {
           const g = expoGeo[0];
           setStreetAddress([g.street, g.name].filter(Boolean).join(", "));
@@ -358,14 +359,23 @@ export default function CheckoutScreen() {
           setStateValue(g.region || "Tamil Nadu");
           setZipCode(g.postalCode || "");
           setCountry(g.country || "India");
-          Alert.alert("Location Detected", "Address fields have been populated!");
+          Alert.alert(
+            "Location Detected",
+            "Address fields have been populated!",
+          );
         } else {
-          Alert.alert("Notice", "Could not determine detailed address from GPS.");
+          Alert.alert(
+            "Notice",
+            "Could not determine detailed address from GPS.",
+          );
         }
       }
     } catch (err) {
       console.error("Location fetch error:", err);
-      Alert.alert("Location Error", "Unable to retrieve current location. Please enter manually.");
+      Alert.alert(
+        "Location Error",
+        "Unable to retrieve current location. Please enter manually.",
+      );
     } finally {
       setIsLoadingLocation(false);
     }
@@ -385,13 +395,13 @@ export default function CheckoutScreen() {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
+          query,
         )}&addressdetails=1&limit=5&countrycodes=in`,
         {
           headers: {
             "User-Agent": "VeetuRusiMobileApp/1.0",
           },
-        }
+        },
       );
       const data = await res.json();
       setSearchResults(Array.isArray(data) ? data : []);
@@ -404,7 +414,9 @@ export default function CheckoutScreen() {
 
   const selectSearchResult = (item: any) => {
     const addr = item.address || {};
-    setStreetAddress(item.name || item.display_name?.split(",")[0] || item.display_name || "");
+    setStreetAddress(
+      item.name || item.display_name?.split(",")[0] || item.display_name || "",
+    );
     setCity(addr.city || addr.town || addr.village || addr.suburb || "");
     setDistrict(addr.state_district || addr.county || "");
     setStateValue(addr.state || "Tamil Nadu");
@@ -482,7 +494,8 @@ export default function CheckoutScreen() {
         payment_status: paymentMethod === "Online Payment" ? "Paid" : "Pending",
         payment_id: paymentId,
         razorpay_payment_id: paymentId,
-        payment_provider: paymentMethod === "Online Payment" ? "Razorpay" : null,
+        payment_provider:
+          paymentMethod === "Online Payment" ? "Razorpay" : null,
         coupon_id: appliedCoupon?.id || null,
         coupon_code: appliedCoupon?.code || null,
         discount_amount: discountAmount,
@@ -538,15 +551,19 @@ export default function CheckoutScreen() {
               });
             },
           },
-        ]
+        ],
       );
     } catch (err: any) {
       console.warn("Order submission error:", err?.message || err);
       const is401 =
         err?.status === 401 ||
         err?.response?.status === 401 ||
-        String(err?.message || "").toLowerCase().includes("token expired") ||
-        String(err?.message || "").toLowerCase().includes("unauthorized");
+        String(err?.message || "")
+          .toLowerCase()
+          .includes("token expired") ||
+        String(err?.message || "")
+          .toLowerCase()
+          .includes("unauthorized");
 
       if (is401) {
         Alert.alert(
@@ -561,14 +578,14 @@ export default function CheckoutScreen() {
               },
             },
             { text: "Cancel", style: "cancel" },
-          ]
+          ],
         );
         return;
       }
 
       Alert.alert(
         "Order Failed",
-        err?.message || "Unable to place your order. Please try again."
+        err?.message || "Unable to place your order. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -590,14 +607,14 @@ export default function CheckoutScreen() {
     // Cash on Delivery
     Alert.alert(
       "Confirm Order",
-      `Place Cash on Delivery order for ₹${grandTotal.toFixed(0)}?`,
+      `Place Cash on Delivery order for ₹${grandTotal.toFixed(2)}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Confirm",
           onPress: () => finalizeOrder(null),
         },
-      ]
+      ],
     );
   };
 
@@ -670,7 +687,9 @@ export default function CheckoutScreen() {
       }
 
       const description =
-        error?.description || error?.message || "Payment was cancelled or failed.";
+        error?.description ||
+        error?.message ||
+        "Payment was cancelled or failed.";
       Alert.alert("Payment Not Completed", description);
     } finally {
       setIsSubmitting(false);
@@ -680,7 +699,7 @@ export default function CheckoutScreen() {
   const filteredStates = useMemo(() => {
     if (!stateSearchText.trim()) return INDIAN_STATES;
     return INDIAN_STATES.filter((s) =>
-      s.toLowerCase().includes(stateSearchText.toLowerCase())
+      s.toLowerCase().includes(stateSearchText.toLowerCase()),
     );
   }, [stateSearchText]);
 
@@ -697,7 +716,11 @@ export default function CheckoutScreen() {
           className="h-10 w-10 items-center justify-center rounded-full bg-gray"
           hitSlop={8}
         >
-          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={24}
+            color={colors.text}
+          />
         </TouchableOpacity>
         <Text className="text-lg font-black text-text">Food Checkout</Text>
         <View className="w-10" />
@@ -705,7 +728,9 @@ export default function CheckoutScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) + 80 }}
+        contentContainerStyle={{
+          paddingBottom: Math.max(insets.bottom, 24) + 80,
+        }}
         className="px-4 pt-3"
       >
         {/* Saved Addresses & Quick Fill */}
@@ -717,7 +742,9 @@ export default function CheckoutScreen() {
                 size={22}
                 color={colors.primary}
               />
-              <Text className="text-base font-black text-text">Delivery Address</Text>
+              <Text className="text-base font-black text-text">
+                Delivery Address
+              </Text>
             </View>
 
             {savedAddresses.length > 0 && (
@@ -725,7 +752,9 @@ export default function CheckoutScreen() {
                 onPress={() => setShowSavedAddressesModal(true)}
                 className="rounded-full bg-primary/10 px-3 py-1.5"
               >
-                <Text className="text-xs font-bold text-primary">Saved ({savedAddresses.length})</Text>
+                <Text className="text-xs font-bold text-primary">
+                  Saved ({savedAddresses.length})
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -753,7 +782,11 @@ export default function CheckoutScreen() {
                   }}
                   className="p-1"
                 >
-                  <Ionicons name="close-circle" size={18} color={colors.grayDark} />
+                  <Ionicons
+                    name="close-circle"
+                    size={18}
+                    color={colors.grayDark}
+                  />
                 </TouchableOpacity>
               )}
             </View>
@@ -767,10 +800,16 @@ export default function CheckoutScreen() {
                     onPress={() => selectSearchResult(item)}
                     className="border-b border-borderLight p-3 active:bg-primary/5"
                   >
-                    <Text className="text-xs font-bold text-text" numberOfLines={1}>
+                    <Text
+                      className="text-xs font-bold text-text"
+                      numberOfLines={1}
+                    >
                       {item.display_name?.split(",")[0] || item.name}
                     </Text>
-                    <Text className="mt-0.5 text-[11px] text-textSecondary" numberOfLines={2}>
+                    <Text
+                      className="mt-0.5 text-[11px] text-textSecondary"
+                      numberOfLines={2}
+                    >
                       {item.display_name}
                     </Text>
                   </TouchableOpacity>
@@ -795,18 +834,24 @@ export default function CheckoutScreen() {
               />
             )}
             <Text className="text-xs font-black text-primary">
-              {isLoadingLocation ? "Detecting GPS Location..." : "Use Current GPS Location"}
+              {isLoadingLocation
+                ? "Detecting GPS Location..."
+                : "Use Current GPS Location"}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Contact & Address Fields */}
         <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <Text className="mb-3 text-sm font-black text-text">Customer Information</Text>
+          <Text className="mb-3 text-sm font-black text-text">
+            Customer Information
+          </Text>
 
           {/* Name & Phone */}
           <View className="mb-3">
-            <Text className="mb-1 text-xs font-semibold text-textSecondary">Full Name *</Text>
+            <Text className="mb-1 text-xs font-semibold text-textSecondary">
+              Full Name *
+            </Text>
             <TextInput
               value={name}
               onChangeText={setName}
@@ -818,7 +863,9 @@ export default function CheckoutScreen() {
 
           <View className="mb-3 flex-row gap-3">
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">Phone Number *</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                Phone Number *
+              </Text>
               <TextInput
                 value={phone}
                 onChangeText={setPhone}
@@ -830,7 +877,9 @@ export default function CheckoutScreen() {
             </View>
 
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">Email (optional)</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                Email (optional)
+              </Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -845,7 +894,9 @@ export default function CheckoutScreen() {
 
           {/* Street Address */}
           <View className="mb-3">
-            <Text className="mb-1 text-xs font-semibold text-textSecondary">Street Address / Door No. *</Text>
+            <Text className="mb-1 text-xs font-semibold text-textSecondary">
+              Street Address / Door No. *
+            </Text>
             <TextInput
               value={streetAddress}
               onChangeText={setStreetAddress}
@@ -858,7 +909,9 @@ export default function CheckoutScreen() {
           {/* City & District */}
           <View className="mb-3 flex-row gap-3">
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">City / Town *</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                City / Town *
+              </Text>
               <TextInput
                 value={city}
                 onChangeText={setCity}
@@ -869,7 +922,9 @@ export default function CheckoutScreen() {
             </View>
 
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">District *</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                District *
+              </Text>
               <TextInput
                 value={district}
                 onChangeText={setDistrict}
@@ -883,20 +938,31 @@ export default function CheckoutScreen() {
           {/* State & ZIP Code */}
           <View className="flex-row gap-3">
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">State *</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                State *
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowStatePickerModal(true)}
                 className="flex-row items-center justify-between rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5"
               >
-                <Text className="text-sm font-medium text-text" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-text"
+                  numberOfLines={1}
+                >
                   {stateValue || "Select State"}
                 </Text>
-                <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textSecondary} />
+                <MaterialCommunityIcons
+                  name="chevron-down"
+                  size={20}
+                  color={colors.textSecondary}
+                />
               </TouchableOpacity>
             </View>
 
             <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">ZIP / PIN Code *</Text>
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                ZIP / PIN Code *
+              </Text>
               <TextInput
                 value={zipCode}
                 onChangeText={setZipCode}
@@ -912,8 +978,14 @@ export default function CheckoutScreen() {
         {/* Delivery Slot Selection */}
         <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
           <View className="mb-3 flex-row items-center gap-2">
-            <MaterialCommunityIcons name="calendar-clock" size={22} color={colors.primary} />
-            <Text className="text-base font-black text-text">Delivery Schedule</Text>
+            <MaterialCommunityIcons
+              name="calendar-clock"
+              size={22}
+              color={colors.primary}
+            />
+            <Text className="text-base font-black text-text">
+              Delivery Schedule
+            </Text>
           </View>
 
           <Text className="mb-2 text-xs font-bold text-textSecondary">
@@ -989,7 +1061,8 @@ export default function CheckoutScreen() {
           <View className="mt-3 flex-row items-center gap-1.5 rounded-xl bg-amber-50 p-2.5">
             <Ionicons name="information-circle" size={16} color="#D97706" />
             <Text className="flex-1 text-[11px] font-semibold text-amber-800">
-              Orders must be scheduled at least 24 hours in advance to allow chefs to source fresh ingredients.
+              Orders must be scheduled at least 24 hours in advance to allow
+              chefs to source fresh ingredients.
             </Text>
           </View>
         </View>
@@ -997,8 +1070,14 @@ export default function CheckoutScreen() {
         {/* Payment Method */}
         <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
           <View className="mb-3 flex-row items-center gap-2">
-            <MaterialCommunityIcons name="credit-card-outline" size={22} color={colors.primary} />
-            <Text className="text-base font-black text-text">Payment Method</Text>
+            <MaterialCommunityIcons
+              name="credit-card-outline"
+              size={22}
+              color={colors.primary}
+            />
+            <Text className="text-base font-black text-text">
+              Payment Method
+            </Text>
           </View>
 
           <View className="gap-2.5">
@@ -1012,11 +1091,19 @@ export default function CheckoutScreen() {
             >
               <View className="flex-row items-center gap-3">
                 <View className="h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
-                  <MaterialCommunityIcons name="cash-multiple" size={22} color="#059669" />
+                  <MaterialCommunityIcons
+                    name="cash-multiple"
+                    size={22}
+                    color="#059669"
+                  />
                 </View>
                 <View>
-                  <Text className="text-sm font-bold text-text">Cash on Delivery (COD)</Text>
-                  <Text className="text-[11px] text-textSecondary">Pay with cash or UPI at delivery</Text>
+                  <Text className="text-sm font-bold text-text">
+                    Cash on Delivery (COD)
+                  </Text>
+                  <Text className="text-[11px] text-textSecondary">
+                    Pay with cash or UPI at delivery
+                  </Text>
                 </View>
               </View>
               <Ionicons
@@ -1044,11 +1131,19 @@ export default function CheckoutScreen() {
             >
               <View className="flex-row items-center gap-3">
                 <View className="h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                  <MaterialCommunityIcons name="credit-card-fast" size={22} color="#2563EB" />
+                  <MaterialCommunityIcons
+                    name="credit-card-fast"
+                    size={22}
+                    color="#2563EB"
+                  />
                 </View>
                 <View>
-                  <Text className="text-sm font-bold text-text">Online Payment</Text>
-                  <Text className="text-[11px] text-textSecondary">Pay securely via UPI, Cards, Netbanking</Text>
+                  <Text className="text-sm font-bold text-text">
+                    Online Payment
+                  </Text>
+                  <Text className="text-[11px] text-textSecondary">
+                    Pay securely via UPI, Cards, Netbanking
+                  </Text>
                 </View>
               </View>
               <Ionicons
@@ -1071,14 +1166,16 @@ export default function CheckoutScreen() {
         {/* Order Summary Card */}
         <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
           <Text className="mb-3 text-base font-black text-text">
-            Order Summary ({checkoutItems.length} {checkoutItems.length === 1 ? "item" : "items"})
+            Order Summary ({checkoutItems.length}{" "}
+            {checkoutItems.length === 1 ? "item" : "items"})
           </Text>
 
           {/* Items Preview */}
           <View className="mb-3 gap-2.5">
             {checkoutItems.map((item, idx) => {
               const image = resolveImageUrl(item.image);
-              const itemTotal = (parseFloat(String(item.price)) || 0) * (item.quantity || 1);
+              const itemTotal =
+                (parseFloat(String(item.price)) || 0) * (item.quantity || 1);
               return (
                 <View
                   key={item.id || idx}
@@ -1086,28 +1183,43 @@ export default function CheckoutScreen() {
                 >
                   <View className="h-14 w-14 overflow-hidden rounded-xl bg-gray">
                     {image ? (
-                      <Image source={{ uri: image }} className="h-full w-full" resizeMode="cover" />
+                      <Image
+                        source={{ uri: image }}
+                        className="h-full w-full"
+                        resizeMode="cover"
+                      />
                     ) : (
                       <View className="h-full w-full items-center justify-center bg-grayLight">
-                        <MaterialCommunityIcons name="food" size={24} color={colors.textSecondary} />
+                        <MaterialCommunityIcons
+                          name="food"
+                          size={24}
+                          color={colors.textSecondary}
+                        />
                       </View>
                     )}
                   </View>
                   <View className="flex-1">
-                    <Text className="text-xs font-bold text-text" numberOfLines={1}>
+                    <Text
+                      className="text-xs font-bold text-text"
+                      numberOfLines={1}
+                    >
                       {item.name}
                     </Text>
                     {Boolean(item.chef_name) && (
-                      <Text className="text-[11px] text-primary" numberOfLines={1}>
+                      <Text
+                        className="text-[11px] text-primary"
+                        numberOfLines={1}
+                      >
                         Chef: {item.chef_name}
                       </Text>
                     )}
                     <Text className="text-[11px] text-textSecondary">
-                      Qty: {item.quantity} × ₹{parseFloat(String(item.price)).toFixed(0)}
+                      Qty: {item.quantity} × ₹
+                      {parseFloat(String(item.price)).toFixed(2)}
                     </Text>
                   </View>
                   <Text className="text-xs font-black text-text">
-                    ₹{itemTotal.toFixed(0)}
+                    ₹{itemTotal.toFixed(2)}
                   </Text>
                 </View>
               );
@@ -1118,11 +1230,15 @@ export default function CheckoutScreen() {
           <View className="border-t border-borderLight pt-3">
             <View className="mb-2 flex-row justify-between">
               <Text className="text-xs text-textSecondary">Subtotal</Text>
-              <Text className="text-xs font-bold text-text">₹{subtotal.toFixed(0)}</Text>
+              <Text className="text-xs font-bold text-text">
+                ₹{subtotal.toFixed(2)}
+              </Text>
             </View>
 
             <View className="mb-2 flex-row justify-between">
-              <Text className="text-xs text-textSecondary">Shipping & Delivery</Text>
+              <Text className="text-xs text-textSecondary">
+                Shipping & Delivery
+              </Text>
               <Text className="text-xs font-bold text-emerald-600">FREE</Text>
             </View>
 
@@ -1132,7 +1248,7 @@ export default function CheckoutScreen() {
                   Coupon Discount ({appliedCoupon?.code})
                 </Text>
                 <Text className="text-xs font-bold text-emerald-600">
-                  -₹{discountAmount.toFixed(0)}
+                  -₹{discountAmount.toFixed(2)}
                 </Text>
               </View>
             )}
@@ -1140,8 +1256,12 @@ export default function CheckoutScreen() {
             <View className="my-2 border-t border-borderLight" />
 
             <View className="flex-row items-baseline justify-between">
-              <Text className="text-sm font-black text-text">Total Payable</Text>
-              <Text className="text-xl font-black text-primary">₹{grandTotal.toFixed(0)}</Text>
+              <Text className="text-sm font-black text-text">
+                Total Payable
+              </Text>
+              <Text className="text-xl font-black text-primary">
+                ₹{grandTotal.toFixed(2)}
+              </Text>
             </View>
           </View>
         </View>
@@ -1154,8 +1274,12 @@ export default function CheckoutScreen() {
       >
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-[11px] font-semibold text-textSecondary">Total Amount</Text>
-            <Text className="text-xl font-black text-primary">₹{grandTotal.toFixed(0)}</Text>
+            <Text className="text-[11px] font-semibold text-textSecondary">
+              Total Amount
+            </Text>
+            <Text className="text-xl font-black text-primary">
+              ₹{grandTotal.toFixed(2)}
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -1166,7 +1290,11 @@ export default function CheckoutScreen() {
             {isSubmitting ? (
               <ActivityIndicator size="small" color={colors.white} />
             ) : (
-              <MaterialCommunityIcons name="check-circle-outline" size={20} color={colors.white} />
+              <MaterialCommunityIcons
+                name="check-circle-outline"
+                size={20}
+                color={colors.white}
+              />
             )}
             <Text className="text-base font-black text-white">
               {isSubmitting ? "Placing Order..." : "Place Order"}
@@ -1188,7 +1316,9 @@ export default function CheckoutScreen() {
         >
           <View className="w-full max-h-[80%] rounded-[32px] bg-white p-5 shadow-2xl">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-lg font-black text-text">Saved Addresses</Text>
+              <Text className="text-lg font-black text-text">
+                Saved Addresses
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowSavedAddressesModal(false)}
                 className="h-8 w-8 items-center justify-center rounded-full bg-gray"
@@ -1197,7 +1327,10 @@ export default function CheckoutScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="max-h-[400px]">
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              className="max-h-[400px]"
+            >
               {savedAddresses.map((addr) => (
                 <TouchableOpacity
                   key={addr.id}
@@ -1205,11 +1338,16 @@ export default function CheckoutScreen() {
                   className="mb-3 rounded-2xl border border-borderLight bg-[#F9FAFB] p-3.5 active:bg-primary/5"
                 >
                   <View className="flex-row items-center justify-between">
-                    <Text className="font-black text-text">{addr.customer_name}</Text>
-                    <Text className="text-xs font-semibold text-textSecondary">{addr.customer_phone}</Text>
+                    <Text className="font-black text-text">
+                      {addr.customer_name}
+                    </Text>
+                    <Text className="text-xs font-semibold text-textSecondary">
+                      {addr.customer_phone}
+                    </Text>
                   </View>
                   <Text className="mt-1 text-xs text-textSecondary">
-                    {addr.street_address}, {addr.city}, {addr.district}, {addr.state} - {addr.zip_code}
+                    {addr.street_address}, {addr.city}, {addr.district},{" "}
+                    {addr.state} - {addr.zip_code}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -1231,7 +1369,9 @@ export default function CheckoutScreen() {
         >
           <View className="w-full max-h-[80%] rounded-[32px] bg-white p-5 shadow-2xl">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-lg font-black text-text">Select State / UT</Text>
+              <Text className="text-lg font-black text-text">
+                Select State / UT
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowStatePickerModal(false)}
                 className="h-8 w-8 items-center justify-center rounded-full bg-gray"
@@ -1251,7 +1391,10 @@ export default function CheckoutScreen() {
               />
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="max-h-[350px]">
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              className="max-h-[350px]"
+            >
               {filteredStates.map((st) => (
                 <TouchableOpacity
                   key={st}
@@ -1265,7 +1408,9 @@ export default function CheckoutScreen() {
                 >
                   <Text
                     className={`text-sm ${
-                      stateValue === st ? "font-black text-primary" : "text-text"
+                      stateValue === st
+                        ? "font-black text-primary"
+                        : "text-text"
                     }`}
                   >
                     {st}

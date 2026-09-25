@@ -273,11 +273,11 @@ export default function WishlistScreen() {
 
             <View className="mt-1 flex-row items-center gap-2">
               <Text className="text-[16px] font-black text-primary">
-                ₹{price.toFixed(0)}
+                ₹{price.toFixed(2)}
               </Text>
               {mrp > price && (
                 <Text className="text-[12px] text-textSecondary line-through">
-                  ₹{mrp.toFixed(0)}
+                  ₹{mrp.toFixed(2)}
                 </Text>
               )}
             </View>
