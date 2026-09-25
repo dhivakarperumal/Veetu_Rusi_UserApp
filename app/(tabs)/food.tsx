@@ -62,6 +62,7 @@ export default function FoodScreen({
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
   // UI State
   const [loading, setLoading] = useState(
@@ -703,7 +704,17 @@ export default function FoodScreen({
               </TouchableOpacity>
             ) : null}
           </View>
-
+          <TouchableOpacity
+            accessibilityLabel="Open filters"
+            className="h-[52px] w-[52px] items-center justify-center rounded-xl border border-borderLight bg-white"
+            onPress={() => setFilterSheetVisible(true)}
+          >
+            <MaterialCommunityIcons
+              name="filter-variant"
+              size={23}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Sort Options */}
@@ -962,6 +973,191 @@ export default function FoodScreen({
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={filterSheetVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterSheetVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1 justify-end bg-black/40"
+        >
+          <View className="max-h-[85%] rounded-t-[28px] bg-white px-5 pb-8 pt-5">
+            <View className="mb-4 flex-row items-center justify-between">
+              <Text className="text-[22px] font-black text-text">Filters</Text>
+              <View className="flex-row items-center gap-3">
+                <TouchableOpacity
+                  className="rounded-lg border border-primary px-3 py-1.5"
+                  onPress={clearFilters}
+                >
+                  <Text className="text-sm font-bold text-primary">Clear</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityLabel="Close filters"
+                  onPress={() => setFilterSheetVisible(false)}
+                >
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={28}
+                    color={colors.text}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text className="mb-2 text-lg font-bold text-text">Price</Text>
+              <View className="flex-row items-center gap-3">
+                <TextInput
+                  className="flex-1 rounded-lg border border-borderLight px-3 py-3 text-text"
+                  placeholder="Min price"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                  value={minimumPrice}
+                  onChangeText={setMinimumPrice}
+                />
+                <TextInput
+                  className="flex-1 rounded-lg border border-borderLight px-3 py-3 text-text"
+                  placeholder="Max price"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                  value={maximumPrice}
+                  onChangeText={setMaximumPrice}
+                />
+              </View>
+              <Text className="mb-4 mt-2 text-xs text-textSecondary">
+                ₹{minimumPrice || 0} - ₹{maximumPrice || "Any"}
+              </Text>
+
+              <Text className="mb-2 text-lg font-bold text-text">Type</Text>
+              {[
+                { label: "Food", value: "Food" },
+                { label: "Products", value: "Products" },
+                { label: "All Types", value: "" },
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.label}
+                  className="mb-3 flex-row items-center"
+                  onPress={() => setSelectedType(option.value)}
+                >
+                  <MaterialCommunityIcons
+                    name={
+                      selectedType === option.value
+                        ? "radiobox-marked"
+                        : "radiobox-blank"
+                    }
+                    size={21}
+                    color={
+                      selectedType === option.value
+                        ? colors.primary
+                        : colors.grayDark
+                    }
+                  />
+                  <Text className="ml-2 text-base text-text">
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <Text className="mb-2 mt-3 text-lg font-bold text-text">
+                Category
+              </Text>
+              <TouchableOpacity
+                className="mb-3 flex-row items-center"
+                onPress={() => setSelectedCategory("")}
+              >
+                <MaterialCommunityIcons
+                  name={!selectedCategory ? "radiobox-marked" : "radiobox-blank"}
+                  size={21}
+                  color={!selectedCategory ? colors.primary : colors.grayDark}
+                />
+                <Text className="ml-2 text-base text-text">All Categories</Text>
+              </TouchableOpacity>
+              {categories.map((category) => (
+                <TouchableOpacity
+                  key={category}
+                  className="mb-3 flex-row items-center"
+                  onPress={() => setSelectedCategory(category)}
+                >
+                  <MaterialCommunityIcons
+                    name={
+                      selectedCategory === category
+                        ? "radiobox-marked"
+                        : "radiobox-blank"
+                    }
+                    size={21}
+                    color={
+                      selectedCategory === category
+                        ? colors.primary
+                        : colors.grayDark
+                    }
+                  />
+                  <Text className="ml-2 text-base text-text">{category}</Text>
+                </TouchableOpacity>
+              ))}
+
+              <Text className="mb-2 mt-3 text-lg font-bold text-text">
+                Minimum Rating
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {[0, 3, 4, 5].map((rating) => (
+                  <TouchableOpacity
+                    key={rating}
+                    className={`rounded-lg border px-3 py-2 ${
+                      ratingFilter === rating
+                        ? "border-primary bg-primary"
+                        : "border-borderLight bg-white"
+                    }`}
+                    onPress={() => setRatingFilter(rating)}
+                  >
+                    <Text
+                      className={`text-sm font-semibold ${
+                        ratingFilter === rating ? "text-white" : "text-text"
+                      }`}
+                    >
+                      {rating === 0 ? "Any Rating" : `${rating}+ Stars`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text className="mb-2 mt-5 text-lg font-bold text-text">
+                Offers
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {[0, 10, 20, 30, 50].map((offer) => (
+                  <TouchableOpacity
+                    key={offer}
+                    className={`rounded-lg border px-3 py-2 ${
+                      offerFilter === offer
+                        ? "border-primary bg-primary"
+                        : "border-borderLight bg-white"
+                    }`}
+                    onPress={() => setOfferFilter(offer)}
+                  >
+                    <Text
+                      className={`text-sm font-semibold ${
+                        offerFilter === offer ? "text-white" : "text-text"
+                      }`}
+                    >
+                      {offer === 0 ? "All Offers" : `${offer}%+`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              className="mt-5 items-center rounded-xl bg-primary py-3.5"
+              onPress={() => setFilterSheetVisible(false)}
+            >
+              <Text className="font-bold text-white">Apply Filters</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
