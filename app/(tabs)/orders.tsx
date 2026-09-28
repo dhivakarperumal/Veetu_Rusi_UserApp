@@ -955,7 +955,14 @@ export default function OrdersScreen() {
                   return (
                     <View
                       key={order.id}
-                      className="overflow-hidden rounded-[26px] border border-[#DCE3EA] bg-[#F7F9FB] shadow-sm shadow-black/10"
+                      className="overflow-hidden rounded-[26px] border border-[#DCE3EA] bg-[#F7F9FB] shadow-lg shadow-[#172B3A]/20"
+                      style={{
+                        elevation: 7,
+                        shadowColor: "#172B3A",
+                        shadowOffset: { width: 0, height: 7 },
+                        shadowOpacity: 0.14,
+                        shadowRadius: 12,
+                      }}
                     >
                       <TouchableOpacity
                         activeOpacity={0.9}
@@ -993,7 +1000,10 @@ export default function OrdersScreen() {
                         onPress={() => openOrder(order)}
                         className="bg-white px-5 py-4"
                       >
-                        <View className="flex-row items-center rounded-2xl border border-[#E7EDF2] bg-[#F8FAFC] p-3.5">
+                        <View
+                          className="flex-row items-center rounded-2xl border border-[#E7EDF2] bg-[#F8FAFC] p-3.5 shadow-sm shadow-[#172B3A]/10"
+                          style={{ elevation: 2 }}
+                        >
                           <View className="h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
                             <MaterialCommunityIcons
                               name="calendar-clock-outline"
