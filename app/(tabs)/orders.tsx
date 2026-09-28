@@ -10,22 +10,22 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    KeyboardAvoidingView,
-    Linking,
-    Modal,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Linking,
+  Modal,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const CANCEL_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
@@ -56,6 +56,15 @@ const getChefNames = (items: any[], fallbackName?: string) => {
   if (!names.length) return fallbackName || "Home Chef";
   return names.join(", ");
 };
+
+const getOrderStatus = (order: any) =>
+  String(
+    order?.status ??
+      order?.order_status ??
+      order?.orderStatus ??
+      order?.order_status_name ??
+      "New Order",
+  ).trim();
 
 const getChefGroups = (items: any[]) => {
   if (!Array.isArray(items) || !items.length) return [];
@@ -135,7 +144,7 @@ function CustomerCancelBar({
   onCancel: () => void;
 }) {
   const remaining = useCancelCountdown(order.ordered_at);
-  const s = String(order.status || "").toLowerCase();
+  const s = getOrderStatus(order).toLowerCase();
 
   if (s === "cancelled" || s === "delivered" || s === "completed") return null;
 
@@ -282,7 +291,7 @@ export default function OrdersScreen() {
       const terminalStatuses = ["delivered", "cancelled", "completed"];
       const activeCount = data.filter(
         (o: any) =>
-          !terminalStatuses.includes(String(o.status || "").toLowerCase()),
+          !terminalStatuses.includes(getOrderStatus(o).toLowerCase()),
       ).length;
       // Refresh from store so the badge updates via StoreContext
       refreshActiveOrdersCount().catch(() => {});
@@ -735,7 +744,7 @@ export default function OrdersScreen() {
 
   const availableStatuses = useMemo(() => {
     const statuses = orders.map((order) =>
-      String(order.status || "New Order").trim(),
+      getOrderStatus(order),
     );
     return ["All Statuses", ...Array.from(new Set(statuses))];
   }, [orders]);
@@ -743,7 +752,7 @@ export default function OrdersScreen() {
   const filteredOrders = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return orders.filter((order) => {
-      const status = String(order.status || "New Order").trim();
+      const status = getOrderStatus(order);
       const searchableText = [
         order.order_id,
         order.id,
@@ -920,7 +929,8 @@ export default function OrdersScreen() {
                 </View>
               ) : (
                 filteredOrders.map((order) => {
-                  const statusTheme = getStatusColor(order.status);
+                  const orderStatus = getOrderStatus(order);
+                  const statusTheme = getStatusColor(orderStatus);
                   const itemsCount =
                     order.items?.reduce(
                       (sum: number, it: any) =>
@@ -933,13 +943,13 @@ export default function OrdersScreen() {
                       : order.total_amount || 0,
                   );
                   const isDelivered =
-                    order.status === "Delivered" ||
-                    order.status === "Completed";
+                    orderStatus === "Delivered" ||
+                    orderStatus === "Completed";
                   const hasDeliveryPartner =
-                    (order.status === "Delivery Partner Assigned" ||
-                      order.status === "Picked Up" ||
-                      order.status === "Out for Delivery" ||
-                      order.status === "Delivered") &&
+                    (orderStatus === "Delivery Partner Assigned" ||
+                      orderStatus === "Picked Up" ||
+                      orderStatus === "Out for Delivery" ||
+                      orderStatus === "Delivered") &&
                     Boolean(order.delivery_partner_name);
 
                   return (
@@ -967,9 +977,9 @@ export default function OrdersScreen() {
                           <Text
                             className={`text-[13px] font-black ${statusTheme.text}`}
                           >
-                            {order.status === "Pending"
+                            {orderStatus === "Pending"
                               ? "New Order"
-                              : order.status || "New Order"}
+                              : orderStatus}
                           </Text>
                         </View>
                       </TouchableOpacity>
