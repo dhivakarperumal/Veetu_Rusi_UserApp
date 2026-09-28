@@ -943,45 +943,51 @@ export default function OrdersScreen() {
                     Boolean(order.delivery_partner_name);
 
                   return (
-                    <TouchableOpacity
+                    <View
                       key={order.id}
-                      activeOpacity={0.96}
-                      onPress={() => openOrder(order)}
-                      className="overflow-hidden rounded-3xl border border-borderLight bg-white shadow-sm"
+                      className="overflow-hidden rounded-[26px] border border-[#E8EAED] bg-white shadow-sm shadow-black/5"
                     >
                       {/* Header */}
-                      <View className="flex-row items-center justify-between border-b border-borderLight bg-[#FAFAFA] px-4 py-3.5">
+                      <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => openOrder(order)}
+                        className="flex-row items-center justify-between border-b border-[#EEF0F2] bg-white px-5 py-4"
+                      >
                         <View>
-                          <Text className="text-[12px] font-black uppercase tracking-wider text-textSecondary">
+                          <Text className="text-[12px] font-black uppercase tracking-[1px] text-textSecondary">
                             Order #{order.order_id || order.id}
                           </Text>
-                          <Text className="mt-0.5 text-[14px] font-semibold text-text">
+                          <Text className="mt-1 text-[15px] font-bold text-text">
                             {formatDateTime(order.ordered_at)}
                           </Text>
                         </View>
                         <View
-                          className={`rounded-full px-3 py-1 ${statusTheme.bg}`}
+                          className={`rounded-full px-4 py-2 ${statusTheme.bg}`}
                         >
                           <Text
-                            className={`text-[13px] font-bold ${statusTheme.text}`}
+                            className={`text-[13px] font-black ${statusTheme.text}`}
                           >
                             {order.status === "Pending"
                               ? "New Order"
                               : order.status || "New Order"}
                           </Text>
                         </View>
-                      </View>
+                      </TouchableOpacity>
 
                       {/* Details Body */}
-                      <View className="p-4">
+                      <TouchableOpacity
+                        activeOpacity={0.96}
+                        onPress={() => openOrder(order)}
+                        className="p-5"
+                      >
                         {/* Delivery Slot & Chef */}
-                        <View className="mb-3 flex-row gap-2.5">
-                          <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                            <Text className="text-[12px] uppercase font-bold text-textSecondary">
+                        <View className="mb-4 flex-row gap-3">
+                          <View className="flex-1 rounded-[20px] bg-[#F7F8FA] p-3.5">
+                            <Text className="text-[12px] font-black uppercase tracking-[0.5px] text-textSecondary">
                               Delivery Slot
                             </Text>
                             <Text
-                              className="mt-1 text-[14px] font-bold text-text"
+                              className="mt-2 text-[15px] font-black text-text"
                               numberOfLines={1}
                             >
                               {order.delivery_date || "-"}
@@ -993,12 +999,12 @@ export default function OrdersScreen() {
                             </Text>
                           </View>
 
-                          <View className="flex-1 rounded-2xl bg-[#F9FAFB] p-2.5">
-                            <Text className="text-[12px] uppercase font-bold text-textSecondary">
+                          <View className="flex-1 rounded-[20px] bg-[#F7F8FA] p-3.5">
+                            <Text className="text-[12px] font-black uppercase tracking-[0.5px] text-textSecondary">
                               Home Chef
                             </Text>
                             <Text
-                              className="mt-1 text-[14px] font-bold text-primary"
+                              className="mt-2 text-[15px] font-black text-primary"
                               numberOfLines={1}
                             >
                               {getChefNames(order.items, order.chef_name)}
@@ -1011,13 +1017,13 @@ export default function OrdersScreen() {
                         </View>
 
                         {/* Items Preview */}
-                        <View className="mb-3">
+                        <View className="mb-4 border-b border-[#EEF0F2] pb-4">
                           {order.items
                             ?.slice(0, 2)
                             .map((item: any, idx: number) => (
                               <Text
                                 key={idx}
-                                className="text-[14px] text-textSecondary"
+                                className="text-[15px] text-textSecondary"
                                 numberOfLines={1}
                               >
                                 • {item.name || item.product_name} (×
@@ -1032,12 +1038,12 @@ export default function OrdersScreen() {
                         </View>
 
                         {/* Amount */}
-                        <View className="flex-row items-center justify-between border-t border-borderLight pt-2.5">
-                          <Text className="text-[14px] font-semibold text-textSecondary">
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-[15px] font-bold text-textSecondary">
                             Total Paid
                           </Text>
                           <View className="flex-row items-baseline gap-1.5">
-                            <Text className="text-[18px] font-black text-text">
+                            <Text className="text-[22px] font-black text-text">
                               ₹{totalAmount.toFixed(2)}
                             </Text>
                             {parseFloat(order.discount_amount || 0) > 0 && (
@@ -1083,7 +1089,7 @@ export default function OrdersScreen() {
                             )}
                           </View>
                         )}
-                      </View>
+                      </TouchableOpacity>
 
                       {/* Customer Cancellation countdown bar */}
                       <CustomerCancelBar
@@ -1095,9 +1101,8 @@ export default function OrdersScreen() {
                       />
 
                       {/* Action buttons */}
-                      <View className="flex-row flex-wrap items-center gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
-                        {isDelivered && (
-                          <>
+                      {isDelivered && (
+                        <View className="flex-row flex-wrap items-center gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
                             <TouchableOpacity
                               onPress={() => openReviewModal(order)}
                               className="flex-row items-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2"
@@ -1141,10 +1146,9 @@ export default function OrdersScreen() {
                                 Reorder
                               </Text>
                             </TouchableOpacity>
-                          </>
-                        )}
-                      </View>
-                    </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
                   );
                 })
               )}
