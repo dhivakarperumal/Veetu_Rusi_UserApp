@@ -8,19 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    Image,
+    ImageBackground,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -160,34 +160,44 @@ const getFoodImage = (item: Record<string, any>) => {
 
 const foodTypes = [
   {
-    name: "South Indian",
+    name: "Multi Cuisine",
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80",
   },
   {
     name: "North Indian",
     image:
-      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    name: "South Indian",
+    image:
+      "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    name: "Continental",
+    image:
+      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=300&q=80",
   },
   {
     name: "Chinese",
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=300&q=80",
   },
   {
-    name: "Biriyani",
+    name: "Italian",
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=300&q=80",
   },
   {
-    name: "Healthy",
+    name: "Thai",
     image:
-      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=300&q=80",
   },
   {
-    name: "Desserts",
+    name: "Mexican",
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=300&q=80",
   },
 ];
 
@@ -942,10 +952,10 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Section 2: What's on your mind? */}
+        {/* Section 2: Explore by Cuisine */}
         <View className="px-4">
           <Text className="mt-2 mb-2 text-[18px] font-black text-text">
-            What’s on your mind?
+            Explore by Cuisine
           </Text>
           <View className="mt-3 flex-row flex-wrap justify-between">
             {foodTypes.map((food) => (

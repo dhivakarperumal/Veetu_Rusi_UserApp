@@ -10,21 +10,21 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
 import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -162,6 +162,7 @@ export default function ProductDetailScreen() {
   }));
   const chefName =
     product?.chef_name || product?.homeChefName || product?.vendor_name;
+  const cuisine = product?.cuisine || product?.cuisine_type || product?.cuisine_name;
   const getImageUrl = () => {
     if (typeof product?.image === "string" && product.image.trim()) {
       return product.image.trim().split(/\s+/)[0];
@@ -428,6 +429,17 @@ export default function ProductDetailScreen() {
                 </Text>
               </View>
             )}
+
+            <View className="mb-3 flex-row items-center gap-1.5">
+              <MaterialCommunityIcons
+                name="silverware-fork-knife"
+                size={18}
+                color={colors.primary}
+              />
+              <Text className="text-sm text-textSecondary">
+                Cuisine: {cuisine || "Not specified"}
+              </Text>
+            </View>
 
             {weightOptions.length > 0 && (
               <View className="mb-3">
