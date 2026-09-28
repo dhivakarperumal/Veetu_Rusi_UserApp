@@ -1000,43 +1000,42 @@ export default function OrdersScreen() {
                         onPress={() => openOrder(order)}
                         className="bg-white px-5 py-4"
                       >
-                        <View
-                          className="flex-row items-center rounded-2xl border border-[#E7EDF2] bg-[#F8FAFC] p-3.5 shadow-sm shadow-[#172B3A]/10"
-                          style={{ elevation: 2 }}
-                        >
-                          <View className="h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
-                            <MaterialCommunityIcons
-                              name="calendar-clock-outline"
-                              size={21}
-                              color={colors.primary}
-                            />
+                        <View className="rounded-2xl border border-[#E7EDF2] bg-[#F8FAFC] shadow-sm shadow-[#172B3A]/10" style={{ elevation: 2 }}>
+                          <View className="flex-row items-center border-b border-[#E7EDF2] px-4 py-3.5">
+                            <View className="h-9 w-9 items-center justify-center rounded-xl bg-orange-100">
+                              <MaterialCommunityIcons name="calendar-clock-outline" size={20} color={colors.primary} />
+                            </View>
+                            <View className="ml-3 flex-1">
+                              <Text className="text-[10px] font-black uppercase tracking-[1px] text-textSecondary">
+                                Delivery slot
+                              </Text>
+                              <Text className="mt-1 text-[14px] font-black text-text" numberOfLines={1}>
+                                {order.delivery_date || "Date not set"}
+                              </Text>
+                              <Text className="text-[12px] text-textSecondary">
+                                {order.delivery_time ? `At ${order.delivery_time}` : "Time not set"}
+                              </Text>
+                            </View>
                           </View>
-                          <View className="ml-3 flex-1">
-                            <Text className="text-[10px] font-black uppercase tracking-[1px] text-textSecondary">
-                              Delivery slot
-                            </Text>
-                            <Text className="mt-1 text-[14px] font-black text-text" numberOfLines={1}>
-                              {order.delivery_date || "Date not set"}
-                            </Text>
-                            <Text className="text-[12px] text-textSecondary">
-                              {order.delivery_time ? `At ${order.delivery_time}` : "Time not set"}
-                            </Text>
-                          </View>
-                          <View className="mx-3 h-12 w-px bg-[#DDE5EB]" />
-                          <View className="flex-1">
-                            <Text className="text-[10px] font-black uppercase tracking-[1px] text-textSecondary">
-                              Home chef
-                            </Text>
-                            <Text className="mt-1 text-[14px] font-black text-primary" numberOfLines={1}>
-                              {getChefNames(order.items, order.chef_name)}
-                            </Text>
-                            <Text className="text-[12px] text-textSecondary">
+                          <View className="flex-row items-center px-4 py-3.5">
+                            <View className="h-9 w-9 items-center justify-center rounded-xl bg-[#E9F0FF]">
+                              <MaterialCommunityIcons name="chef-hat" size={20} color="#3867D6" />
+                            </View>
+                            <View className="ml-3 flex-1">
+                              <Text className="text-[10px] font-black uppercase tracking-[1px] text-textSecondary">
+                                Home chef
+                              </Text>
+                              <Text className="mt-1 text-[14px] font-black text-primary" numberOfLines={1}>
+                                {getChefNames(order.items, order.chef_name)}
+                              </Text>
+                            </View>
+                            <Text className="text-[12px] font-bold text-textSecondary">
                               {itemsCount} {itemsCount === 1 ? "dish" : "dishes"}
                             </Text>
                           </View>
                         </View>
 
-                        <View className="mt-4">
+                        <View className="mt-5">
                           <View className="mb-2 flex-row items-center justify-between">
                             <Text className="text-[11px] font-black uppercase tracking-[1px] text-textSecondary">
                               Items in this order
@@ -1048,12 +1047,14 @@ export default function OrdersScreen() {
                             )}
                           </View>
                           {order.items?.slice(0, 2).map((item: any, idx: number) => (
-                            <View key={idx} className="mb-2 flex-row items-center rounded-xl bg-[#F8FAFC] px-3 py-2.5">
-                              <View className="h-2 w-2 rounded-full bg-primary" />
-                              <Text className="ml-2 flex-1 text-[14px] font-semibold text-text" numberOfLines={1}>
+                            <View key={idx} className="mb-2 flex-row items-center rounded-xl border border-[#E7EDF2] bg-white px-3.5 py-3">
+                              <View className="h-8 w-8 items-center justify-center rounded-lg bg-[#FFF1E7]">
+                                <MaterialCommunityIcons name="food-outline" size={17} color={colors.primary} />
+                              </View>
+                              <Text className="ml-3 flex-1 text-[14px] font-semibold text-text" numberOfLines={1}>
                                 {item.name || item.product_name || "Food item"}
                               </Text>
-                              <Text className="text-[13px] font-bold text-textSecondary">
+                              <Text className="text-[13px] font-black text-secondary">
                                 ×{item.quantity || 1}
                               </Text>
                             </View>
