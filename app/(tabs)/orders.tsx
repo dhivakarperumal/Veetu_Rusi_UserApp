@@ -42,6 +42,37 @@ const formatDateTime = (value: any) => {
   });
 };
 
+const formatDeliveryDate = (value: any) => {
+  if (!value) return "Date not set";
+
+  const rawValue = String(value);
+  const datePart = rawValue.includes("T")
+    ? rawValue.split("T")[0]
+    : rawValue;
+  const date = new Date(`${datePart}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) return rawValue;
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatDeliveryTime = (value: any) => {
+  if (!value) return "Time not set";
+
+  const rawValue = String(value);
+  const match = rawValue.match(/^(\d{1,2}):(\d{2})/);
+
+  if (match) {
+    return `${match[1].padStart(2, "0")}:${match[2]}`;
+  }
+
+  return rawValue;
+};
+
 const getChefNames = (items: any[], fallbackName?: string) => {
   if (!Array.isArray(items) || !items.length) {
     return fallbackName || "Home Chef";
@@ -1010,28 +1041,14 @@ export default function OrdersScreen() {
                                 Delivery slot
                               </Text>
                               <Text className="mt-1 text-[14px] font-black text-text" numberOfLines={1}>
-                                {order.delivery_date || "Date not set"}
+                                {formatDeliveryDate(order.delivery_date)}
                               </Text>
                               <Text className="text-[12px] text-textSecondary">
-                                {order.delivery_time ? `At ${order.delivery_time}` : "Time not set"}
+                                {order.delivery_time
+                                  ? `At ${formatDeliveryTime(order.delivery_time)}`
+                                  : "Time not set"}
                               </Text>
                             </View>
-                          </View>
-                          <View className="flex-row items-center px-4 py-3.5">
-                            <View className="h-9 w-9 items-center justify-center rounded-xl bg-[#E9F0FF]">
-                              <MaterialCommunityIcons name="chef-hat" size={20} color="#3867D6" />
-                            </View>
-                            <View className="ml-3 flex-1">
-                              <Text className="text-[10px] font-black uppercase tracking-[1px] text-textSecondary">
-                                Home chef
-                              </Text>
-                              <Text className="mt-1 text-[14px] font-black text-primary" numberOfLines={1}>
-                                {getChefNames(order.items, order.chef_name)}
-                              </Text>
-                            </View>
-                            <Text className="text-[12px] font-bold text-textSecondary">
-                              {itemsCount} {itemsCount === 1 ? "dish" : "dishes"}
-                            </Text>
                           </View>
                         </View>
 
@@ -1364,9 +1381,9 @@ export default function OrdersScreen() {
                       Delivery Slot
                     </Text>
                     <Text className="text-xs font-semibold text-text">
-                      {selectedOrder.delivery_date}{" "}
+                      {formatDeliveryDate(selectedOrder.delivery_date)}{" "}
                       {selectedOrder.delivery_time
-                        ? `(${selectedOrder.delivery_time})`
+                        ? `(${formatDeliveryTime(selectedOrder.delivery_time)})`
                         : ""}
                     </Text>
                   </View>
