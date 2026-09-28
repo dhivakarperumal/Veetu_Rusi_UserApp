@@ -962,12 +962,6 @@ export default function OrdersScreen() {
                 filteredOrders.map((order) => {
                   const orderStatus = getOrderStatus(order);
                   const statusTheme = getStatusColor(orderStatus);
-                  const itemsCount =
-                    order.items?.reduce(
-                      (sum: number, it: any) =>
-                        sum + (Number(it.quantity) || 1),
-                      0,
-                    ) || 0;
                   const totalAmount = parseFloat(
                     order.final_total != null
                       ? order.final_total
