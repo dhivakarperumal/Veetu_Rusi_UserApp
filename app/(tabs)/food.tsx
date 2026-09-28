@@ -317,12 +317,14 @@ export default function FoodScreen({
         const pName = normalize(p.name?.toLowerCase() || "");
         const pCat = normalize(p.category?.toLowerCase() || "");
         const pSub = normalize(p.subcategory?.toLowerCase() || "");
+        const pCuisine = normalize(p.cuisine?.toLowerCase() || "");
         const pDesc = normalize(p.description?.toLowerCase() || "");
 
         return (
           pName.includes(searchLower) ||
           pCat.includes(searchLower) ||
           pSub.includes(searchLower) ||
+          pCuisine.includes(searchLower) ||
           pDesc.includes(searchLower)
         );
       });
