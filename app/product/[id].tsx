@@ -483,6 +483,38 @@ export default function ProductDetailScreen() {
               </View>
             </View>
 
+            {/* Quantity Selector */}
+            <View className="flex-row items-center justify-between border-t border-borderLight pt-4">
+              <Text className="text-base font-semibold text-text">
+                Quantity
+              </Text>
+              <View className="flex-row items-center gap-3">
+                <TouchableOpacity
+                  className="h-9 w-9 items-center justify-center rounded-full bg-gray"
+                  onPress={() => setQuantity((q) => Math.max(1, q - 1))}
+                >
+                  <MaterialCommunityIcons
+                    name="minus"
+                    size={18}
+                    color={colors.text}
+                  />
+                </TouchableOpacity>
+                <Text className="min-w-[24px] text-center text-base font-bold text-text">
+                  {quantity}
+                </Text>
+                <TouchableOpacity
+                  className="h-9 w-9 items-center justify-center rounded-full bg-gray"
+                  onPress={() => setQuantity((q) => q + 1)}
+                >
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={18}
+                    color={colors.text}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {Boolean(product?.description) && (
               <View className="mt-4 border-t border-borderLight pt-4">
                 <Text className="mb-2 text-base font-bold text-text">
@@ -600,37 +632,6 @@ export default function ProductDetailScreen() {
               </View>
             </View>
 
-            {/* Quantity Selector */}
-            <View className="mt-6 flex-row items-center justify-between border-t border-borderLight pt-4">
-              <Text className="text-base font-semibold text-text">
-                Quantity
-              </Text>
-              <View className="flex-row items-center gap-3">
-                <TouchableOpacity
-                  className="h-9 w-9 items-center justify-center rounded-full bg-gray"
-                  onPress={() => setQuantity((q) => Math.max(1, q - 1))}
-                >
-                  <MaterialCommunityIcons
-                    name="minus"
-                    size={18}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
-                <Text className="min-w-[24px] text-center text-base font-bold text-text">
-                  {quantity}
-                </Text>
-                <TouchableOpacity
-                  className="h-9 w-9 items-center justify-center rounded-full bg-gray"
-                  onPress={() => setQuantity((q) => q + 1)}
-                >
-                  <MaterialCommunityIcons
-                    name="plus"
-                    size={18}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
           </View>
         </ScrollView>
       )}
