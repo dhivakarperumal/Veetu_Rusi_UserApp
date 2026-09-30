@@ -948,11 +948,11 @@ export default function HomeScreen() {
           <Text className="mt-2 mb-2 text-[18px] font-black text-text">
             Explore by Cuisine
           </Text>
-          <View className="mt-3 flex-row flex-wrap justify-center">
+          <View className="mt-3 flex-row flex-wrap justify-start">
             {foodTypes.map((food) => (
               <Pressable
                 key={food.name}
-                className="mb-3 w-[31%] items-center"
+                className="mb-3 w-1/3 items-center"
                 onPress={() => {
                   router.push({
                     pathname: "/(tabs)/food" as any,
