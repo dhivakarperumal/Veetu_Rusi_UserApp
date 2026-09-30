@@ -44,7 +44,15 @@ export default function ProductCard({
     4.5,
   );
   const chefName =
-    product.chef_name || product.homeChefName || product.vendor_name || "";
+    [
+      product.chef_name,
+      product.homeChefName,
+      product.vendor_name,
+      product.chef,
+      product.homeChef,
+      product.provider_name,
+      product.created_by_name,
+    ].find((name) => typeof name === "string" && name.trim())?.trim() || "";
 
   const getImageUrl = () => {
     if (typeof product.image === "string" && product.image.trim()) {
@@ -203,7 +211,6 @@ export default function ProductCard({
           {Boolean(chefName) && (
             <Text
               className="text-[12px] font-semibold text-primary"
-              numberOfLines={1}
             >
               {chefName}
             </Text>

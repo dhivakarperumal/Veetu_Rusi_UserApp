@@ -872,6 +872,18 @@ export default function HomeScreen() {
                       : mrp;
 
                 const productId = food.id || food._id;
+                const chefName =
+                  [
+                    food.chef_name,
+                    food.homeChefName,
+                    food.vendor_name,
+                    food.chef,
+                    food.homeChef,
+                    food.provider_name,
+                    food.created_by_name,
+                  ].find(
+                    (name) => typeof name === "string" && name.trim(),
+                  )?.trim() || "";
 
                 return (
                   <Pressable
@@ -907,6 +919,11 @@ export default function HomeScreen() {
                       >
                         {food.name || food.c_name || "Chef Food"}
                       </Text>
+                      {Boolean(chefName) && (
+                        <Text className="mt-0.5 text-[12px] font-semibold text-primary">
+                          {chefName}
+                        </Text>
+                      )}
                       <View className="mt-1 flex-row items-center">
                         <Ionicons
                           name="star"
@@ -1055,6 +1072,18 @@ export default function HomeScreen() {
                   0;
                 const origPrice = Number(offerItem.mrp || 0);
                 const productId = offerItem.id || offerItem._id;
+                const chefName =
+                  [
+                    offerItem.chef_name,
+                    offerItem.homeChefName,
+                    offerItem.vendor_name,
+                    offerItem.chef,
+                    offerItem.homeChef,
+                    offerItem.provider_name,
+                    offerItem.created_by_name,
+                  ].find(
+                    (name) => typeof name === "string" && name.trim(),
+                  )?.trim() || "";
 
                 return (
                   <Pressable
@@ -1088,6 +1117,11 @@ export default function HomeScreen() {
                       >
                         {offerItem.name || offerItem.c_name || "Offer Item"}
                       </Text>
+                      {Boolean(chefName) && (
+                        <Text className="mt-0.5 text-[12px] font-semibold text-primary">
+                          {chefName}
+                        </Text>
+                      )}
                       <View className="mt-1 flex-row items-center">
                         <Ionicons
                           name="star"
