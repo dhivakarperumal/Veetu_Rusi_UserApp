@@ -705,26 +705,26 @@ export default function CheckoutScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-[#F8F9FA]"
+      className="flex-1 bg-primary"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ paddingTop: insets.top }}
     >
-      {/* Header */}
-      <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-3.5 shadow-sm">
+      <View className="flex-1 bg-[#F8F9FA]">
+        {/* Header */}
+        <View className="flex-row items-center bg-primary px-4 py-3.5 shadow-sm">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-gray"
+          className="h-10 w-10 items-center justify-center rounded-full bg-white"
           hitSlop={8}
         >
           <MaterialCommunityIcons
             name="arrow-left"
             size={24}
-            color={colors.text}
+            color={colors.black}
           />
         </TouchableOpacity>
-        <Text className="text-lg font-black text-text">Food Checkout</Text>
-        <View className="w-10" />
-      </View>
+        <Text className="ml-3 text-lg font-black text-white">Food Checkout</Text>
+        </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -1301,6 +1301,7 @@ export default function CheckoutScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+      </View>
       </View>
 
       {/* Saved Addresses Modal */}
