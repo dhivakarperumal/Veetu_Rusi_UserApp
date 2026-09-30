@@ -208,6 +208,8 @@ export default function HomeScreen() {
   const sectionContentWidth = windowWidth - 32;
   const twoColumnCardWidth = (sectionContentWidth - 12) / 2;
   const reviewCardWidth = (sectionContentWidth - 16) / 2;
+  const categoryCardWidth = (sectionContentWidth - 36) / 4;
+  const categoryIconSize = Math.min(72, categoryCardWidth - 8);
   const heroScrollRef = useRef<ScrollView>(null);
   const [heroSlide, setHeroSlide] = useState(0);
   const router = useRouter();
@@ -678,7 +680,8 @@ export default function HomeScreen() {
             visibleCategories.map((category) => (
               <Pressable
                 key={category.key}
-                className="mr-3 h-[112px] w-[96px] items-center justify-center"
+                className="mr-3 h-[112px] items-center justify-center"
+                style={{ width: categoryCardWidth }}
                 onPress={() => {
                   router.push({
                     pathname: "/(tabs)/food" as any,
@@ -686,11 +689,21 @@ export default function HomeScreen() {
                   });
                 }}
               >
-                <View className="h-18 w-18 items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm">
+                <View
+                  className="items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm"
+                  style={{
+                    width: categoryIconSize,
+                    height: categoryIconSize,
+                  }}
+                >
                   {category.image ? (
                     <Image
                       source={{ uri: category.image }}
-                      className="h-16 w-16 rounded-full border border-primary/20"
+                      className="rounded-full border border-primary/20"
+                      style={{
+                        width: categoryIconSize - 8,
+                        height: categoryIconSize - 8,
+                      }}
                       resizeMode="cover"
                     />
                   ) : (
@@ -707,7 +720,7 @@ export default function HomeScreen() {
                 </View>
                 <Text
                   className="mt-2 text-center text-[11px] font-semibold text-text"
-                  numberOfLines={1}
+                  numberOfLines={2}
                 >
                   {category.name}
                 </Text>
