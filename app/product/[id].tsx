@@ -291,29 +291,30 @@ export default function ProductDetailScreen() {
   };
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      {/* Header */}
-      <View className="flex-row items-center justify-between border-b border-borderLight px-4 py-3">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-primary">
+      <View className="flex-1 bg-backgroundAlt">
+        {/* Header */}
+        <View className="flex-row items-center justify-between bg-primary px-4 py-3">
         <View className="flex-1 flex-row items-center">
           <TouchableOpacity
-            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-gray"
+            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white"
             onPress={() => router.back()}
           >
             <MaterialCommunityIcons
               name="arrow-left"
               size={24}
-              color={colors.text}
+              color={colors.black}
             />
           </TouchableOpacity>
           <Text
-            className="flex-1 text-[17px] font-bold text-text"
+            className="flex-1 text-[17px] font-bold text-white"
             numberOfLines={1}
           >
             {product?.name || "Product Details"}
           </Text>
         </View>
         <TouchableOpacity
-          className="h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          className="h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
           onPress={async () => {
             if (!product) return;
             const uid = user?.id || user?.user_id;
@@ -335,7 +336,7 @@ export default function ProductDetailScreen() {
           <MaterialCommunityIcons
             name={isWishlisted ? "heart" : "heart-outline"}
             size={22}
-            color={isWishlisted ? colors.error : colors.text}
+            color={isWishlisted ? colors.error : colors.black}
           />
         </TouchableOpacity>
       </View>
@@ -807,6 +808,7 @@ export default function ProductDetailScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+      </View>
     </SafeAreaView>
   );
 }
