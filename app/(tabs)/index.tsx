@@ -861,7 +861,7 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="mb-4"
             >
-              {foods.slice(0, 8).map((food: Record<string, any>, i) => {
+              {foods.map((food: Record<string, any>, i) => {
                 const image = getFoodImage(food);
                 const mrp = Number(food.mrp || 0);
                 const sellingPrice =
@@ -1042,7 +1042,7 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="flex-row"
             >
-              {offerFoods.slice(0, 6).map((offerItem, idx) => {
+              {offerFoods.map((offerItem, idx) => {
                 const image = getFoodImage(offerItem);
                 const discount =
                   Number(offerItem.offer || 0) > 0
