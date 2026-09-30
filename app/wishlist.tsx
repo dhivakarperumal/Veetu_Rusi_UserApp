@@ -5,14 +5,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  RefreshControl,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    RefreshControl,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -130,10 +130,14 @@ export default function WishlistScreen() {
 
   const handlePressItem = (item: WishlistItem) => {
     const pId = item.product_id || item.id || item._id;
+    const detailSource = item.product?._detailSource;
     if (pId) {
       router.push({
         pathname: "/product/[id]" as any,
-        params: { id: String(pId) },
+        params: {
+          id: String(pId),
+          ...(detailSource ? { source: String(detailSource) } : {}),
+        },
       });
     }
   };

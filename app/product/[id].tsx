@@ -34,7 +34,10 @@ export default function ProductDetailScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { addToFoodCart, toggleWishlist, isInWishlist } = useStore();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, source } = useLocalSearchParams<{
+    id: string;
+    source?: string;
+  }>();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -58,9 +61,17 @@ export default function ProductDetailScreen() {
       if (!id) return;
       try {
         setLoading(true);
-        const res = await api.get(`/products/${id}`).catch(async () => {
-          return await api.get(`/chef-foods/${id}`);
-        });
+        const detailSource = Array.isArray(source) ? source[0] : source;
+        const res =
+          detailSource === "chef-foods"
+            ? await api.get(`/chef-foods/${id}`)
+            : detailSource === "chef_products"
+              ? await api.get(`/products/${id}`, {
+                  params: { source: "chef_products" },
+                })
+              : await api.get(`/products/${id}`).catch(async () => {
+                  return await api.get(`/chef-foods/${id}`);
+                });
         const loadedProduct = res.data?.data || res.data;
         setProduct(loadedProduct);
         setSelectedImageIndex(0);
@@ -97,7 +108,7 @@ export default function ProductDetailScreen() {
     };
 
     fetchProductDetails();
-  }, [id]);
+  }, [id, source]);
 
   const weightOptions = Array.from(
     new Set(

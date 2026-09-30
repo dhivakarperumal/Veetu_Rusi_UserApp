@@ -299,12 +299,18 @@ export default function HomeScreen() {
       const foodsFromApi =
         foodsResult.status === "fulfilled" &&
         Array.isArray(foodsResult.value.data)
-          ? foodsResult.value.data
+          ? foodsResult.value.data.map((food: Record<string, any>) => ({
+              ...food,
+              _detailSource: "chef-foods",
+            }))
           : [];
       const productsFromApi =
         productsResult.status === "fulfilled" &&
         Array.isArray(productsResult.value.data)
-          ? productsResult.value.data
+          ? productsResult.value.data.map((product: Record<string, any>) => ({
+              ...product,
+              _detailSource: "chef_products",
+            }))
           : [];
       const reviewsData =
         reviewsResult.status === "fulfilled" ? reviewsResult.value.data : [];
@@ -445,7 +451,10 @@ export default function HomeScreen() {
 
     router.push({
       pathname: "/product/[id]",
-      params: { id: String(productId) },
+      params: {
+        id: String(productId),
+        ...(item._detailSource ? { source: String(item._detailSource) } : {}),
+      },
     });
   };
 

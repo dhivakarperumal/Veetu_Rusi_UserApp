@@ -211,9 +211,17 @@ export default function FoodScreen({
             }),
         ]);
 
-        const foodsData = Array.isArray(foodsRes.data) ? foodsRes.data : [];
+        const foodsData = Array.isArray(foodsRes.data)
+          ? foodsRes.data.map((food: Product) => ({
+              ...food,
+              _detailSource: "chef-foods",
+            }))
+          : [];
         const productsData = Array.isArray(productsRes.data)
-          ? productsRes.data
+          ? productsRes.data.map((product: Product) => ({
+              ...product,
+              _detailSource: "chef_products",
+            }))
           : [];
         const data = [...foodsData, ...productsData];
 

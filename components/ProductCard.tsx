@@ -87,7 +87,12 @@ export default function ProductCard({
       try {
         router.push({
           pathname: "/product/[id]" as any,
-          params: { id: String(productId) },
+          params: {
+            id: String(productId),
+            ...(product._detailSource
+              ? { source: String(product._detailSource) }
+              : {}),
+          },
         });
       } catch (e) {
         console.log("Nav error:", e);
