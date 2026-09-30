@@ -655,7 +655,7 @@ export default function HomeScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="mx-4 mt-4"
+          className="mx-4 mt-1"
           contentContainerStyle={{ paddingRight: 16 }}
         >
           {loading ? (
