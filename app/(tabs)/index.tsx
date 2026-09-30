@@ -948,7 +948,7 @@ export default function HomeScreen() {
           <Text className="mt-2 mb-2 text-[18px] font-black text-text">
             Explore by Cuisine
           </Text>
-          <View className="mt-3 flex-row flex-wrap justify-between">
+          <View className="mt-3 flex-row flex-wrap justify-start">
             {foodTypes.map((food) => (
               <Pressable
                 key={food.name}
