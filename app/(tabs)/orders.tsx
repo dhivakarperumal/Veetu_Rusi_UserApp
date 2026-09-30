@@ -10,22 +10,22 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Linking,
-  Modal,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Linking,
+    Modal,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 const CANCEL_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
@@ -230,6 +230,63 @@ function CustomerCancelBar({
         <MaterialCommunityIcons name="close" size={12} color="#FFF" />
         <Text className="text-[11px] font-bold text-white">Cancel</Text>
       </TouchableOpacity>
+    </View>
+  );
+}
+
+function OrderCardSkeleton() {
+  return (
+    <View className="overflow-hidden rounded-[26px] border border-[#DCE3EA] bg-[#F7F9FB]">
+      <View className="flex-row items-center justify-between bg-secondary px-5 pb-5 pt-4">
+        <View className="flex-1 flex-row items-center">
+          <View className="h-10 w-10 rounded-2xl bg-white/20" />
+          <View className="ml-3 flex-1">
+            <View className="h-3 w-24 rounded bg-white/30" />
+            <View className="mt-2 h-4 w-32 rounded bg-white/20" />
+          </View>
+        </View>
+        <View className="h-8 w-24 rounded-full bg-white/20" />
+      </View>
+
+      <View className="bg-white px-5 py-4">
+        <View className="rounded-2xl border border-[#E7EDF2] bg-[#F8FAFC]">
+          <View className="flex-row items-center border-b border-[#E7EDF2] px-4 py-3.5">
+            <View className="h-9 w-9 rounded-xl bg-grayLight" />
+            <View className="ml-3 flex-1">
+              <View className="h-3 w-20 rounded bg-grayLight" />
+              <View className="mt-2 h-4 w-32 rounded bg-grayLight" />
+              <View className="mt-2 h-3 w-24 rounded bg-grayLight" />
+            </View>
+          </View>
+        </View>
+
+        <View className="mt-5">
+          <View className="mb-2 h-3 w-32 rounded bg-grayLight" />
+          {[0, 1].map((item) => (
+            <View
+              key={item}
+              className="mb-2 flex-row items-center rounded-xl border border-[#E7EDF2] bg-white px-3.5 py-3"
+            >
+              <View className="h-8 w-8 rounded-lg bg-grayLight" />
+              <View className="ml-3 h-4 flex-1 rounded bg-grayLight" />
+              <View className="ml-3 h-3 w-8 rounded bg-grayLight" />
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View className="flex-row items-center justify-between border-t border-[#E5EBF0] bg-[#F1F5F8] px-5 py-4">
+        <View>
+          <View className="h-3 w-20 rounded bg-grayLight" />
+          <View className="mt-2 h-4 w-16 rounded bg-grayLight" />
+        </View>
+        <View className="h-7 w-24 rounded bg-grayLight" />
+      </View>
+
+      <View className="flex-row gap-2 border-t border-borderLight bg-[#FAFAFA] p-3">
+        <View className="h-9 w-24 rounded-xl bg-grayLight" />
+        <View className="h-9 w-24 rounded-xl bg-grayLight" />
+      </View>
     </View>
   );
 }
@@ -898,12 +955,19 @@ export default function OrdersScreen() {
       )}
 
       {loading && !refreshing ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="mt-3 text-xs text-textSecondary">
-            Loading orders...
-          </Text>
-        </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: Math.max(insets.bottom, 24) + 60,
+          }}
+          className="px-4 pt-3"
+        >
+          <View className="gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <OrderCardSkeleton key={`order-skeleton-${index}`} />
+            ))}
+          </View>
+        </ScrollView>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
