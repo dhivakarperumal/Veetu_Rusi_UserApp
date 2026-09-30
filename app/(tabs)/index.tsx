@@ -8,19 +8,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
-    useWindowDimensions,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -663,57 +663,48 @@ export default function HomeScreen() {
               <ActivityIndicator color={colors.primary} />
             </View>
           ) : (
-            Array.from({ length: Math.ceil(visibleCategories.length / 2) }).map(
-              (_, columnIndex) => (
-                <View key={`category-column-${columnIndex}`} className="mr-3">
-                  {visibleCategories
-                    .slice(columnIndex * 2, columnIndex * 2 + 2)
-                    .map((category) => (
-                      <Pressable
-                        key={category.key}
-                        className="mb-2 h-[82px] w-[96px] items-center justify-center"
-                        onPress={() => {
-                          router.push({
-                            pathname: "/(tabs)/food" as any,
-                            params: { category: category.name },
-                          });
-                        }}
-                      >
-                        <View className="h-18 w-18 items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm">
-                          {category.image ? (
-                            <Image
-                              source={{ uri: category.image }}
-                              className="h-16 w-16 rounded-full border border-primary/20"
-                              resizeMode="cover"
-                            />
-                          ) : (
-                            <Ionicons
-                              name={
-                                category.icon as keyof typeof Ionicons.glyphMap
-                              }
-                              size={22}
-                              color={
-                                category.index % 2 === 0
-                                  ? colors.primary
-                                  : colors.secondary
-                              }
-                            />
-                          )}
-                        </View>
-                        <Text
-                          className="mt-2 text-center text-[11px] font-semibold text-text"
-                          numberOfLines={1}
-                        >
-                          {category.name}
-                        </Text>
-                      </Pressable>
-                    ))}
+            visibleCategories.map((category) => (
+              <Pressable
+                key={category.key}
+                className="mr-3 h-[112px] w-[96px] items-center justify-center"
+                onPress={() => {
+                  router.push({
+                    pathname: "/(tabs)/food" as any,
+                    params: { category: category.name },
+                  });
+                }}
+              >
+                <View className="h-18 w-18 items-center justify-center rounded-full border border-primary/25 bg-white p-1 shadow-sm">
+                  {category.image ? (
+                    <Image
+                      source={{ uri: category.image }}
+                      className="h-16 w-16 rounded-full border border-primary/20"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Ionicons
+                      name={category.icon as keyof typeof Ionicons.glyphMap}
+                      size={22}
+                      color={
+                        category.index % 2 === 0
+                          ? colors.primary
+                          : colors.secondary
+                      }
+                    />
+                  )}
                 </View>
-              ),
-            )
+                <Text
+                  className="mt-2 text-center text-[11px] font-semibold text-text"
+                  numberOfLines={1}
+                >
+                  {category.name}
+                </Text>
+              </Pressable>
+            ))
           )}
         </ScrollView>
 
+        {/* Top Home Chef Section */}
         {homeChefs.length > 0 && (
           <View className="mt-5 px-4">
             <View className="mb-3 flex-row items-center justify-between">
