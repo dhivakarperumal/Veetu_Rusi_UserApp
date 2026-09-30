@@ -325,32 +325,6 @@ export default function ProductDetailScreen() {
             {product?.name || "Product Details"}
           </Text>
         </View>
-        <TouchableOpacity
-          className="h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
-          onPress={async () => {
-            if (!product) return;
-            const uid = user?.id || user?.user_id;
-            if (!uid) {
-              Alert.alert(
-                "Login Required",
-                "Please login to add this dish to your wishlist.",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Login", onPress: () => router.push("/auth/login") },
-                ],
-              );
-              return;
-            }
-            await toggleWishlist(product);
-          }}
-          hitSlop={8}
-        >
-          <MaterialCommunityIcons
-            name={isWishlisted ? "heart" : "heart-outline"}
-            size={22}
-            color={isWishlisted ? colors.error : colors.black}
-          />
-        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -425,9 +399,43 @@ export default function ProductDetailScreen() {
 
           {/* Details Section */}
           <View className="p-4">
-            <Text className="mb-2 text-[22px] font-bold text-text">
-              {product?.name || "Product"}
-            </Text>
+            <View className="mb-2 flex-row items-center gap-3">
+              <Text className="flex-1 text-[22px] font-bold text-text">
+                {product?.name || "Product"}
+              </Text>
+              <TouchableOpacity
+                accessibilityLabel={
+                  isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                }
+                className="h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
+                onPress={async () => {
+                  if (!product) return;
+                  const uid = user?.id || user?.user_id;
+                  if (!uid) {
+                    Alert.alert(
+                      "Login Required",
+                      "Please login to add this dish to your wishlist.",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Login",
+                          onPress: () => router.push("/auth/login"),
+                        },
+                      ],
+                    );
+                    return;
+                  }
+                  await toggleWishlist(product);
+                }}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons
+                  name={isWishlisted ? "heart" : "heart-outline"}
+                  size={22}
+                  color={isWishlisted ? colors.error : colors.black}
+                />
+              </TouchableOpacity>
+            </View>
 
             {Boolean(chefName) && (
               <View className="mb-3 flex-row items-center gap-1.5">
