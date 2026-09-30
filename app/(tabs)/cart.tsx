@@ -67,7 +67,7 @@ export default function CartScreen() {
               color={colors.primary}
             />
           </View>
-          <Text className="text-2xl font-black text-text">
+          <Text className="w-full text-center text-2xl font-black text-text">
             Your Cart is Empty
           </Text>
           <Text className="mt-2 text-center text-[13px] text-textSecondary px-6">
