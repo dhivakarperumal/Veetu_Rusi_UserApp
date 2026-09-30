@@ -55,18 +55,19 @@ export default function HelpSupportScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center border-b border-borderLight bg-white px-[18px] py-3">
+    <View className="flex-1 bg-primary" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-backgroundAlt">
+        <View className="flex-row items-center bg-primary px-[18px] py-3">
         <Pressable
           accessibilityLabel="Go back"
-          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-white"
           hitSlop={8}
           onPress={() => router.back()}
         >
-          <MaterialCommunityIcons name="arrow-left" size={22} color="#1F2937" />
+          <MaterialCommunityIcons name="arrow-left" size={22} color={colors.black} />
         </Pressable>
-        <Text className="text-[22px] font-bold text-text">Help & Support</Text>
-      </View>
+          <Text className="text-[22px] font-bold text-white">Help & Support</Text>
+        </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -138,6 +139,7 @@ export default function HelpSupportScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </View>
     </View>
   );
 }
