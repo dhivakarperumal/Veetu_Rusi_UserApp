@@ -205,6 +205,9 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const heroWidth = windowWidth - 32;
+  const sectionContentWidth = windowWidth - 32;
+  const twoColumnCardWidth = (sectionContentWidth - 12) / 2;
+  const reviewCardWidth = (sectionContentWidth - 16) / 2;
   const heroScrollRef = useRef<ScrollView>(null);
   const [heroSlide, setHeroSlide] = useState(0);
   const router = useRouter();
@@ -742,7 +745,8 @@ export default function HomeScreen() {
               {homeChefs.map((chef: Record<string, any>, idx: number) => (
                 <Pressable
                   key={chef.id || chef.name || idx}
-                  className="mr-3 w-[160px] overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                  className="mr-3 overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                  style={{ width: twoColumnCardWidth }}
                   onPress={() =>
                     router.push({
                       pathname: "/(tabs)/food" as any,
@@ -889,7 +893,8 @@ export default function HomeScreen() {
                   <Pressable
                     key={productId || food.name || i}
                     onPress={() => openProductDetails(food)}
-                    className="mr-3 w-[154px] rounded-[16px] border border-border bg-white p-2.5"
+                    className="mr-3 rounded-[16px] border border-border bg-white p-2.5"
+                    style={{ width: twoColumnCardWidth }}
                   >
                     <View className="relative">
                       <Image
@@ -1089,7 +1094,8 @@ export default function HomeScreen() {
                   <Pressable
                     key={productId || idx}
                     onPress={() => openProductDetails(offerItem)}
-                    className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
+                    className="mr-3 overflow-hidden rounded-[16px] border border-border bg-white"
+                    style={{ width: twoColumnCardWidth }}
                   >
                     <View className="relative">
                       <Image
@@ -1168,7 +1174,7 @@ export default function HomeScreen() {
               })}
             </ScrollView>
           ) : (
-            <View className="flex-row">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {[
                 {
                   title: "Combo Meals",
@@ -1191,7 +1197,8 @@ export default function HomeScreen() {
               ].map((offer) => (
                 <Pressable
                   key={offer.title}
-                  className="mr-3 w-[154px] overflow-hidden rounded-[16px] border border-border bg-white"
+                  className="mr-3 overflow-hidden rounded-[16px] border border-border bg-white"
+                  style={{ width: twoColumnCardWidth }}
                   onPress={() => {
                     router.push({
                       pathname: "/(tabs)/food" as any,
@@ -1247,7 +1254,7 @@ export default function HomeScreen() {
                   </View>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           )}
         </View>
 
@@ -1399,7 +1406,8 @@ export default function HomeScreen() {
                   return (
                     <View
                       key={r.id || `${reviewer}-${idx}`}
-                      className="mr-4 w-[260px] rounded-[16px] border border-border bg-white p-4"
+                      className="mr-4 rounded-[16px] border border-border bg-white p-4"
+                      style={{ width: reviewCardWidth }}
                     >
                       <View className="flex-row items-center">
                         <View className="h-10 w-10 items-center justify-center rounded-full bg-gray">
