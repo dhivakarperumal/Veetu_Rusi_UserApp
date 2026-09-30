@@ -336,44 +336,45 @@ export default function WishlistScreen() {
   };
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      {/* Header */}
-      <View className="flex-row items-center justify-between border-b border-borderLight bg-white px-4 py-3">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-primary">
+      <View className="flex-1 bg-backgroundAlt">
+        {/* Header */}
+        <View className="flex-row items-center justify-between bg-primary px-4 py-3">
         <View className="flex-row items-center">
           <TouchableOpacity
-            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
             onPress={() => router.back()}
             hitSlop={8}
           >
             <MaterialCommunityIcons
               name="arrow-left"
               size={22}
-              color={colors.text}
+              color={colors.black}
             />
           </TouchableOpacity>
 
           <View>
-            <Text className="text-[18px] font-extrabold text-text">
+            <Text className="text-[18px] font-extrabold text-white">
               Wishlist
             </Text>
-            <Text className="text-[11px] font-semibold text-textSecondary">
+            <Text className="text-[11px] font-semibold text-white/80">
               {wishlist.length} {wishlist.length === 1 ? "item" : "items"}
             </Text>
           </View>
         </View>
 
         <TouchableOpacity
-          className="relative h-10 w-10 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          className="relative h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
           onPress={() => router.push("/(tabs)/cart")}
           hitSlop={8}
         >
           <MaterialCommunityIcons
             name="cart-outline"
             size={22}
-            color={colors.text}
+            color={colors.black}
           />
           {cartCount > 0 && (
-            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primary px-1">
+            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primaryDark px-1">
               <Text className="text-[10px] font-black text-white">
                 {cartCount > 99 ? "99+" : cartCount}
               </Text>
@@ -382,8 +383,8 @@ export default function WishlistScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Main Content */}
-      {loadingWishlist && wishlist.length === 0 ? (
+        {/* Main Content */}
+        {loadingWishlist && wishlist.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
           <Text className="mt-3 text-sm text-textSecondary">
@@ -532,7 +533,8 @@ export default function WishlistScreen() {
             }
           />
         </View>
-      )}
+        )}
+      </View>
     </SafeAreaView>
   );
 }

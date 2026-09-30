@@ -712,596 +712,599 @@ export default function CheckoutScreen() {
       <View className="flex-1 bg-[#F8F9FA]">
         {/* Header */}
         <View className="flex-row items-center bg-primary px-4 py-3.5 shadow-sm">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-white"
-          hitSlop={8}
-        >
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={24}
-            color={colors.black}
-          />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-black text-white">Food Checkout</Text>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="h-10 w-10 items-center justify-center rounded-full bg-white"
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={colors.black}
+            />
+          </TouchableOpacity>
+          <Text className="ml-3 text-lg font-black text-white">
+            Food Checkout
+          </Text>
         </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: Math.max(insets.bottom, 24) + 80,
-        }}
-        className="px-4 pt-3"
-      >
-        {/* Saved Addresses & Quick Fill */}
-        <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: Math.max(insets.bottom, 24) + 80,
+          }}
+          className="px-4 pt-3"
+        >
+          {/* Saved Addresses & Quick Fill */}
+          <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <MaterialCommunityIcons
+                  name="map-marker-radius"
+                  size={22}
+                  color={colors.primary}
+                />
+                <Text className="text-base font-black text-text">
+                  Delivery Address
+                </Text>
+              </View>
+
+              {savedAddresses.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => setShowSavedAddressesModal(true)}
+                  className="rounded-full bg-primary/10 px-3 py-1.5"
+                >
+                  <Text className="text-xs font-bold text-primary">
+                    Saved ({savedAddresses.length})
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Search Address */}
+            <View className="mt-3">
+              <View className="flex-row items-center rounded-2xl border border-border bg-[#F9FAFB] px-3 py-2.5">
+                <Feather name="search" size={18} color={colors.textSecondary} />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={handleSearchAddress}
+                  placeholder="Search area, landmark or street..."
+                  placeholderTextColor={colors.grayDark}
+                  className="ml-2 flex-1 text-sm text-text"
+                />
+                {isSearching && (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                )}
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSearchQuery("");
+                      setSearchResults([]);
+                      setShowSearchResults(false);
+                    }}
+                    className="p-1"
+                  >
+                    <Ionicons
+                      name="close-circle"
+                      size={18}
+                      color={colors.grayDark}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Address Search Dropdown Results */}
+              {showSearchResults && searchResults.length > 0 && (
+                <View className="mt-2 overflow-hidden rounded-2xl border border-borderLight bg-white shadow-md">
+                  {searchResults.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      onPress={() => selectSearchResult(item)}
+                      className="border-b border-borderLight p-3 active:bg-primary/5"
+                    >
+                      <Text
+                        className="text-xs font-bold text-text"
+                        numberOfLines={1}
+                      >
+                        {item.display_name?.split(",")[0] || item.name}
+                      </Text>
+                      <Text
+                        className="mt-0.5 text-[11px] text-textSecondary"
+                        numberOfLines={2}
+                      >
+                        {item.display_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Use Current GPS Location Button */}
+            <TouchableOpacity
+              onPress={handleGetLocation}
+              disabled={isLoadingLocation}
+              className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl bg-[#FFF3E8] py-3 active:bg-primary/20"
+            >
+              {isLoadingLocation ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <MaterialCommunityIcons
+                  name="crosshairs-gps"
+                  size={18}
+                  color={colors.primary}
+                />
+              )}
+              <Text className="text-xs font-black text-primary">
+                {isLoadingLocation
+                  ? "Detecting GPS Location..."
+                  : "Use Current GPS Location"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Contact & Address Fields */}
+          <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
+            <Text className="mb-3 text-sm font-black text-text">
+              Customer Information
+            </Text>
+
+            {/* Name & Phone */}
+            <View className="mb-3">
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                Full Name *
+              </Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="e.g. Dhivakar Perumal"
+                placeholderTextColor={colors.grayDark}
+                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+              />
+            </View>
+
+            <View className="mb-3 flex-row gap-3">
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  Phone Number *
+                </Text>
+                <TextInput
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                  placeholder="10-digit mobile"
+                  placeholderTextColor={colors.grayDark}
+                  className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  Email (optional)
+                </Text>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholder="name@mail.com"
+                  placeholderTextColor={colors.grayDark}
+                  className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+                />
+              </View>
+            </View>
+
+            {/* Street Address */}
+            <View className="mb-3">
+              <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                Street Address / Door No. *
+              </Text>
+              <TextInput
+                value={streetAddress}
+                onChangeText={setStreetAddress}
+                placeholder="Door No, Building, Street, Area"
+                placeholderTextColor={colors.grayDark}
+                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+              />
+            </View>
+
+            {/* City & District */}
+            <View className="mb-3 flex-row gap-3">
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  City / Town *
+                </Text>
+                <TextInput
+                  value={city}
+                  onChangeText={setCity}
+                  placeholder="e.g. Chennai"
+                  placeholderTextColor={colors.grayDark}
+                  className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  District *
+                </Text>
+                <TextInput
+                  value={district}
+                  onChangeText={setDistrict}
+                  placeholder="e.g. Kanchipuram"
+                  placeholderTextColor={colors.grayDark}
+                  className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+                />
+              </View>
+            </View>
+
+            {/* State & ZIP Code */}
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  State *
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowStatePickerModal(true)}
+                  className="flex-row items-center justify-between rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5"
+                >
+                  <Text
+                    className="text-sm font-medium text-text"
+                    numberOfLines={1}
+                  >
+                    {stateValue || "Select State"}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    size={20}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-1 text-xs font-semibold text-textSecondary">
+                  ZIP / PIN Code *
+                </Text>
+                <TextInput
+                  value={zipCode}
+                  onChangeText={setZipCode}
+                  keyboardType="numeric"
+                  placeholder="6-digit PIN"
+                  placeholderTextColor={colors.grayDark}
+                  className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Delivery Slot Selection */}
+          <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center gap-2">
               <MaterialCommunityIcons
-                name="map-marker-radius"
+                name="calendar-clock"
                 size={22}
                 color={colors.primary}
               />
               <Text className="text-base font-black text-text">
-                Delivery Address
+                Delivery Schedule
               </Text>
             </View>
 
-            {savedAddresses.length > 0 && (
-              <TouchableOpacity
-                onPress={() => setShowSavedAddressesModal(true)}
-                className="rounded-full bg-primary/10 px-3 py-1.5"
-              >
-                <Text className="text-xs font-bold text-primary">
-                  Saved ({savedAddresses.length})
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+            <Text className="mb-2 text-xs font-bold text-textSecondary">
+              Select Delivery Date (Fresh homemade food requires advance
+              booking):
+            </Text>
 
-          {/* Search Address */}
-          <View className="mt-3">
-            <View className="flex-row items-center rounded-2xl border border-border bg-[#F9FAFB] px-3 py-2.5">
-              <Feather name="search" size={18} color={colors.textSecondary} />
-              <TextInput
-                value={searchQuery}
-                onChangeText={handleSearchAddress}
-                placeholder="Search area, landmark or street..."
-                placeholderTextColor={colors.grayDark}
-                className="ml-2 flex-1 text-sm text-text"
-              />
-              {isSearching && (
-                <ActivityIndicator size="small" color={colors.primary} />
-              )}
-              {searchQuery.length > 0 && (
-                <TouchableOpacity
-                  onPress={() => {
-                    setSearchQuery("");
-                    setSearchResults([]);
-                    setShowSearchResults(false);
-                  }}
-                  className="p-1"
-                >
-                  <Ionicons
-                    name="close-circle"
-                    size={18}
-                    color={colors.grayDark}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {/* Address Search Dropdown Results */}
-            {showSearchResults && searchResults.length > 0 && (
-              <View className="mt-2 overflow-hidden rounded-2xl border border-borderLight bg-white shadow-md">
-                {searchResults.map((item, idx) => (
+            {/* Date Chips */}
+            <View className="flex-row gap-2">
+              {availableDates.map((item) => {
+                const isSelected = deliveryDate === item.dateStr;
+                return (
                   <TouchableOpacity
-                    key={idx}
-                    onPress={() => selectSearchResult(item)}
-                    className="border-b border-borderLight p-3 active:bg-primary/5"
+                    key={item.dateStr}
+                    onPress={() => setDeliveryDate(item.dateStr)}
+                    className={`flex-1 items-center rounded-2xl border py-2.5 ${
+                      isSelected
+                        ? "border-primary bg-primary"
+                        : "border-borderLight bg-[#F9FAFB]"
+                    }`}
                   >
                     <Text
-                      className="text-xs font-bold text-text"
-                      numberOfLines={1}
+                      className={`text-xs font-bold ${
+                        isSelected ? "text-white" : "text-text"
+                      }`}
                     >
-                      {item.display_name?.split(",")[0] || item.name}
+                      {item.label}
                     </Text>
                     <Text
-                      className="mt-0.5 text-[11px] text-textSecondary"
-                      numberOfLines={2}
+                      className={`mt-0.5 text-[11px] ${
+                        isSelected ? "text-white/80" : "text-textSecondary"
+                      }`}
                     >
-                      {item.display_name}
+                      {item.subLabel}
                     </Text>
                   </TouchableOpacity>
-                ))}
-              </View>
-            )}
+                );
+              })}
+            </View>
+
+            {/* Time Slot Selector */}
+            <Text className="mb-2 mt-4 text-xs font-bold text-textSecondary">
+              Select Delivery Time Slot:
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="flex-row gap-2"
+            >
+              {TIME_SLOTS.map((slot) => {
+                const isSelected = deliveryTime === slot;
+                return (
+                  <TouchableOpacity
+                    key={slot}
+                    onPress={() => setDeliveryTime(slot)}
+                    className={`mr-2 rounded-xl border px-3 py-2 ${
+                      isSelected
+                        ? "border-primary bg-primary"
+                        : "border-borderLight bg-[#F9FAFB]"
+                    }`}
+                  >
+                    <Text
+                      className={`text-xs font-bold ${
+                        isSelected ? "text-white" : "text-text"
+                      }`}
+                    >
+                      {slot}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <View className="mt-3 flex-row items-center gap-1.5 rounded-xl bg-amber-50 p-2.5">
+              <Ionicons name="information-circle" size={16} color="#D97706" />
+              <Text className="flex-1 text-[11px] font-semibold text-amber-800">
+                Orders must be scheduled at least 24 hours in advance to allow
+                chefs to source fresh ingredients.
+              </Text>
+            </View>
           </View>
 
-          {/* Use Current GPS Location Button */}
-          <TouchableOpacity
-            onPress={handleGetLocation}
-            disabled={isLoadingLocation}
-            className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl bg-[#FFF3E8] py-3 active:bg-primary/20"
-          >
-            {isLoadingLocation ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
+          {/* Payment Method */}
+          <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center gap-2">
               <MaterialCommunityIcons
-                name="crosshairs-gps"
-                size={18}
+                name="credit-card-outline"
+                size={22}
                 color={colors.primary}
               />
-            )}
-            <Text className="text-xs font-black text-primary">
-              {isLoadingLocation
-                ? "Detecting GPS Location..."
-                : "Use Current GPS Location"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Contact & Address Fields */}
-        <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <Text className="mb-3 text-sm font-black text-text">
-            Customer Information
-          </Text>
-
-          {/* Name & Phone */}
-          <View className="mb-3">
-            <Text className="mb-1 text-xs font-semibold text-textSecondary">
-              Full Name *
-            </Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="e.g. Dhivakar Perumal"
-              placeholderTextColor={colors.grayDark}
-              className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-            />
-          </View>
-
-          <View className="mb-3 flex-row gap-3">
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                Phone Number *
+              <Text className="text-base font-black text-text">
+                Payment Method
               </Text>
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-                placeholder="10-digit mobile"
-                placeholderTextColor={colors.grayDark}
-                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-              />
             </View>
 
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                Email (optional)
-              </Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="name@mail.com"
-                placeholderTextColor={colors.grayDark}
-                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-              />
-            </View>
-          </View>
-
-          {/* Street Address */}
-          <View className="mb-3">
-            <Text className="mb-1 text-xs font-semibold text-textSecondary">
-              Street Address / Door No. *
-            </Text>
-            <TextInput
-              value={streetAddress}
-              onChangeText={setStreetAddress}
-              placeholder="Door No, Building, Street, Area"
-              placeholderTextColor={colors.grayDark}
-              className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-            />
-          </View>
-
-          {/* City & District */}
-          <View className="mb-3 flex-row gap-3">
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                City / Town *
-              </Text>
-              <TextInput
-                value={city}
-                onChangeText={setCity}
-                placeholder="e.g. Chennai"
-                placeholderTextColor={colors.grayDark}
-                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-              />
-            </View>
-
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                District *
-              </Text>
-              <TextInput
-                value={district}
-                onChangeText={setDistrict}
-                placeholder="e.g. Kanchipuram"
-                placeholderTextColor={colors.grayDark}
-                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-              />
-            </View>
-          </View>
-
-          {/* State & ZIP Code */}
-          <View className="flex-row gap-3">
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                State *
-              </Text>
+            <View className="gap-2.5">
               <TouchableOpacity
-                onPress={() => setShowStatePickerModal(true)}
-                className="flex-row items-center justify-between rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5"
+                onPress={() => setPaymentMethod("Cash on Delivery")}
+                className={`flex-row items-center justify-between rounded-2xl border p-3.5 ${
+                  paymentMethod === "Cash on Delivery"
+                    ? "border-primary bg-primary/5"
+                    : "border-borderLight bg-white"
+                }`}
               >
-                <Text
-                  className="text-sm font-medium text-text"
-                  numberOfLines={1}
-                >
-                  {stateValue || "Select State"}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  size={20}
-                  color={colors.textSecondary}
+                <View className="flex-row items-center gap-3">
+                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                    <MaterialCommunityIcons
+                      name="cash-multiple"
+                      size={22}
+                      color="#059669"
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm font-bold text-text">
+                      Cash on Delivery (COD)
+                    </Text>
+                    <Text className="text-[11px] text-textSecondary">
+                      Pay with cash or UPI at delivery
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={
+                    paymentMethod === "Cash on Delivery"
+                      ? "radio-button-on"
+                      : "radio-button-off"
+                  }
+                  size={22}
+                  color={
+                    paymentMethod === "Cash on Delivery"
+                      ? colors.primary
+                      : colors.grayDark
+                  }
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setPaymentMethod("Online Payment")}
+                className={`flex-row items-center justify-between rounded-2xl border p-3.5 ${
+                  paymentMethod === "Online Payment"
+                    ? "border-primary bg-primary/5"
+                    : "border-borderLight bg-white"
+                }`}
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+                    <MaterialCommunityIcons
+                      name="credit-card-fast"
+                      size={22}
+                      color="#2563EB"
+                    />
+                  </View>
+                  <View>
+                    <Text className="text-sm font-bold text-text">
+                      Online Payment
+                    </Text>
+                    <Text className="text-[11px] text-textSecondary">
+                      Pay securely via UPI, Cards, Netbanking
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={
+                    paymentMethod === "Online Payment"
+                      ? "radio-button-on"
+                      : "radio-button-off"
+                  }
+                  size={22}
+                  color={
+                    paymentMethod === "Online Payment"
+                      ? colors.primary
+                      : colors.grayDark
+                  }
                 />
               </TouchableOpacity>
             </View>
-
-            <View className="flex-1">
-              <Text className="mb-1 text-xs font-semibold text-textSecondary">
-                ZIP / PIN Code *
-              </Text>
-              <TextInput
-                value={zipCode}
-                onChangeText={setZipCode}
-                keyboardType="numeric"
-                placeholder="6-digit PIN"
-                placeholderTextColor={colors.grayDark}
-                className="rounded-2xl border border-border bg-[#F9FAFB] px-3.5 py-2.5 text-sm text-text"
-              />
-            </View>
           </View>
-        </View>
 
-        {/* Delivery Slot Selection */}
-        <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <View className="mb-3 flex-row items-center gap-2">
-            <MaterialCommunityIcons
-              name="calendar-clock"
-              size={22}
-              color={colors.primary}
-            />
-            <Text className="text-base font-black text-text">
-              Delivery Schedule
+          {/* Order Summary Card */}
+          <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
+            <Text className="mb-3 text-base font-black text-text">
+              Order Summary ({checkoutItems.length}{" "}
+              {checkoutItems.length === 1 ? "item" : "items"})
             </Text>
-          </View>
 
-          <Text className="mb-2 text-xs font-bold text-textSecondary">
-            Select Delivery Date (Fresh homemade food requires advance booking):
-          </Text>
-
-          {/* Date Chips */}
-          <View className="flex-row gap-2">
-            {availableDates.map((item) => {
-              const isSelected = deliveryDate === item.dateStr;
-              return (
-                <TouchableOpacity
-                  key={item.dateStr}
-                  onPress={() => setDeliveryDate(item.dateStr)}
-                  className={`flex-1 items-center rounded-2xl border py-2.5 ${
-                    isSelected
-                      ? "border-primary bg-primary"
-                      : "border-borderLight bg-[#F9FAFB]"
-                  }`}
-                >
-                  <Text
-                    className={`text-xs font-bold ${
-                      isSelected ? "text-white" : "text-text"
-                    }`}
+            {/* Items Preview */}
+            <View className="mb-3 gap-2.5">
+              {checkoutItems.map((item, idx) => {
+                const image = resolveImageUrl(item.image);
+                const itemTotal =
+                  (parseFloat(String(item.price)) || 0) * (item.quantity || 1);
+                return (
+                  <View
+                    key={item.id || idx}
+                    className="flex-row items-center gap-3 rounded-2xl border border-borderLight bg-[#F9FAFB] p-2.5"
                   >
-                    {item.label}
-                  </Text>
-                  <Text
-                    className={`mt-0.5 text-[11px] ${
-                      isSelected ? "text-white/80" : "text-textSecondary"
-                    }`}
-                  >
-                    {item.subLabel}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Time Slot Selector */}
-          <Text className="mb-2 mt-4 text-xs font-bold text-textSecondary">
-            Select Delivery Time Slot:
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="flex-row gap-2"
-          >
-            {TIME_SLOTS.map((slot) => {
-              const isSelected = deliveryTime === slot;
-              return (
-                <TouchableOpacity
-                  key={slot}
-                  onPress={() => setDeliveryTime(slot)}
-                  className={`mr-2 rounded-xl border px-3 py-2 ${
-                    isSelected
-                      ? "border-primary bg-primary"
-                      : "border-borderLight bg-[#F9FAFB]"
-                  }`}
-                >
-                  <Text
-                    className={`text-xs font-bold ${
-                      isSelected ? "text-white" : "text-text"
-                    }`}
-                  >
-                    {slot}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-
-          <View className="mt-3 flex-row items-center gap-1.5 rounded-xl bg-amber-50 p-2.5">
-            <Ionicons name="information-circle" size={16} color="#D97706" />
-            <Text className="flex-1 text-[11px] font-semibold text-amber-800">
-              Orders must be scheduled at least 24 hours in advance to allow
-              chefs to source fresh ingredients.
-            </Text>
-          </View>
-        </View>
-
-        {/* Payment Method */}
-        <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <View className="mb-3 flex-row items-center gap-2">
-            <MaterialCommunityIcons
-              name="credit-card-outline"
-              size={22}
-              color={colors.primary}
-            />
-            <Text className="text-base font-black text-text">
-              Payment Method
-            </Text>
-          </View>
-
-          <View className="gap-2.5">
-            <TouchableOpacity
-              onPress={() => setPaymentMethod("Cash on Delivery")}
-              className={`flex-row items-center justify-between rounded-2xl border p-3.5 ${
-                paymentMethod === "Cash on Delivery"
-                  ? "border-primary bg-primary/5"
-                  : "border-borderLight bg-white"
-              }`}
-            >
-              <View className="flex-row items-center gap-3">
-                <View className="h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
-                  <MaterialCommunityIcons
-                    name="cash-multiple"
-                    size={22}
-                    color="#059669"
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm font-bold text-text">
-                    Cash on Delivery (COD)
-                  </Text>
-                  <Text className="text-[11px] text-textSecondary">
-                    Pay with cash or UPI at delivery
-                  </Text>
-                </View>
-              </View>
-              <Ionicons
-                name={
-                  paymentMethod === "Cash on Delivery"
-                    ? "radio-button-on"
-                    : "radio-button-off"
-                }
-                size={22}
-                color={
-                  paymentMethod === "Cash on Delivery"
-                    ? colors.primary
-                    : colors.grayDark
-                }
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setPaymentMethod("Online Payment")}
-              className={`flex-row items-center justify-between rounded-2xl border p-3.5 ${
-                paymentMethod === "Online Payment"
-                  ? "border-primary bg-primary/5"
-                  : "border-borderLight bg-white"
-              }`}
-            >
-              <View className="flex-row items-center gap-3">
-                <View className="h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                  <MaterialCommunityIcons
-                    name="credit-card-fast"
-                    size={22}
-                    color="#2563EB"
-                  />
-                </View>
-                <View>
-                  <Text className="text-sm font-bold text-text">
-                    Online Payment
-                  </Text>
-                  <Text className="text-[11px] text-textSecondary">
-                    Pay securely via UPI, Cards, Netbanking
-                  </Text>
-                </View>
-              </View>
-              <Ionicons
-                name={
-                  paymentMethod === "Online Payment"
-                    ? "radio-button-on"
-                    : "radio-button-off"
-                }
-                size={22}
-                color={
-                  paymentMethod === "Online Payment"
-                    ? colors.primary
-                    : colors.grayDark
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Order Summary Card */}
-        <View className="mb-4 rounded-3xl border border-borderLight bg-white p-4 shadow-sm">
-          <Text className="mb-3 text-base font-black text-text">
-            Order Summary ({checkoutItems.length}{" "}
-            {checkoutItems.length === 1 ? "item" : "items"})
-          </Text>
-
-          {/* Items Preview */}
-          <View className="mb-3 gap-2.5">
-            {checkoutItems.map((item, idx) => {
-              const image = resolveImageUrl(item.image);
-              const itemTotal =
-                (parseFloat(String(item.price)) || 0) * (item.quantity || 1);
-              return (
-                <View
-                  key={item.id || idx}
-                  className="flex-row items-center gap-3 rounded-2xl border border-borderLight bg-[#F9FAFB] p-2.5"
-                >
-                  <View className="h-14 w-14 overflow-hidden rounded-xl bg-gray">
-                    {image ? (
-                      <Image
-                        source={{ uri: image }}
-                        className="h-full w-full"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View className="h-full w-full items-center justify-center bg-grayLight">
-                        <MaterialCommunityIcons
-                          name="food"
-                          size={24}
-                          color={colors.textSecondary}
+                    <View className="h-14 w-14 overflow-hidden rounded-xl bg-gray">
+                      {image ? (
+                        <Image
+                          source={{ uri: image }}
+                          className="h-full w-full"
+                          resizeMode="cover"
                         />
-                      </View>
-                    )}
-                  </View>
-                  <View className="flex-1">
-                    <Text
-                      className="text-xs font-bold text-text"
-                      numberOfLines={1}
-                    >
-                      {item.name}
-                    </Text>
-                    {Boolean(item.chef_name) && (
+                      ) : (
+                        <View className="h-full w-full items-center justify-center bg-grayLight">
+                          <MaterialCommunityIcons
+                            name="food"
+                            size={24}
+                            color={colors.textSecondary}
+                          />
+                        </View>
+                      )}
+                    </View>
+                    <View className="flex-1">
                       <Text
-                        className="text-[11px] text-primary"
+                        className="text-xs font-bold text-text"
                         numberOfLines={1}
                       >
-                        Chef: {item.chef_name}
+                        {item.name}
                       </Text>
-                    )}
-                    <Text className="text-[11px] text-textSecondary">
-                      Qty: {item.quantity} × ₹
-                      {parseFloat(String(item.price)).toFixed(2)}
+                      {Boolean(item.chef_name) && (
+                        <Text
+                          className="text-[11px] text-primary"
+                          numberOfLines={1}
+                        >
+                          Chef: {item.chef_name}
+                        </Text>
+                      )}
+                      <Text className="text-[11px] text-textSecondary">
+                        Qty: {item.quantity} × ₹
+                        {parseFloat(String(item.price)).toFixed(2)}
+                      </Text>
+                    </View>
+                    <Text className="text-xs font-black text-text">
+                      ₹{itemTotal.toFixed(2)}
                     </Text>
                   </View>
-                  <Text className="text-xs font-black text-text">
-                    ₹{itemTotal.toFixed(2)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-
-          {/* Bill Breakdown */}
-          <View className="border-t border-borderLight pt-3">
-            <View className="mb-2 flex-row justify-between">
-              <Text className="text-xs text-textSecondary">Subtotal</Text>
-              <Text className="text-xs font-bold text-text">
-                ₹{subtotal.toFixed(2)}
-              </Text>
+                );
+              })}
             </View>
 
-            <View className="mb-2 flex-row justify-between">
-              <Text className="text-xs text-textSecondary">
-                Shipping & Delivery
-              </Text>
-              <Text className="text-xs font-bold text-emerald-600">FREE</Text>
-            </View>
-
-            {discountAmount > 0 && (
+            {/* Bill Breakdown */}
+            <View className="border-t border-borderLight pt-3">
               <View className="mb-2 flex-row justify-between">
-                <Text className="text-xs font-semibold text-emerald-600">
-                  Coupon Discount ({appliedCoupon?.code})
-                </Text>
-                <Text className="text-xs font-bold text-emerald-600">
-                  -₹{discountAmount.toFixed(2)}
+                <Text className="text-xs text-textSecondary">Subtotal</Text>
+                <Text className="text-xs font-bold text-text">
+                  ₹{subtotal.toFixed(2)}
                 </Text>
               </View>
-            )}
 
-            <View className="my-2 border-t border-borderLight" />
+              <View className="mb-2 flex-row justify-between">
+                <Text className="text-xs text-textSecondary">
+                  Shipping & Delivery
+                </Text>
+                <Text className="text-xs font-bold text-emerald-600">FREE</Text>
+              </View>
 
-            <View className="flex-row items-baseline justify-between">
-              <Text className="text-sm font-black text-text">
-                Total Payable
+              {discountAmount > 0 && (
+                <View className="mb-2 flex-row justify-between">
+                  <Text className="text-xs font-semibold text-emerald-600">
+                    Coupon Discount ({appliedCoupon?.code})
+                  </Text>
+                  <Text className="text-xs font-bold text-emerald-600">
+                    -₹{discountAmount.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+              <View className="my-2 border-t border-borderLight" />
+
+              <View className="flex-row items-baseline justify-between">
+                <Text className="text-sm font-black text-text">
+                  Total Payable
+                </Text>
+                <Text className="text-xl font-black text-primary">
+                  ₹{grandTotal.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Floating Bottom Place Order Bar */}
+        <View
+          className="absolute bottom-0 left-0 right-0 border-t border-borderLight bg-white px-5 pt-3 shadow-2xl"
+          style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+        >
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-[11px] font-semibold text-textSecondary">
+                Total Amount
               </Text>
               <Text className="text-xl font-black text-primary">
                 ₹{grandTotal.toFixed(2)}
               </Text>
             </View>
+
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+              className="flex-row items-center gap-2 rounded-2xl bg-primary px-7 py-3.5 shadow-md shadow-primary/30 active:opacity-90 disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <MaterialCommunityIcons
+                  name="check-circle-outline"
+                  size={20}
+                  color={colors.white}
+                />
+              )}
+              <Text className="text-base font-black text-white">
+                {isSubmitting ? "Placing Order..." : "Place Order"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
-
-      {/* Floating Bottom Place Order Bar */}
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t border-borderLight bg-white px-5 pt-3 shadow-2xl"
-        style={{ paddingBottom: Math.max(insets.bottom, 16) }}
-      >
-        <View className="flex-row items-center justify-between">
-          <View>
-            <Text className="text-[11px] font-semibold text-textSecondary">
-              Total Amount
-            </Text>
-            <Text className="text-xl font-black text-primary">
-              ₹{grandTotal.toFixed(2)}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-            className="flex-row items-center gap-2 rounded-2xl bg-primary px-7 py-3.5 shadow-md shadow-primary/30 active:opacity-90 disabled:opacity-60"
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <MaterialCommunityIcons
-                name="check-circle-outline"
-                size={20}
-                color={colors.white}
-              />
-            )}
-            <Text className="text-base font-black text-white">
-              {isSubmitting ? "Placing Order..." : "Place Order"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
       </View>
 
       {/* Saved Addresses Modal */}
