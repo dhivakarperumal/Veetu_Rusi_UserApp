@@ -1,5 +1,6 @@
 import api, { API_BASE_URL, isBotProtectionError } from "@/app/api";
 import AppHeader from "@/components/AppHeader";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import QuickViewModal from "@/components/QuickViewModal";
 import { colors } from "@/config/colors";
 import { useLocation } from "@/context/LocationContext";
@@ -673,8 +674,26 @@ export default function HomeScreen() {
           contentContainerStyle={{ paddingRight: 16 }}
         >
           {loading ? (
-            <View className="h-[148px] w-full items-center justify-center">
-              <ActivityIndicator color={colors.primary} />
+            <View className="flex-row">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <View
+                  key={`category-skeleton-${index}`}
+                  className="mr-3 h-[112px] items-center justify-center"
+                  style={{ width: categoryCardWidth }}
+                >
+                  <View
+                    className="rounded-full bg-grayLight"
+                    style={{
+                      width: categoryIconSize,
+                      height: categoryIconSize,
+                    }}
+                  />
+                  <View
+                    className="mt-2 h-3 rounded bg-grayLight"
+                    style={{ width: categoryCardWidth * 0.7 }}
+                  />
+                </View>
+              ))}
             </View>
           ) : (
             visibleCategories.map((category) => (
@@ -730,7 +749,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* Top Home Chef Section */}
-        {homeChefs.length > 0 && (
+        {(foodsLoading || homeChefs.length > 0) && (
           <View className="mt-5 px-4">
             <View className="mb-3 flex-row items-center justify-between">
               <Text className="mt-2 mb-2 text-[18px] font-black text-text">
@@ -755,7 +774,20 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="mb-4"
             >
-              {homeChefs.map((chef: Record<string, any>, idx: number) => (
+              {foodsLoading
+                ? Array.from({ length: 2 }).map((_, index) => (
+                    <View
+                      key={`chef-skeleton-${index}`}
+                      className="mr-3 items-center rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
+                      style={{ width: twoColumnCardWidth }}
+                    >
+                      <View className="h-[120px] w-[120px] rounded-full bg-grayLight" />
+                      <View className="mt-3 h-4 w-3/4 rounded bg-grayLight" />
+                      <View className="mt-2 h-3 w-1/2 rounded bg-grayLight" />
+                      <View className="mt-2 h-3 w-10 rounded bg-grayLight" />
+                    </View>
+                  ))
+                : homeChefs.map((chef: Record<string, any>, idx: number) => (
                 <Pressable
                   key={chef.id || chef.name || idx}
                   className="mr-3 overflow-hidden rounded-[16px] border border-border bg-white p-2 shadow-sm shadow-black/5"
@@ -798,7 +830,7 @@ export default function HomeScreen() {
                     </View>
                   </View>
                 </Pressable>
-              ))}
+                  ))}
             </ScrollView>
           </View>
         )}
@@ -832,9 +864,19 @@ export default function HomeScreen() {
           </View>
 
           {foodsLoading ? (
-            <View className="mb-4 h-[160px] items-center justify-center rounded-2xl bg-white">
-              <ActivityIndicator color={colors.primary} />
-            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {Array.from({ length: 2 }).map((_, index) => (
+                <ProductCardSkeleton
+                  key={`popular-skeleton-${index}`}
+                  imageHeight={86}
+                  style={{ width: twoColumnCardWidth, marginRight: 12 }}
+                />
+              ))}
+            </ScrollView>
           ) : foodsError ? (
             <View className="mb-4 rounded-2xl bg-white px-4 py-4">
               <Text className="font-semibold text-error">{foodsError}</Text>
@@ -993,26 +1035,36 @@ export default function HomeScreen() {
             Explore by Cuisine
           </Text>
           <View className="mt-3 flex-row flex-wrap justify-start">
-            {foodTypes.map((food) => (
-              <Pressable
-                key={food.name}
-                className="mb-3 w-1/3 items-center"
-                onPress={() => {
-                  router.push({
-                    pathname: "/(tabs)/food" as any,
-                    params: { search: food.name },
-                  });
-                }}
-              >
-                <Image
-                  source={{ uri: food.image }}
-                  className="h-[88px] w-[88px] rounded-[16px] border border-primary/20 bg-white p-1 shadow-sm"
-                />
-                <Text className="mt-2 text-[13px] font-bold text-text">
-                  {food.name}
-                </Text>
-              </Pressable>
-            ))}
+            {loading || foodsLoading
+              ? foodTypes.map((food) => (
+                  <View
+                    key={`cuisine-skeleton-${food.name}`}
+                    className="mb-3 w-1/3 items-center"
+                  >
+                    <View className="h-[88px] w-[88px] rounded-[16px] bg-grayLight" />
+                    <View className="mt-2 h-3 w-20 rounded bg-grayLight" />
+                  </View>
+                ))
+              : foodTypes.map((food) => (
+                  <Pressable
+                    key={food.name}
+                    className="mb-3 w-1/3 items-center"
+                    onPress={() => {
+                      router.push({
+                        pathname: "/(tabs)/food" as any,
+                        params: { search: food.name },
+                      });
+                    }}
+                  >
+                    <Image
+                      source={{ uri: food.image }}
+                      className="h-[88px] w-[88px] rounded-[16px] border border-primary/20 bg-white p-1 shadow-sm"
+                    />
+                    <Text className="mt-2 text-[13px] font-bold text-text">
+                      {food.name}
+                    </Text>
+                  </Pressable>
+                ))}
           </View>
         </View>
 
@@ -1071,7 +1123,17 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {offerFoods.length > 0 ? (
+          {foodsLoading ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {Array.from({ length: 2 }).map((_, index) => (
+                <ProductCardSkeleton
+                  key={`offer-skeleton-${index}`}
+                  imageHeight={112}
+                  style={{ width: twoColumnCardWidth, marginRight: 12 }}
+                />
+              ))}
+            </ScrollView>
+          ) : offerFoods.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -1387,9 +1449,27 @@ export default function HomeScreen() {
           </View>
 
           {reviewsLoading ? (
-            <View className="mb-4 h-[120px] items-center justify-center rounded-2xl bg-white">
-              <ActivityIndicator color={colors.primary} />
-            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-3"
+            >
+              {Array.from({ length: 2 }).map((_, index) => (
+                <View
+                  key={`review-skeleton-${index}`}
+                  className="mr-4 rounded-[16px] border border-border bg-white p-4"
+                  style={{ width: reviewCardWidth }}
+                >
+                  <View className="flex-row items-center">
+                    <View className="h-10 w-10 rounded-full bg-grayLight" />
+                    <View className="ml-3 h-4 w-24 rounded bg-grayLight" />
+                  </View>
+                  <View className="mt-3 h-3 w-20 rounded bg-grayLight" />
+                  <View className="mt-3 h-3 w-full rounded bg-grayLight" />
+                  <View className="mt-2 h-3 w-3/4 rounded bg-grayLight" />
+                </View>
+              ))}
+            </ScrollView>
           ) : reviewsError ? (
             <View className="mb-4 rounded-2xl bg-white px-4 py-4">
               <Text className="font-semibold text-error">{reviewsError}</Text>

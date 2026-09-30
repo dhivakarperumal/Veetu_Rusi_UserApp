@@ -1,6 +1,7 @@
 import api from "@/app/api";
 import AppHeader from "@/components/AppHeader";
 import ProductCard from "@/components/ProductCard";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import { colors } from "@/config/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, UserLocation } from "@/context/LocationContext";
@@ -552,10 +553,22 @@ export default function FoodScreen({
   if (loading) {
     return (
       <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="mt-3 text-sm text-text">Loading products...</Text>
-        </View>
+        <AppHeader title="Food" />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerClassName="p-3"
+        >
+          <View
+            className="flex-row flex-wrap justify-between"
+            style={{ rowGap: 12, columnGap: 12 }}
+          >
+            {Array.from({ length: 6 }).map((_, index) => (
+              <View key={`product-skeleton-${index}`} className="w-[48%]">
+                <ProductCardSkeleton imageHeight={120} />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
