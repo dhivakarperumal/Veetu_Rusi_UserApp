@@ -60,19 +60,20 @@ export default function AboutScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      {/* Header */}
-      <View className="flex-row items-center border-b border-borderLight bg-white px-[18px] py-3">
+    <View className="flex-1 bg-primary" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-backgroundAlt">
+        {/* Header */}
+        <View className="flex-row items-center bg-primary px-[18px] py-3">
         <Pressable
           accessibilityLabel="Go back"
-          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray active:bg-grayDark/20"
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-white active:bg-grayLight"
           hitSlop={8}
           onPress={() => router.back()}
         >
-          <MaterialCommunityIcons name="arrow-left" size={22} color="#1F2937" />
+          <MaterialCommunityIcons name="arrow-left" size={22} color={colors.black} />
         </Pressable>
-        <Text className="text-[20px] font-bold text-text">About Us</Text>
-      </View>
+          <Text className="text-[20px] font-bold text-white">About Us</Text>
+        </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -271,6 +272,7 @@ export default function AboutScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </View>
     </View>
   );
 }

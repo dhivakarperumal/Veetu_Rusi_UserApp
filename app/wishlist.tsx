@@ -5,14 +5,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    RefreshControl,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  RefreshControl,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -340,199 +340,199 @@ export default function WishlistScreen() {
       <View className="flex-1 bg-backgroundAlt">
         {/* Header */}
         <View className="flex-row items-center justify-between bg-primary px-4 py-3">
-        <View className="flex-row items-center">
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
+              onPress={() => router.back()}
+              hitSlop={8}
+            >
+              <MaterialCommunityIcons
+                name="arrow-left"
+                size={22}
+                color={colors.black}
+              />
+            </TouchableOpacity>
+
+            <View>
+              <Text className="text-[18px] font-extrabold text-white">
+                Wishlist
+              </Text>
+              <Text className="text-[11px] font-semibold text-white/80">
+                {wishlist.length} {wishlist.length === 1 ? "item" : "items"}
+              </Text>
+            </View>
+          </View>
+
           <TouchableOpacity
-            className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
-            onPress={() => router.back()}
+            className="relative h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
+            onPress={() => router.push("/(tabs)/cart")}
             hitSlop={8}
           >
             <MaterialCommunityIcons
-              name="arrow-left"
+              name="cart-outline"
               size={22}
               color={colors.black}
             />
+            {cartCount > 0 && (
+              <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primaryDark px-1">
+                <Text className="text-[10px] font-black text-white">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
-
-          <View>
-            <Text className="text-[18px] font-extrabold text-white">
-              Wishlist
-            </Text>
-            <Text className="text-[11px] font-semibold text-white/80">
-              {wishlist.length} {wishlist.length === 1 ? "item" : "items"}
-            </Text>
-          </View>
         </View>
-
-        <TouchableOpacity
-          className="relative h-10 w-10 items-center justify-center rounded-full bg-white active:bg-grayLight"
-          onPress={() => router.push("/(tabs)/cart")}
-          hitSlop={8}
-        >
-          <MaterialCommunityIcons
-            name="cart-outline"
-            size={22}
-            color={colors.black}
-          />
-          {cartCount > 0 && (
-            <View className="absolute -right-1 -top-1 min-w-[17px] h-[17px] items-center justify-center rounded-full bg-primaryDark px-1">
-              <Text className="text-[10px] font-black text-white">
-                {cartCount > 99 ? "99+" : cartCount}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
 
         {/* Main Content */}
         {loadingWishlist && wishlist.length === 0 ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text className="mt-3 text-sm text-textSecondary">
-            Loading your favorites...
-          </Text>
-        </View>
-      ) : wishlist.length === 0 ? (
-        /* Empty State */
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-            <MaterialCommunityIcons
-              name="heart-outline"
-              size={52}
-              color={colors.primary}
-            />
-          </View>
-          <Text className="text-center text-[20px] font-extrabold text-text">
-            Your Wishlist is Empty
-          </Text>
-          <Text className="mt-2 text-center text-[13px] leading-relaxed text-textSecondary">
-            Explore delicious authentic home dishes and tap the heart icon to
-            save your favorites here!
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)/food")}
-            className="mt-6 flex-row items-center gap-2 rounded-2xl bg-primary px-7 py-3.5 shadow-md shadow-primary/30 active:opacity-90"
-          >
-            <MaterialCommunityIcons
-              name="silverware-fork-knife"
-              size={18}
-              color={colors.white}
-            />
-            <Text className="text-base font-bold text-white">
-              Explore Dishes
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text className="mt-3 text-sm text-textSecondary">
+              Loading your favorites...
             </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        /* List of Wishlisted Items */
-        <View className="flex-1">
-          <View className="mx-4 mt-3 flex-row items-center rounded-xl border border-borderLight bg-white px-3">
-            <MaterialCommunityIcons
-              name="magnify"
-              size={20}
-              color={colors.textSecondary}
-            />
-            <TextInput
-              className="h-12 flex-1 px-2 text-[13px] text-text"
-              placeholder="Search wishlist..."
-              placeholderTextColor={colors.textSecondary}
-              value={search}
-              onChangeText={setSearch}
-            />
-            {search ? (
-              <TouchableOpacity onPress={() => setSearch("")} hitSlop={8}>
+          </View>
+        ) : wishlist.length === 0 ? (
+          /* Empty State */
+          <View className="flex-1 items-center justify-center px-6">
+            <View className="mb-4 h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+              <MaterialCommunityIcons
+                name="heart-outline"
+                size={52}
+                color={colors.primary}
+              />
+            </View>
+            <Text className="text-center text-[20px] font-extrabold text-text">
+              Your Wishlist is Empty
+            </Text>
+            <Text className="mt-2 text-center text-[13px] leading-relaxed text-textSecondary">
+              Explore delicious authentic home dishes and tap the heart icon to
+              save your favorites here!
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)/food")}
+              className="mt-6 flex-row items-center gap-2 rounded-2xl bg-primary px-7 py-3.5 shadow-md shadow-primary/30 active:opacity-90"
+            >
+              <MaterialCommunityIcons
+                name="silverware-fork-knife"
+                size={18}
+                color={colors.white}
+              />
+              <Text className="text-base font-bold text-white">
+                Explore Dishes
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          /* List of Wishlisted Items */
+          <View className="flex-1">
+            <View className="mx-4 mt-3 flex-row items-center rounded-xl border border-borderLight bg-white px-3">
+              <MaterialCommunityIcons
+                name="magnify"
+                size={20}
+                color={colors.textSecondary}
+              />
+              <TextInput
+                className="h-12 flex-1 px-2 text-[13px] text-text"
+                placeholder="Search wishlist..."
+                placeholderTextColor={colors.textSecondary}
+                value={search}
+                onChangeText={setSearch}
+              />
+              {search ? (
+                <TouchableOpacity onPress={() => setSearch("")} hitSlop={8}>
+                  <MaterialCommunityIcons
+                    name="close-circle"
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+
+            <View className="mx-4 mt-3 flex-row self-end rounded-lg border border-borderLight bg-white p-1">
+              <TouchableOpacity
+                accessibilityLabel="Card view"
+                onPress={() => setViewMode("card")}
+                className={`flex-row items-center rounded-md px-2.5 py-1.5 ${
+                  viewMode === "card" ? "bg-primary" : ""
+                }`}
+              >
                 <MaterialCommunityIcons
-                  name="close-circle"
-                  size={18}
-                  color={colors.textSecondary}
+                  name="view-grid-outline"
+                  size={16}
+                  color={viewMode === "card" ? colors.white : colors.text}
                 />
+                <Text
+                  className={`ml-1 text-[11px] font-bold ${
+                    viewMode === "card" ? "text-white" : "text-text"
+                  }`}
+                >
+                  Card
+                </Text>
               </TouchableOpacity>
-            ) : null}
-          </View>
-
-          <View className="mx-4 mt-3 flex-row self-end rounded-lg border border-borderLight bg-white p-1">
-            <TouchableOpacity
-              accessibilityLabel="Card view"
-              onPress={() => setViewMode("card")}
-              className={`flex-row items-center rounded-md px-2.5 py-1.5 ${
-                viewMode === "card" ? "bg-primary" : ""
-              }`}
-            >
-              <MaterialCommunityIcons
-                name="view-grid-outline"
-                size={16}
-                color={viewMode === "card" ? colors.white : colors.text}
-              />
-              <Text
-                className={`ml-1 text-[11px] font-bold ${
-                  viewMode === "card" ? "text-white" : "text-text"
+              <TouchableOpacity
+                accessibilityLabel="List view"
+                onPress={() => setViewMode("table")}
+                className={`ml-1 flex-row items-center rounded-md px-2.5 py-1.5 ${
+                  viewMode === "table" ? "bg-primary" : ""
                 }`}
               >
-                Card
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              accessibilityLabel="List view"
-              onPress={() => setViewMode("table")}
-              className={`ml-1 flex-row items-center rounded-md px-2.5 py-1.5 ${
-                viewMode === "table" ? "bg-primary" : ""
-              }`}
-            >
-              <MaterialCommunityIcons
-                name="view-list-outline"
-                size={16}
-                color={viewMode === "table" ? colors.white : colors.text}
-              />
-              <Text
-                className={`ml-1 text-[11px] font-bold ${
-                  viewMode === "table" ? "text-white" : "text-text"
-                }`}
-              >
-                Table
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <FlatList
-            data={filteredWishlist}
-            numColumns={viewMode === "card" ? 2 : 1}
-            key={viewMode}
-            columnWrapperStyle={
-              viewMode === "card"
-                ? { justifyContent: "space-between" }
-                : undefined
-            }
-            keyExtractor={(item, index) =>
-              String(item.product_id || item.id || item._id || index)
-            }
-            renderItem={renderItem}
-            contentContainerClassName="p-4 pb-12"
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <View className="items-center justify-center py-16">
                 <MaterialCommunityIcons
-                  name="magnify-close"
-                  size={42}
-                  color={colors.grayDark}
+                  name="view-list-outline"
+                  size={16}
+                  color={viewMode === "table" ? colors.white : colors.text}
                 />
-                <Text className="mt-3 text-base font-bold text-text">
-                  No wishlist items found
+                <Text
+                  className={`ml-1 text-[11px] font-bold ${
+                    viewMode === "table" ? "text-white" : "text-text"
+                  }`}
+                >
+                  Table
                 </Text>
-                <Text className="mt-1 text-center text-xs text-textSecondary">
-                  Try a different product, chef, or category name.
-                </Text>
-              </View>
-            }
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[colors.primary]}
-                tintColor={colors.primary}
-              />
-            }
-          />
-        </View>
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={filteredWishlist}
+              numColumns={viewMode === "card" ? 2 : 1}
+              key={viewMode}
+              columnWrapperStyle={
+                viewMode === "card"
+                  ? { justifyContent: "space-between" }
+                  : undefined
+              }
+              keyExtractor={(item, index) =>
+                String(item.product_id || item.id || item._id || index)
+              }
+              renderItem={renderItem}
+              contentContainerClassName="p-4 pb-12"
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View className="items-center justify-center py-16">
+                  <MaterialCommunityIcons
+                    name="magnify-close"
+                    size={42}
+                    color={colors.grayDark}
+                  />
+                  <Text className="mt-3 text-base font-bold text-text">
+                    No wishlist items found
+                  </Text>
+                  <Text className="mt-1 text-center text-xs text-textSecondary">
+                    Try a different product, chef, or category name.
+                  </Text>
+                </View>
+              }
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[colors.primary]}
+                  tintColor={colors.primary}
+                />
+              }
+            />
+          </View>
         )}
       </View>
     </SafeAreaView>
